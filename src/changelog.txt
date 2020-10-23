@@ -1,0 +1,15 @@
+---------------------------------------------------------------------------------------------------
+Version: 1.0.1
+Date: 2020-10-23
+  Bugfixes:
+    - fix crash in Log.onSettingsChanged
+---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: 2020-10-21
+  Features:
+    - Log
+    - Modules
+    - FlyingText
+    - lua extension: iif, switch, try catch, 
+  Info:
+    - firt public version
