@@ -12,6 +12,9 @@
 		"session",
 		"modules",
 		"serpent",
-		"try"
+		"try",
+		"log",
+		"safeget",
+		"safeset"
 	]
 }

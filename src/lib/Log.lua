@@ -1,46 +1,83 @@
+require "Modules"
+require "Table"
+
+if log == nil then log = function () --[[dummy]] end end -- fallback if not running in Factorio
+
 local this = nil
 
-local getIsEnabled = function ()
+local getIsLogEnabled = function ()
 	local entry = settings.global[script.mod_name.."_EnableLog"]
 	if entry == nil then return false end
 	return entry.value
 end
 
---- deterministic data of log module
-local data = {
-	isEnabled = false
+local getIsConsoleEnabled = function ()
+	local entry = settings.global[script.mod_name.."_EnableConsole"]
+	if entry == nil then return false end
+	return entry.value
+end
+
+local update = function (data)
+	data.isLogEnabled     = getIsLogEnabled()
+	data.isConsoleEnabled = getIsConsoleEnabled()
+	data.isEnabled        = data.isLogEnabled and data.isConsoleEnabled
+end
+
+local data_prototype = {
+	dataVersion      = 2,
+	isLogEnabled     = false,
+	isConsoleEnabled = false,
+	isEnabled        = false,
 }
 
+--- deterministic data of Log module
+local data = {}
+
 --- Log module
--- @module log
+-- @module Log
 Log = {
 	tableName = "Log",
 	guid      = "{93D539EB-D2F8-41C8-9BAB-44CFDFE67F00}",
 	origin    = "Kux-CoreLib/lib/Log.lua",
 
 	on_init = function ()
-		--log("Kux-Corelib.Log.on_init")		
-		data = global.moduleData.log or data
-		data.isEnabled = getIsEnabled()
+		--log("Kux-Corelib.Log.on_init")
+		global.moduleData = global.moduleData or {}
+		data = Table.migrate(global.moduleData.Log or {}, data_prototype)
+		update(data)
+		global.moduleData.Log = data
 	end,
 
 	on_load = function ()
 		--log("Kux-Corelib.Log.on_load")
-		data = global.moduleData.log --[[???]] or data
+		if not global.moduleData or not global.moduleData.Log then
+			data = Table.migrate({}, data_prototype)
+			update(data)
+		else
+			data = global.moduleData.Log
+		end
 	end,
 
 	on_configuration_changed = function ()
 		--log("Kux-Corelib.Log.on_configuration_changed")
-		data = global.moduleData.log or data
+		global.moduleData = global.moduleData or {}
+		global.moduleData.log = nil -- MIGRATION remove field uded by previous version
+		data = Table.migrate(global.moduleData.Log or {}, data_prototype)
+		update(data)
+		global.moduleData.Log = data
 	end,
 
 	on_runtime_mod_setting_changed = function (e)
 		--log("Kux-Corelib.Log.on_runtime_mod_setting_changed")
+		global.moduleData = global.moduleData or {}
+		data = Table.migrate(global.moduleData.Log or {}, data_prototype)
+		update(data)
+		global.moduleData.Log = data
 		this.onSettingsChanged(e)
 	end,
 
 	onSettingsChanged = function()
-		data.isEnabled = getIsEnabled()
+		update(data)
 	end,
 
 	joinArgs = function (...)
@@ -54,7 +91,8 @@ Log = {
 	end,
 
 	trace = function(...)
-		if not data.isEnabled then return end
+		if not data or not data.isEnabled then return end
+
 		local msg = script.mod_name..": "
 		for i = 1, select("#",...) do
 			local v = select(i,...)
@@ -62,11 +100,12 @@ Log = {
 			else v = tostring(v) end
 			msg = msg .. v
 		end
-		print(msg)
+		if data.isConsoleEnabled then print(msg) end
+		if data.isLogEnabled then log(msg) end
 	end,
 
 	print = function(...)
-		if not data.isEnabled then return end
+		if not data or not data.isEnabled then return end
 
 		local msg = ""
 		for i = 1, select("#",...) do
@@ -75,11 +114,15 @@ Log = {
 			else v = tostring(v) end
 			msg = msg .. v
 		end
-		print(msg)
+		if data.isConsoleEnabled then print(msg) end
+		if data.isLogEnabled then log(msg) end
 	end,
 
+	-- TODO use current player and not always player 1
+	-- userXyz outputs a message to the current user (and if enabled to console and log)
+
 	userTrace = function(...)
-		if not data.isEnabled then return end
+		if not data or not data.isEnabled then return end
 
 		local msg = ""
 		for i = 1, select("#",...) do
@@ -88,11 +131,13 @@ Log = {
 			else v = tostring(v) end
 			msg = msg .. v
 		end
+		if data.isConsoleEnabled then print(msg) end
+		if data.isLogEnabled then log(msg) end
 		game.get_player(1).print(msg, {r = 0.7, g = 0.7, b = 0.7, a = 1})
 	end,
 
 	userWarning = function(...)
-		if not data.isEnabled then return end
+		if not data or not data.isEnabled then return end
 
 		local msg = ""
 		for i = 1, select("#",...) do
@@ -101,11 +146,13 @@ Log = {
 			else v = tostring(v) end
 			msg = msg .. v
 		end
+		if data.isConsoleEnabled then print(msg) end
+		if data.isLogEnabled then log(msg) end
 		game.get_player(1).print(msg, {r = 1, g = 1, b = 0, a = 1})
 	end,
 
 	userError = function(...)
-		if not data.isEnabled then return end
+		if not data or not data.isEnabled then return end
 
 		local msg = ""
 		for i = 1, select("#",...) do
@@ -114,6 +161,8 @@ Log = {
 			else v = tostring(v) end
 			msg = msg .. v
 		end
+		if data.isConsoleEnabled then print(msg) end
+		if data.isLogEnabled then log(msg) end
 		game.get_player(1).print(msg, {r = 1, g = 0, b = 0, a = 1})
 	end,
 }
