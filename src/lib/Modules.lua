@@ -1,32 +1,28 @@
---'require' should load a file only once but does not! BUG?
---Tested... definitive loaded more as ones.
-if Modules ~= nil and Modules.guid ~= "{7DB9693F-91FE-406A-9090-0797F785D8F5}" then 
-	error("A conflicting global variable 'Modules' is already definied!".."\n"..serpent.block(Modules))
+if Modules then
+    if Modules["guid"] == "{7DB9693F-91FE-406A-9090-0797F785D8F5}" then return Modules end
+    error("A global Modules class already exist.")
 end
 
---- Modules module
--- @module Modules
-Modules = Modules or {
+--- Modules class
+---@class Modules
+Modules = {
 	tableName = "Modules",
 	guid      = "{7DB9693F-91FE-406A-9090-0797F785D8F5}",
 	origin    = "Kux-CoreLib/lib/Modules.lua",
 }
---Modules.instanceId = Modules.instanceId + 1 --should be always 1, but is not! BUG?
---if Modules.instanceId>1 then error("Ooooohhh somthing wrong here!") end
---definitive a BUG, loaded more as once
 
-Modules.call = function (method, ...)
-	--log("Kux-Corelib.Modules.call "..method.." ...")
+function Modules.call(method, ...)
+	--log("call "..method.." ...")
 	for name, member in pairs(Modules) do
 		if type(member) ~= "table" then goto next end
 		if name == "data" then goto next end
 		local module = member
-		if module[method] then module[method](...) end
+		if module[method] and type(module[method])=="function" then module[method](...) end
 		::next::
     end
 end
 
-local initGlobals = function()
+local function initGlobals()
 	global.moduleData = global.moduleData or {
 		tableName = "global.moduleData",
 		guid      = "{87DB96EF-16E8-4A92-B30C-182C9CEBBCA9}",
@@ -34,21 +30,21 @@ local initGlobals = function()
 	}
 end
 
-Modules.on_init = function ()
+function Modules.on_init()
 	initGlobals()
 	Modules.call('on_init')
 end
 
-Modules.on_load = function ()
+function Modules.on_load()
 	Modules.call('on_load')
 end
 
-Modules.on_configuration_changed = function (e)
+function Modules.on_configuration_changed(e)
 	initGlobals()
 	Modules.call('on_configuration_changed', e)
 end
 
-Modules.onLoaded = function ()
+function Modules.onLoaded ()
 	Modules.call('onLoaded')
 end
 

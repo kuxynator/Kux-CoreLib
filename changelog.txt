@@ -1,4 +1,26 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.4.0
+Date: 2023-05-15
+  Features:
+    - ADD Version.baseVersionGreaterOrEqual1d1
+  Changes:
+    - add mod.lua
+---------------------------------------------------------------------------------------------------
+Version: 2.3.0
+Date: 2023-05-11
+  Features:
+    - ADD Table.diff, Table.removeEmptyTablesRecursive, Table.toJson
+    - ADD String.isNilOrEmpty, String.isNilOrWhitespace
+---------------------------------------------------------------------------------------------------
+Version: 2.2.0
+  Features:
+    - ADD ColorConverter
+---------------------------------------------------------------------------------------------------
+Version: 2.1.0
+Date: 2020-11-24
+  Info:
+    - v2.x.x scheme is for Factorio 1.1 (experimental)
+---------------------------------------------------------------------------------------------------
 Version: 1.1.0
 Date: 2020-10-26
   Features:

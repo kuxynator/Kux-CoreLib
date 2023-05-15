@@ -1,5 +1,5 @@
---- Colors module
--- @module colors
+---Color constants
+---@class Colors Provides color constants
 Colors = {
 	white = {r = 1, g = 1, b = 1},
 	lightgrey = {r = 0.75, g = 0.75, b = 0.75},
@@ -22,3 +22,4 @@ Colors = {
 	purple = {r = 0.6, g = 0.1, b = 0.6},
 	cyan = {r = 0, g = 1, b = 1},
 }
+

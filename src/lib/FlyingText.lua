@@ -3,8 +3,8 @@ local function posOffset( pos, offset )
 	return { x=pos.x + offset.x, y=pos.y + offset.y }
 end
 
---- flying-text module
--- @module flyingText
+---flying-text
+---@class FlyingText
 FlyingText = {
 	moduleName ="FlyingText",
 	guid       = "{8BFF3C82-2A4F-41F8-A7B3-C2969A741749}",

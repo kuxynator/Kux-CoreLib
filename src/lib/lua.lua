@@ -1,26 +1,52 @@
-print("Load lib.lua")
-function iif(condition, p0, p1)
+---@diagnostic disable: lowercase-global
+
+---iif
+---@param condition boolean
+---@param trueValue any
+---@param falseValue any
+---@return any
+function iif(condition, trueValue, falseValue)
+	local retValue
 	if condition then
-		return p0
+		retValue = trueValue
 	else
-		return p1
+		retValue = falseValue
 	end
+
+	if type(retValue) =="function" then
+		retValue = retValue()
+	end
+
+	return retValue
 end
 
+---try/catch/finaly
+---@param f function
+---@param catch_f? function
+---@param finally_f? function
 function try(f, catch_f, finally_f)
 	local status, exception = pcall(f)
-	if not status then
+	if not status and catch_f then
 		catch_f(exception)
 	end
 	if finally_f then finally_f() end
 end
 
+---switch
+---@param key string|integer
+---@param dictionary table
+---@param default any
+---@return any
 function switch(key, dictionary, default)
 	local v = dictionary[key]
 	if v == nil then return default end
 	return v
 end
 
+---switch
+---@param key string|integer
+---@param ... unknown
+---@return any
 function switchp(key, ...)
 	local dic = {}
 	local count = select("#",...)
@@ -37,8 +63,9 @@ function switchp(key, ...)
 	return switch(key,dic,default)
 end
 
---- safe get accessor
--- Usage: value = safeget(obj,"fieldA","fieldB") equivalent to obj.fieldA.fieldB, but w/o error if a field is nil
+---safe get accessor
+---@param ... any path fragmnents
+---Usage: value = safeget(obj,"fieldA","fieldB") equivalent to obj.fieldA.fieldB, but w/o error if a field is nil
 function safeget(...)
 	local o, p
 	local c = select("#",...)
@@ -50,9 +77,8 @@ function safeget(...)
 	end
 end
 
---- safe set accessor
--- Usage: safeset(obj,"fieldA","fieldB", newValue) equivalent to obj.fieldA.fieldB = newValue, but w/o error if a field is nil
--- missing fields are created as tables.
+---safe set accessor
+---@param ... any path framents, last parameter is the value to set
 function safeset(...)
 	local p = nil
 	local o = select(1,...)
