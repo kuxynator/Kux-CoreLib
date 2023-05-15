@@ -11,3 +11,5 @@ Version.baseVersionGreaterOrEqual1d1 = function ()
 	if String.startsWith(v,"1.0") then return false end
 	return true
 end
+
+return Version
