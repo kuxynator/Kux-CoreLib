@@ -1,4 +1,4 @@
-require(KuxCoreLibPath.."Assert")
+require("__Kux-CoreLib__/lib/Assert")
 
 --from Kux-ModExport
 --usage:
@@ -10,7 +10,7 @@ require(KuxCoreLibPath.."Assert")
 		::continue::
 	end
 ]]
----class FileWriter
+---@class FileWriter
 FileWriter = {}
 
 FileWriter.flagAppend = false
@@ -24,7 +24,7 @@ FileWriter.create = function(file, playerId)
 
 	local instance = {}
 	instance.this = instance
-	
+
 	instance.writeField = function (obj, fieldName)
 		game.write_file(FileWriter.file, "\""..fieldName.."\": "..toJsonValue(obj[fieldName]), FileWriter.flagAppend, FileWriter.playerId)
 		FileWriter.flagAppend = true

@@ -31,8 +31,8 @@ Assert = {
         Not = {}
     }
 }
--- to avoid circular references, the class is defined before require other modules
-require(KuxCoreLibPath.."Table")
+-- to avoid circular references, the class MUST be defined before require other modules
+require("__Kux-CoreLib__/lib/Table")
 
 ---raises an error if value is nil
 ---@param name string

@@ -23,3 +23,4 @@ Colors = {
 	cyan = {r = 0, g = 1, b = 1},
 }
 
+return Colors

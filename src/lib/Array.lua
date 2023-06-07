@@ -16,8 +16,9 @@ Array = {
 }
 
 -- to avoid circular references, the class is defined before require other modules
-require(KuxCoreLibPath.."Assert")
-require(KuxCoreLibPath.."String")
+require("__Kux-CoreLib__/lib/Assert")
+require("__Kux-CoreLib__/lib/String")
+require("__Kux-CoreLib__/lib/Table")
 
 ---Creates a new array
 ---@param values any[]
@@ -53,3 +54,5 @@ function Array:removeAt(index)
 	table.remove(self, index)
 	self.length = self.length - 1
 end
+
+return Array

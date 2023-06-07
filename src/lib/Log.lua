@@ -11,9 +11,10 @@ Log = {
 	origin    = "Kux-CoreLib/lib/Log.lua"
 }
 
--- to avoid circular references, the class is defined before require other modules
-require(KuxCoreLibPath.."Modules")
-require(KuxCoreLibPath.."Table")
+-- to avoid circular references, the class MUST be defined before require other modules
+
+require("__Kux-CoreLib__/lib/Modules")
+require("__Kux-CoreLib__/lib/Table")
 
 if log == nil then log = function (s) --[[dummy]] end end -- fallback if not running in Factorio
 

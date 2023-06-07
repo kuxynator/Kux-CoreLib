@@ -12,10 +12,10 @@ Table = {
 	origin    = "Kux-CoreLib/lib/Table.lua",
 }
 
--- to avoid circular references, the class is defined before require other modules
-require(KuxCoreLibPath.."Assert")
-require(KuxCoreLibPath.."String")
+-- to avoid circular references, the class MUST be defined before require other modules
 
+require("__Kux-CoreLib__/lib/Assert")
+require("__Kux-CoreLib__/lib/String")
 
 ---Gets all values.
 ---@param t table
@@ -269,13 +269,16 @@ end
 
 
 ---Migrates values of a prototype with higher version into a (outdated) table
----@param t table
----@param prototype table
+---@param t table The table to update
+---@param prototype table The prototype
+---@param versionField string? name of version field. default = "dataVersion"
 ---@return table
-Table.migrate = function (t, prototype)
+function Table.migrate(t, prototype, versionField)
 	assert(Assert.Argument.IsNotNil(t,"t"))
 	assert(t~=prototype, "Argument 'prototype' must not be the same value as 't'!")
-	if t.dataVersion == prototype.dataVersion then return t end
+	versionField = "dataVersion"
+	if(not prototype.dataVersion and prototype.version) then versionField = "version" end -- for compatibility
+	if t[versionField] == prototype[versionField] then return t end
 
 	-- remove orphaned members
 	for n, v in pairs(t) do if prototype[n] == nil then t[n] = nil end end
@@ -287,7 +290,7 @@ Table.migrate = function (t, prototype)
 		end
 		::next::
 	end
-	t.dataVersion = prototype.dataVersion
+	t[versionField] = prototype[versionField]
 	return t
 end
 
@@ -492,6 +495,7 @@ function Table.toJson(t)
 	--BUGFIX for game.table_to_json
 	json=string.gsub(json,"%:inf",":\"#inf\"")
 	json=string.gsub(json,"%:%-inf",":\"-#inf\"")
+	return json
 end
 
 function Table.countEntries_DRAFT(t)
@@ -551,5 +555,8 @@ function Table.hasIndices(t)
 	end
 	return false
 end
+
+---@deprecated Use List, Array or Dictionary
+function Table.isNilOrEmpty(t) return not t or #t==0 end
 
 return Table

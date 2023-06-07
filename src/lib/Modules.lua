@@ -11,6 +11,9 @@ Modules = {
 	origin    = "Kux-CoreLib/lib/Modules.lua",
 }
 
+---Calls a mthod in each module
+---@param method string Name of the method to call.
+---@param ... unknown
 function Modules.call(method, ...)
 	--log("call "..method.." ...")
 	for name, member in pairs(Modules) do

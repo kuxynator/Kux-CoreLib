@@ -1,9 +1,8 @@
-log("String")
 if (String and String.guid~="{0E8BBFAF-73EF-4209-9774-B2CD6A13A296}") then
     local t = {}
     for name, value in pairs(String) do table.insert(t,"  "..name.." ("..type(value)..")") end
     log("dump String: \n{\n"..table.concat(t,"\n").."\n}")
-    error("A global String class already exist. "..tostring(String))
+    error("A global String class already exist.")
 end
 
 ---Provides string functions

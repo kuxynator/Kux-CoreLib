@@ -3,6 +3,25 @@ local function posOffset( pos, offset )
 	return { x=pos.x + offset.x, y=pos.y + offset.y }
 end
 
+local function localiseString(text)
+	if(type(text)~="table") then return text end
+	local flattenedTable = {""}
+
+	local function flatten(tbl)
+		for _, value in ipairs(tbl) do
+			if type(value) == "table" then
+				flatten(value)
+			elseif(value=="") then
+				--skip empty string
+			else
+				table.insert(flattenedTable, value)
+			end
+		end
+	end
+	flatten(text)
+	return flattenedTable
+end
+
 ---flying-text
 ---@class FlyingText
 FlyingText = {
@@ -20,5 +39,4 @@ FlyingText = {
 	end
 }
 
-Modules.flyingText = FlyingText
 return FlyingText

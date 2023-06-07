@@ -1,72 +1,237 @@
---from Kux-Modifications
+--[[
+	Usage:
+	[control.lua]	
+	require "ModulA"
+
+	[ModuleA.lua]
+	local EventDistributor = require("__Kux-CoreLib__/lib/EventDistributor")
+	local function handler(evt) ... end
+	EventDistributor.register(80, handler)
+	EventDistributor.register("on_init", handler)
+]]
+---@class EventDistributor
+EventDistributor = {
+	tableName = "EventDistributor",
+	guid      = "{ADD81DB1-53B9-4D61-9279-401AD277DBEE}",
+	origin    = "Kux-CoreLib/lib/EventDistributor.lua",
+}
+
+-- to avoid circular references, the class MUST be defined before require other modules
+
+require("__Kux-CoreLib__/lib/lua")
+require("__Kux-CoreLib__/lib/Table")
+require("__Kux-CoreLib__/lib/List")
+
+---Dictionary of EventId|EventName, table of function
+local events={}
+
+local isOnLoadedRaised = false
+
 local mapEventNumnerToName = {}
 for name, value in pairs(defines.events) do
 	mapEventNumnerToName[value] = name
 end
 
-EventDistributor = EventDistributor or {}
-
-EventDistributor.on_init = EventDistributor.on_init or {}
-EventDistributor.on_configuration_changed = EventDistributor.on_configuration_changed or {}
-EventDistributor.onLoaded = EventDistributor.onLoaded or {} --custom event, one time 60 ticks after on_load/on_init
-
-local eventPair
-eventPair = function (event)
+---Get name and id of an event
+---@param eventIdentifier any
+---@return string
+---@return uint
+local function eventPair (eventIdentifier)
 	::start::
 	local eventName = nil
-	local eventId = nil	
-	local eventType = type(event)
+	local eventId = nil
+	local eventType = type(eventIdentifier)
 	if eventType == "number" then
-		eventName = mapEventNumnerToName[event] --possible nil TODO
-		eventId = event
+		eventName = mapEventNumnerToName[eventIdentifier]
+		eventId = eventIdentifier
 	elseif eventType == "string" then
-		eventName = event
-		eventId = defines.events[event] -- possible nil TODO
+		eventName = eventIdentifier
+		eventId = defines.events[eventIdentifier]
+		--if eventId==nil then eventId = 0 end -- "on_init" "on_load" "on_configuration_changed", o.a.
 	elseif eventType == "table" then
-		event = event.name
+		eventIdentifier = eventIdentifier.name
 		goto start
 	end
 	return eventName, eventId
 end
 
-local getEventDisplayName = function (event)
-	local eventName, eventId = eventPair(event)
-	return tostring(eventName).."("..tostring(eventId)..")"
+---Registers an custom event name with its id
+---@param id integer number of the custom event
+---@param name string name of the custom event
+function EventDistributor.registerName(id,name)
+	mapEventNumnerToName[id]=name
 end
 
-EventDistributor.raise = function (e)
-	local eventName, eventId = eventPair(e.name)
-	print("EventDistributor.raise "..getEventDisplayName(e.name))
-	local handler = EventDistributor[e.name] -- TODO e.name is always a number?
+local function getDisplayName(event)
+	local eventName, eventId = eventPair(event)
+	if(not eventId or eventId==0) then
+		return eventName or "unknown"
+	else
+		return (eventName or "custom").."("..tostring(eventId)..")"
+	end
+end
+
+EventDistributor.getDisplayName=getDisplayName
+
+local function on_init()
+	--print("EventDistributor.on_init")
+	local handler = events["on_init"]
+	for _,fnc in pairs(handler) do fnc() end
+end
+
+local function on_load()
+	--print("EventDistributor.on_load")
+	local handler = events["on_load"]
+	for _,fnc in pairs(handler) do fnc() end
+end
+
+local function on_configuration_changed(e)
+	--print("EventDistributor.on_configuration_changed")
+	local handler = events["on_configuration_changed"]
 	for _,fnc in pairs(handler) do fnc(e) end
 end
 
-EventDistributor.register = function (event, fnc)
-	print("EventDistributor.register "..getEventDisplayName(event))
-	local eventName, eventId = eventPair(event)
-	if not EventDistributor[eventId] then EventDistributor[eventId] = {fnc}
-	else table.insert(EventDistributor[eventId], fnc) end
-end
-
-local isLoadRaised = false
-EventDistributor.init = function ()
-	print("EventDistributor.init")
-
-	script.on_nth_tick(60,function (e)
-		if isLoadRaised == false then
-			isLoadRaised = true
-			for _,fnc in pairs(EventDistributor.onLoaded) do fnc(e) end
-		end
-	end)
-
-	for key, value in pairs(EventDistributor) do
-		if key=="init" or  key=="raise" or  key=="register" then goto next end
-		if type(key)=="number" then
-			print("script.on_event "..getEventDisplayName(key))
-			script.on_event(key, EventDistributor.raise)
-		else
-			print("script.on_event "..key .. " is not a number. skipped.")
-		end
-		::next::
+local function on_nth_tick(e)
+	--print("EventDistributor.raise_on_nth_tick "..e.nth_tick)
+	local handler = events["on_nth_tick"][e.nth_tick]
+	if(handler) then
+		for _,fnc in pairs(handler) do fnc(e) end
 	end
 end
+
+local function on_loaded(e)
+	--print("raise_on_loaded")
+	if(isOnLoadedRaised) then return end
+
+	local handler = events.on_loaded
+	if(handler) then
+		for _,fnc in pairs(handler) do fnc(e) end
+	end
+
+	--print("set isLoadRaised=true")
+	isOnLoadedRaised = true
+	events["on_loaded"] = {}
+	EventDistributor.unregister_on_nth_tick(e.nth_tick, on_loaded)
+end
+
+local function on_event(e)
+	--print("raise "..getDisplayName(e.name))
+	local eventName, eventId = eventPair(e.name)
+	local key = eventId or eventName
+	local handler = events[key]
+	for _,fnc in pairs(handler) do fnc(e) end
+end
+
+---Registers an event in script
+---@param eventIdentifier uint|string
+---@param ticks uint|nil only requiried for on_nth_tick
+local function register(eventIdentifier, ticks)
+	--log("register: "..getDisplayName(eventIdentifier))
+	local eventName, eventId = eventPair(eventIdentifier)
+	if    (eventName=="on_init"                 ) then script[eventName](on_init)
+	elseif(eventName=="on_load"                 ) then script[eventName](on_load)
+	elseif(eventName=="on_configuration_changed") then script[eventName](on_configuration_changed)
+	elseif(eventName=="on_nth_tick"             ) then script.on_nth_tick(ticks, on_nth_tick)
+	elseif(eventId and eventId > 0              ) then script.on_event(eventId, on_event)
+	else error("Unknown event: "..getDisplayName(eventIdentifier))
+	end
+end
+
+---Unregisters an event in script
+---@param eventIdentifier uint|string
+---@param ticks uint|nil only requiried for on_nth_tick
+local function unregister(eventIdentifier, ticks)
+	--log("unregister: "..getDisplayName(eventIdentifier)..iif(ticks~=nil," ticks="..ticks,""))
+	local eventName, eventId = eventPair(eventIdentifier)
+	if    (eventName=="on_init"                 ) then script[eventName](nil)
+	elseif(eventName=="on_load"                 ) then script[eventName](nil)
+	elseif(eventName=="on_configuration_changed") then script[eventName](nil)
+	elseif(eventName=="on_nth_tick"             ) then script.on_nth_tick(ticks, nil)
+	elseif(eventId and eventId > 0              ) then script.on_event(eventId, nil)
+	else error("Unknown event: "..getDisplayName(eventIdentifier))
+	end
+end
+
+function EventDistributor.unregister(eventIdentifier, fnc)
+	if(not fnc) then error("Argument 'fnc' must not be nil!") end
+	local eventName, eventId = eventPair(eventIdentifier)
+	local key = eventId or eventName
+	Table.remove(events[key], fnc)
+	if(#events[key]>0) then return end
+	unregister(key)
+end
+
+---Registers an event
+---@param eventIdentifier uint|string
+---@param fnc function
+---@return boolean #true if succesfully registered else false
+function EventDistributor.register (eventIdentifier, fnc)
+	--print("EventDistributor.register "..getDisplayName(eventIdentifier))
+	if(not fnc) then error("Argument 'fnc' must not be nil!") end
+	local eventName, eventId = eventPair(eventIdentifier)
+	local key = eventId or eventName
+	if(eventName=="on_loaded") then
+		EventDistributor.register_nth_tick(13, on_loaded)
+	end
+	if(List.isNilOrEmpty(events[key])) then
+		events[key] = {fnc}
+		if(eventName~="on_loaded") then register(eventIdentifier) end
+	else
+		if(Table.contains(events[key], fnc)) then return false end
+		table.insert(events[key], fnc)
+	end
+	return true
+end
+
+---Registers an on_nth_tick event
+---@param ticks uint
+---@param fnc function
+---@return boolean #true if succesfully registered else false
+function EventDistributor.register_nth_tick(ticks, fnc)
+	--print("EventDistributor.register "..getDisplayName("on_nth_tick"))
+	if(not fnc) then error("Argument 'fnc' must not be nil!") end
+	if not events["on_nth_tick"] then events["on_nth_tick"] = {} end
+	if (List.isNilOrEmpty(events["on_nth_tick"][ticks])) then
+		events["on_nth_tick"][ticks] = {fnc}
+		register("on_nth_tick",ticks)
+	else
+		if(Table.contains(events["on_nth_tick"][ticks], fnc))  then return false end
+		table.insert(events["on_nth_tick"][ticks], fnc)
+	end
+	return true
+end
+
+---Registers an on_nth_tick event
+---@param ticks uint
+---@param fnc function
+function EventDistributor.unregister_on_nth_tick(ticks, fnc)
+	--print("EventDistributor.unregister_on_nth_tick "..tick)
+	if(not fnc) then error("Argument 'fbc' must not be nil!") end
+	Table.remove(events["on_nth_tick"][ticks], fnc)
+	if(#events["on_nth_tick"][ticks]>0) then return end
+	unregister("on_nth_tick",ticks)
+end
+
+---@deprecated
+function EventDistributor.init()
+	if(false) then
+		for key, value in pairs(events) do
+			if type(key)=="number" then
+				--print("script.on_event "..getEventDisplayName(key))
+				script.on_event(key, on_event)
+			elseif(key=="on_init" or key=="on_load" or key=="on_configuration_changed")  then
+				script[key](on_event)
+			elseif(key=="on_nth_tick" ) then
+				for ticks, value2 in pairs(value) do
+					script.on_nth_tick(ticks,on_event)
+				end
+			else
+				--print("script.on_event "..key .. " is not a number. skipped.")
+			end
+			-- register_on_entity_destroyed(entity)
+			::next::
+		end
+	end
+end
+
+return EventDistributor
