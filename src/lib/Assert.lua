@@ -1,5 +1,5 @@
 if Assert then
-    if Assert.guid == "{4AEB03A1-6391-4209-9856-D421B8914857}" then return Assert end
+    if Assert.__guid == "{4AEB03A1-6391-4209-9856-D421B8914857}" then return Assert end
     error("A global Assert class already exist.")
 end
 
@@ -8,9 +8,9 @@ end
 ---This is because to show the correct position in code. <br>
 ---Each Assert functions returns (true, nil) or (false, message).
 Assert = {
-    tableName = "Assert",
-	guid      = "{4AEB03A1-6391-4209-9856-D421B8914857}",
-	origin    = "Kux-CoreLib/lib/Assert.lua",
+    __class  = "Assert",
+	__guid   = "{4AEB03A1-6391-4209-9856-D421B8914857}",
+	__origin = "Kux-CoreLib/lib/Assert.lua",
 
     ---@class Assert.Not
     Not = {},
@@ -32,7 +32,8 @@ Assert = {
     }
 }
 -- to avoid circular references, the class MUST be defined before require other modules
-require("__Kux-CoreLib__/lib/Table")
+KuxCoreLib = KuxCoreLib or require("__Kux_CoreLib__/init")
+require(KuxCoreLib.Table)
 
 ---raises an error if value is nil
 ---@param name string

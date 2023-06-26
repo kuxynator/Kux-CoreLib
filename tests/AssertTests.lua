@@ -1,7 +1,6 @@
-require "lib.TestRunner"
-require "lib.Assert"
-
+require "tests.setup"
 local tests = {name = "lib.Assert"}
+-----------------------------------
 
 function tests.AssertEquals()
     assert(Assert.IsEqual(3,3)==true)

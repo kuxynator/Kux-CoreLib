@@ -1,4 +1,27 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.6.0
+Date: 2023-06-21
+  Features:
+    - ADD class DataRaw
+    - ADD class EntityData
+    - ADD class ItemData
+    - ADD class PrototypeData
+    - ADD class RecipeData
+    - ADD class TechnologyData
+    - ADD class TechnologyIndex
+    - AAD artifical event 'on_built', 'on_destroy'
+    - ADD class Path
+    - ADD String.escapeTable
+    - ADD Table.append, Table.stats, Table.removeAt, Table.move, Table.removeGaps
+    - Add lua: anypairs(t)
+  Changes:
+    - String.split add second parameter
+    - List:insert parmeters swapped (breaking changes!)
+    - safeget new accepts path string
+  Bugfixes:
+    - FIX a bug in Table.remove
+    - FIX a bug in String.escape, '/' was not escaaped
+---------------------------------------------------------------------------------------------------
 Version: 2.5.3
 Date: 2023-06-07
   Bugfixes:

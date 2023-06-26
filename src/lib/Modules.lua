@@ -1,14 +1,16 @@
+---@diagnostic disable: deprecated
 if Modules then
-    if Modules["guid"] == "{7DB9693F-91FE-406A-9090-0797F785D8F5}" then return Modules end
+    if Modules.__guid == "{7DB9693F-91FE-406A-9090-0797F785D8F5}" then return Modules end
     error("A global Modules class already exist.")
 end
 
 --- Modules class
 ---@class Modules
+---@deprecated use EventDistributor
 Modules = {
-	tableName = "Modules",
-	guid      = "{7DB9693F-91FE-406A-9090-0797F785D8F5}",
-	origin    = "Kux-CoreLib/lib/Modules.lua",
+	__class  = "Modules",
+	__guid   = "{7DB9693F-91FE-406A-9090-0797F785D8F5}",
+	__origin = "Kux-CoreLib/lib/Modules.lua",
 }
 
 ---Calls a mthod in each module

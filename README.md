@@ -14,14 +14,16 @@ All other files are internal use only because API not fully tested or work-in-pr
 
 ### General usage
 
-1. Create the KuxCoreLibPath variable, these is requiered by all files you include:<br>
-```KuxCoreLibPath = "__Kux-CoreLib__/lib/"```<br>
+1. Create the KuxCoreLib variable, which is requiered by all files you include:<br>
+```KuxCoreLib = KuxCoreLib or requiere("__Kux-CoreLib__/init")```<br>
 
 2. Init the module globally: <br>
-```require(KuxCoreLibPath.."<ModuleName>")```
+```require(KuxCoreLib.<ModuleName>)```  
+```require(KuxCoreLib.Data.<ModuleName>)```
 
 alternatively you can includa all files using:<br>
-```require("__Kux-CoreLib__/GlobalLib")```
+```require("__Kux-CoreLib__/lib/@")```  
+```require("__Kux-CoreLib__/lib/data/@")```
 
 ### Lua
 
@@ -36,7 +38,7 @@ alternatively you can includa all files using:<br>
 
 Provides string functions
 
-Init: ```require(KuxCoreLibPath.."String")```
+Init: ```require(KuxCoreLib.String)```
 
 - String.concat - Concatenances a string
 - String.format - Formats a string (format="%1 %2 ...")

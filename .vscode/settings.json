@@ -7,17 +7,134 @@
         "coroutine": "disable",
         "package": "disable"
     },
-    "Lua.diagnostics.globals": [
-        "__Profiler",
-        "__DebugAdapter"
-    ],
     "Lua.runtime.special": {
         "__object_name": "type"
     },
-    "Lua.runtime.plugin": "D:/Develop/Factorio/workspaceStorage/shared/justarandomgeek.factoriomod-debug/sumneko-3rd/factorio/plugin.lua",
+    "Lua.runtime.plugin": "D:/Develop/Factorio/workspaceStorage/shared/justarandomgeek.factoriomod-debug/sumneko-3rd/factorio/plugin.lua",	
+    "Lua.runtime.version": "Lua 5.2",
+		
+    "Lua.diagnostics.globals": [
+        "defines",
+        "game",
+        "global",
+        "script",
+        "remote",
+        "data",
+        "settings",
+        "iif",
+        "control",
+        "session",
+        "modules",
+        "serpent",
+        "try",
+        "log",
+        "safeget",
+        "safeset",
+        "table_size",
+        "toJsonValue",
+        "__Profiler",
+        "jit",
+        "os",
+        "io"
+    ],
+
     "Lua.workspace.library": [
-        "e:\\Program Files\\Factorio\\1.1\\data",
-        "c:/Users/Kay/AppData/Roaming/Code/User/workspaceStorage/d78c43becb8e08d55360f886dcfb1390/justarandomgeek.factoriomod-debug/sumneko-3rd/factorio/library",
-        "D:/Develop/Factorio/workspaceStorage/shared/justarandomgeek.factoriomod-debug/sumneko-3rd/factorio/library"
-    ]
+        "../Factorio/meta",
+        "--e:\\Program Files\\Factorio\\1.1\\data",
+        "--e:/Program Files/Factorio/1.1/data/core/lualib",
+        "--../LuaLib",
+        "D:/Develop/Factorio/workspaceStorage/shared/justarandomgeek.factoriomod-debug/sumneko-3rd/factorio/library"        
+    ],
+	"Lua.workspace.userThirdParty": [
+        "D:\\Develop\\Factorio\\workspaceStorage\\shared\\justarandomgeek.factoriomod-debug\\sumneko-3rd",
+        "c:\\Users\\Kay\\AppData\\Roaming\\Code\\User\\workspaceStorage\\6603b2e9fe3f72018ea751b33fada1f0\\justarandomgeek.factoriomod-debug\\sumneko-3rd"
+    ],
+    "Lua.diagnostics.libraryFiles": "Opened",
+    "Lua.hint.enable": true,
+    "Lua.hint.setType": true,
+    "Lua.workspace.ignoreDir": [
+        ".vscode",
+        ".vs"
+    ],
+    "Lua.diagnostics.workspaceEvent": "OnChange",
+    "factorio.versions": [
+        {
+            "name": "1.1",
+            "factorioPath": "e:\\Program Files\\Factorio\\1.1\\bin\\x64\\factorio.exe",
+            "active": true
+        }
+    ],
+    "code-runner.defaultLanguage": "Lua",
+    "code-runner.executorMap": {
+        "javascript": "node",
+        "java": "cd $dir && javac $fileName && java $fileNameWithoutExt",
+        "c": "cd $dir && gcc $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "zig": "zig run",
+        "cpp": "cd $dir && g++ $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "objective-c": "cd $dir && gcc -framework Cocoa $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "php": "php",
+        "python": "python -u",
+        "perl": "perl",
+        "perl6": "perl6",
+        "ruby": "ruby",
+        "go": "go run",
+        "--lua": "C:\\Users\\Kay\\.vscode\\extensions\\actboy168.lua-debug-1.61.0-win32-x64\\runtime\\win32-x64\\lua52\\lua.exe",
+        "---lua": "lua -e 'package.path = package.path .. \";${workspaceFolder}/src/?.lua;${workspaceFolder}/tests/?.lua;\"'",
+        "lua": {
+            "command": "lua",
+            "args": [
+                "-e",
+                "\"package.path = package.path .. ';$workspaceRoot/src/?.lua;$workspaceRoot/tests/?.lua;'\"",
+                "${file}"
+            ]
+        },
+        "groovy": "groovy",
+        "powershell": "powershell -ExecutionPolicy ByPass -File",
+        "bat": "cmd /c",
+        "shellscript": "bash",
+        "fsharp": "fsi",
+        "csharp": "scriptcs",
+        "vbscript": "cscript //Nologo",
+        "typescript": "ts-node",
+        "coffeescript": "coffee",
+        "scala": "scala",
+        "swift": "swift",
+        "julia": "julia",
+        "crystal": "crystal",
+        "ocaml": "ocaml",
+        "r": "Rscript",
+        "applescript": "osascript",
+        "clojure": "lein exec",
+        "haxe": "haxe --cwd $dirWithoutTrailingSlash --run $fileNameWithoutExt",
+        "rust": "cd $dir && rustc $fileName && $dir$fileNameWithoutExt",
+        "racket": "racket",
+        "scheme": "csi -script",
+        "ahk": "autohotkey",
+        "autoit": "autoit3",
+        "dart": "dart",
+        "pascal": "cd $dir && fpc $fileName && $dir$fileNameWithoutExt",
+        "d": "cd $dir && dmd $fileName && $dir$fileNameWithoutExt",
+        "haskell": "runghc",
+        "nim": "nim compile --verbosity:0 --hints:off --run",
+        "lisp": "sbcl --script",
+        "kit": "kitc --run",
+        "v": "v run",
+        "sass": "sass --style expanded",
+        "scss": "scss --style expanded",
+        "less": "cd $dir && lessc $fileName $fileNameWithoutExt.css",
+        "FortranFreeForm": "cd $dir && gfortran $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "fortran-modern": "cd $dir && gfortran $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "fortran_fixed-form": "cd $dir && gfortran $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "fortran": "cd $dir && gfortran $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "sml": "cd $dir && sml $fileName"
+    },
+    "code-runner.executorEnv": {
+        "LUA_PATH": "./?.lua;./?/init.lua"
+    },
+    "lua.modulePath": [
+        "./?.lua",
+        "./?/init.lua",
+        "./modules/?.lua"
+    ],
+
 }

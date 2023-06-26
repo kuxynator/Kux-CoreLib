@@ -1,0 +1,23 @@
+if _CLASS_ then
+    if _CLASS_.__guid == "{00000000-0000-0000-0000-000000000000}" then return _CLASS_ end
+    error("A global _CLASS_ class already exist.")
+    --TODO combine
+end
+
+---Provides array functions
+---@class Class
+_CLASS_ = {
+	__class  = "_CLASS_",
+	__guid   = "{00000000-0000-0000-0000-000000000000}",
+	__origin = "Kux-CoreLib/lib/_CLASS_.lua",
+}
+
+-- to avoid circular references, the class is defined before require other modules
+KuxCoreLib = KuxCoreLib or require("__Kux_CoreLib__/init")
+require(KuxCoreLib.Table)
+require(KuxCoreLib.Assert)
+require(KuxCoreLib.String)
+
+-- ..
+
+return _CLASS_

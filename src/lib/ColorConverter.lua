@@ -1,5 +1,5 @@
 if ColorConverter then
-    if Log.guid == "{C29DBDDA-9A65-424D-98F2-45CDBAD8D2A1}" then return ColorConverter end
+    if ColorConverter.__guid == "{C29DBDDA-9A65-424D-98F2-45CDBAD8D2A1}" then return ColorConverter end
     error("A global ColorConverter class already exist.")
 end
 --'Color' is already used by Factorio as Color Concept
@@ -7,9 +7,9 @@ end
 --- ColorConverter module
 ---@class ColorConverter Provides color conversion
 ColorConverter = {
-	tableName = "ColorConverter",
-	guid      = "{C29DBDDA-9A65-424D-98F2-45CDBAD8D2A1}",
-	origin    = "Kux-CoreLib/lib/ColorConverter.lua"
+	__class = "ColorConverter",
+	__guid      = "{C29DBDDA-9A65-424D-98F2-45CDBAD8D2A1}",
+	__origin    = "Kux-CoreLib/lib/ColorConverter.lua"
 }
 
 -- to avoid circular references, the class is defined before require other modules

@@ -1,8 +1,77 @@
-require "lib.TestRunner"
-require "lib.Assert"
-require "lib.Table"
-
+require "tests.setup"
 local tests = {name="lib.Table"}
+local ignore = {}
+---------------------------------------------------------------------------------------------------
+
+function ignore.gaparray_insert()
+	local t={}
+	t[3]=3;print("..3  ",#t,serpent.line(t,{comment=false}))
+	t:insert(4);print("..34 ",#t,serpent.line(t,{comment=false}))
+	t[1]=3;print("1.34 ",#t,serpent.line(t,{comment=false}))
+	t:insert(5);print("1.345",#t,serpent.line(t,{comment=false}))
+end
+
+function ignore.lengthOperator1()
+	local t ={}
+
+	t = {1,2,3,4,5};	
+	print(4, #t, serpent.line(t))
+
+	t = {1,2,3,4,5};	t[1]=nil
+	print(4, #t, serpent.line(t))
+
+	t = {1,2,3,4,5};	t[2]=nil
+	print(4, #t, serpent.line(t))
+
+	t = {1,2,3,4,5};	t[5]=nil
+	print(4, #t, serpent.line(t))
+
+
+	t = {1,2,3,4,5};	t[1]=nil; t[5]=nil;
+	print(3, #t, serpent.line(t))
+
+	t = {1,2,3,4,5};	t[1]=nil; t[4]=nil; t[5]=nil;
+	print(3, #t, serpent.line(t))
+
+	t = {1,2,3,4,5};	t[1]=nil; t[5]=nil; t[4]=nil;
+	print(3, #t, serpent.line(t))
+
+	t = {1,2,3,4,5};	t[2]=nil; t[4]=nil; t[5]=nil;
+	print(3, #t, serpent.line(t))
+
+	t = {1,2,3,4,5};	t[2]=nil; t[5]=nil; t[4]=nil;
+	print(3, #t, serpent.line(t))
+end
+
+function tests.removeGaps()
+	local t = {1,2,3,4,5}
+	local length = #t
+
+	local r = Table.removeGaps(t, 5)
+	assert(Assert.IsReferenceEqual(r, t))
+	assert(Assert.IsEqual(#r, length))
+
+	t = {1,2,3,4,5}; length = #t
+	t[4]=nil; length=length -1
+	r = Table.removeGaps(t, 5)
+	assert(Assert.IsReferenceEqual(r, t))
+	assert(Assert.IsEqual(#r, length))
+
+	t = {1,2,3,4,5}; length = #t
+	t[1]=nil; length=length -1
+	t[5]=nil; length=length -1
+	r = Table.removeGaps(t, 5)
+	assert(Assert.IsReferenceEqual(r, t))
+	assert(Assert.IsEqual(#r, length))
+
+	t = {1,2,3,4,5}; length = #t
+	t[1]=nil; length=length -1
+	t[4]=nil; length=length -1
+	t[5]=nil; length=length -1
+	r = Table.removeGaps(t, 5)
+	assert(Assert.IsReferenceEqual(r, t))
+	assert(Assert.IsEqual(#r, length))
+end
 
 function tests.table_nil_test1()
 	local t = {"A","B",nil,"D"}
@@ -30,13 +99,15 @@ function tests.table_nil_test1()
 	assert(Assert.IsEqual(#t, 4))
 end
 
-function tests.table_set_nil()
-	local t = {"A","B","C","D"}
-	t[2]=nil	-- {"A",nil,"C","D"}
-	assert(Assert.IsEqual(#t, 4))
-	assert(Assert.IsEqual(t[3],"C"))
-	t[4]=nil	-- {"A",nil,"C"}
-	assert(Assert.IsEqual(#t, 3))
+function tests.table_bug_1_gap_array_set_value_of_last_index_to_nil()
+	local t={1,2,3,4,5}
+	t[2] = nil
+	t[4] = nil
+	assert(Assert.IsEqual(#t, 5))
+	t[5] = nil -- set last index to nil
+	assert(Assert.IsEqual(#t, 1)) -- but should be 5 or 3
+
+	assert(Assert.IsEqual(pcall(function ()t:remove(4)	end), false))
 end
 
 function tests.table_create_gap()
@@ -77,23 +148,6 @@ function tests.size_gaparray()
 	assert(Assert.IsEqual(#{"A","B",nil}, 2)) -- nil is counted exept at end
 	assert(Assert.IsEqual(Table.count({"A",nil,"C"}), 2))
 	assert(Assert.IsEqual(Table.count({"A","B",nil}), 2))
-end
-
-function tests.size_meta_len_isignored()
-	local t = {"A",nil,"C",nil}
-	assert(Assert.IsEqual(Table.count(t), 2))
-	assert(Assert.IsEqual(#t, 3))
-
-	local t1 = {__len=5, "A",nil,nil,"C",nil}
-	local t2 = {"A",nil,nil,"C",nil,__len=5}
-	assert(Assert.IsEqual(Table.count(t1), 3))
-	assert(Assert.IsEqual(Table.count(t2), 3))
-	-- Table.size counts the number of elemets (where value is not nil); 
-	-- __len=5 is not recognized as meta and counted a element
-	assert(Assert.IsEqual(#t1, 4))
-	assert(Assert.IsEqual(#t2, 4))
-	-- #t counts the number of indexed elements (incl. nil) until last non nil; keys are not counted
-	-- __len=5 is not recognized as meta and ignored
 end
 
 function tests.size_array()
@@ -332,6 +386,5 @@ function tests.manipulatingArray()
 	assert(Assert.IsEqual(s,"234"))
 end
 
-
-
+---------------------------------------------------------------------------------------------------
 TestRunner.run(tests)

@@ -3,7 +3,6 @@
 --- @field id integer Gets the ID of the event. [ReadOnly]
 local Event = {}
 
---require("__Kux-CoreLib__/")
 
 ---Create a new event.
 ---@param eventIdentifier any

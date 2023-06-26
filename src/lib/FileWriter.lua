@@ -1,4 +1,7 @@
-require("__Kux-CoreLib__/lib/Assert")
+if FileWriter then
+    if FileWriter.__guid == "{D54DB186-3D06-47CC-ABF7-8C25BCAE1B44}" then return FileWriter end
+    error("A global FileWriter class already exist.")
+end
 
 --from Kux-ModExport
 --usage:
@@ -11,7 +14,13 @@ require("__Kux-CoreLib__/lib/Assert")
 	end
 ]]
 ---@class FileWriter
-FileWriter = {}
+FileWriter = {
+	__class  = "FileWriter",
+	__guid   = "{D54DB186-3D06-47CC-ABF7-8C25BCAE1B44}",
+	__origin = "Kux-CoreLib/lib/FileWriter.lua",
+}
+
+require(KuxCoreLib.Assert)
 
 FileWriter.flagAppend = false
 FileWriter.file = nil

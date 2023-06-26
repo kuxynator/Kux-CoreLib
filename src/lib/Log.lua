@@ -1,20 +1,20 @@
 if Log then
-    if Log.guid == "{93D539EB-D2F8-41C8-9BAB-44CFDFE67F00}" then return Log end
+    if Log.__guid == "{93D539EB-D2F8-41C8-9BAB-44CFDFE67F00}" then return Log end
     error("A global Log class already exist.")
 end
 
 --- Log module
 ---@class Log
 Log = {
-	tableName = "Log",
-	guid      = "{93D539EB-D2F8-41C8-9BAB-44CFDFE67F00}",
-	origin    = "Kux-CoreLib/lib/Log.lua"
+	__class  = "Log",
+	__guid   = "{93D539EB-D2F8-41C8-9BAB-44CFDFE67F00}",
+	__origin = "Kux-CoreLib/lib/Log.lua"
 }
 
 -- to avoid circular references, the class MUST be defined before require other modules
-
-require("__Kux-CoreLib__/lib/Modules")
-require("__Kux-CoreLib__/lib/Table")
+KuxCoreLib = KuxCoreLib or require("__Kux_CoreLib__/init")
+require(KuxCoreLib.Modules)
+require(KuxCoreLib.Table)
 
 if log == nil then log = function (s) --[[dummy]] end end -- fallback if not running in Factorio
 

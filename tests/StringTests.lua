@@ -1,14 +1,25 @@
-require "lib.TestRunner"
-require "lib.Assert"
-require "lib.String"
-
+require "tests.setup"
 local tests = {name="lib.String"}
+---------------------------------
 
 tests.stringSplit_separator = function ()
-	local tokens = String.split("a.b",".")
+	local tokens = String.split("a.b",nil, ".")
 	if #tokens ~= 2 then error("2 tokens expected") end
 	if tokens[1] ~= "a" then error("'a' expected") end
 	if tokens[2] ~= "b" then error("'a' expected") end
+end
+
+function tests.find()
+	local startPos, endPos, capture = ("1.2/3"):find("[%./]",1 )
+	startPos, endPos, capture = string.find("1.2/3", "(%.)|(/)",2)
+end
+
+tests.stringSplit_separatorArray = function ()
+	local tokens = String.split("a.b/c",nil, {".","/"})
+	if #tokens ~= 3 then error("3 tokens expected") end
+	if tokens[1] ~= "a" then error("'a' expected") end
+	if tokens[2] ~= "b" then error("'b' expected") end
+	if tokens[3] ~= "c" then error("'c' expected") end
 end
 
 tests.stringSplit_pattern = function ()

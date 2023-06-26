@@ -1,4 +1,5 @@
-if (Version and Version.guid~="{3F3C2EDA-5537-4643-8A33-6B00A0F42C25}") then
+if (Version) then
+	if(Version.__guid=="{3F3C2EDA-5537-4643-8A33-6B00A0F42C25}") then return Version end
     local t = {}
     for name, value in pairs(Version) do table.insert(t,"  "..name.." ("..type(value)..")") end
     log("dump Version: \n{\n"..table.concat(t,"\n").."\n}")
@@ -8,12 +9,13 @@ end
 ---Provides version functions
 ---@class Version
 Version = {
-    tableName = "Version",
-	guid      = "{3F3C2EDA-5537-4643-8A33-6B00A0F42C25}",
-	origin    = "Kux-CoreLib/lib/Version.lua",
+    __class  = "Version",
+	__guid   = "{3F3C2EDA-5537-4643-8A33-6B00A0F42C25}",
+	__origin = "Kux-CoreLib/lib/Version.lua",
 }
 
-local String = require("__Kux-CoreLib__/lib/String")
+KuxCoreLib = KuxCoreLib or require("__Kux_CoreLib__/init")
+require(KuxCoreLib.String)
 
 Version.baseVersionGreaterOrEqual1d1 = function ()
 	local v = ""

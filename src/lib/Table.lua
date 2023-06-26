@@ -1,5 +1,5 @@
 if Table then
-    if Table.guid == "{0a7a6b17-1d2a-4001-a105-2897c4d7f4e6}" then return Table end
+    if Table.__guid == "{0a7a6b17-1d2a-4001-a105-2897c4d7f4e6}" then return Table end
     error("A global Table class already exist.")
     --TODO combine
 end
@@ -7,15 +7,15 @@ end
 ---Provides table functions
 ---@class Table
 Table = {
-	tableName = "Table",
-	guid      = "{0a7a6b17-1d2a-4001-a105-2897c4d7f4e6}",
-	origin    = "Kux-CoreLib/lib/Table.lua",
+	__class  = "Table",
+	__guid   = "{0a7a6b17-1d2a-4001-a105-2897c4d7f4e6}",
+	__origin = "Kux-CoreLib/lib/Table.lua",
 }
 
 -- to avoid circular references, the class MUST be defined before require other modules
-
-require("__Kux-CoreLib__/lib/Assert")
-require("__Kux-CoreLib__/lib/String")
+KuxCoreLib = KuxCoreLib or require("__Kux_CoreLib__/init")
+require(KuxCoreLib.Assert)
+require(KuxCoreLib.String)
 
 ---Gets all values.
 ---@param t table
@@ -117,40 +117,129 @@ function Table.isEmpty(t)
 	-- TODO check this with LuaObject
 end
 
----Returns the number of elements that are not nil. <br>
----Supports non-continuous arrays: nil is not counted. 
----Supports dictionaries: key are counted.
+--#region count, length, size
+--[[
+table
+  - array(unspecified)
+    - continuous-array 
+    - gap-array, 
+  - dictionary, 
+  - mixed
+LuaCustomTable
+
+§  arrays: does not contins non numeric keys. (numeric keys, if present, are ignored)
+! gap-array: ipairs loop ends after first nil!
+! table.remove: does not allways shift subsequent values!
+
+count 		Returns the number of elements that are not nil. (including numeric and non numeric key) using Factorio's table_size()
+countAll		counts entries including nil
+length
+size
+lastIndex
+]]
+
+---Returns the number of elements that are not nil.  
+---Supports non-continuous arrays: nil is not counted.   
+---Supports dictionaries: key are counted.  
+---Supports LuaCustomTable: (simple using #t)
 ---@param t table
 ---@return integer
-function Table.count(t) -- alias 'countNoNil'
+function Table.count(t) -- alias 'countNonNil'
 	--[[ from original table_size docu:
-		Returns the size of a table with non-continuous keys.
+		>>Returns the size of a table with non-continuous keys.
 		Factorio provides the table_size() function as a simple way to determine 
 		the size of tables with non-continuous keys, as the standard # operator 
 		does not work correctly for these. The function is a C++ implementation, 
-		which is faster than doing the same in Lua
+		which is faster than doing the same in Lua<<
+
+		NOTE The # operator works correctly! The difference is: It counts also nil elements but no keys.
 	]]
-	-- The # operator works correctly! The difference is: It counts also nil elements but no keys.
 
 	if t.object_name=="LuaCustomTable" then return #t end
 	return table_size(t)
 end
 
-function Table.countAll(t)
+function Table.countNonNumericKeys(t)
 	local c = 0
-	for k,v in pairs(t) do
-		if(type(k)~="number") then c=c+1 end -- count only the keys
+	for k,_ in pairs(t) do
+		if(type(k)~="number") then c=c+1 end
 	end
-	return c + #t -- number of key + length of array
 end
 
----Gets the length of the array. (same as #t)<br>
----If table is a mixed array/dictionary it returns only the length of the array part including nil elements.
----A pure dictionary will returns always 0.<br>
----If you want the number of elemets, see Table.count()
+function Table.countAll(t)
+	local nnk = Table.countNonNumericKeys(t)
+	local l =  #t --TODO: does not work with gap array
+	return nnk + l-- number of key + length of array
+end
+
+---Gets the length of the array. (same as #t)  
+---If table is a mixed array/dictionary it returns only the length of the array part including nil elements.  
+---A pure dictionary will returns always 0.  
+---If you want the number of elemets, see Table.count() or Table.countAll()
 ---@param t table
 ---@return integer
 function Table.length(t) return #t end
+
+function Table.maxIndex(t)
+	local key, value = next(t)
+	local max = 0
+	while key do
+		key, value = next(t, key)
+		if(type(key)=="number" and value>max) then max = value end
+	end
+	return max
+end
+
+function Table.stats(t)
+	local key, value = next(t)
+	local info = {
+		max_index = 0,
+		num_numeric_keys=0,
+		num_nonNumeric_keys=0,
+		numericKeys_num_nil=0,
+		numerikKeys_num_nonNil=0,
+		nonNumericKeys_num_nil=0,
+		nonNumerikKeys_num_nonNil=0,
+		is_continuous_array = false,
+		is_true_continuous_array = false,
+		is_gap_array = false,
+		is_true_gap_array = false,
+		is_dictionary = false,
+		is_true_dictionary = false,
+		has_mixed_keys = false
+	}
+	while key do
+		if(type(key)=="number") then
+			if (value>info.max_index) then info.max_index = value end
+
+			if (value == nil) then
+				info.numericKeys_num_nil = info.numericKeys_num_nil + 1
+			else
+				info.numerikKeys_num_nonNil = info.numerikKeys_num_nonNil + 1
+			end
+		else
+			if (value == nil) then
+				info.nonNumericKeys_num_nil = info.nonNumericKeys_num_nil + 1
+			else
+				info.nonNumerikKeys_num_nonNil = info.nonNumerikKeys_num_nonNil + 1
+			end
+		end
+
+		key, value = next(t, key)
+	end
+
+	info.info.numericKeys = info.numericKeys_num_nil + info.numerikKeys_num_nonNil
+	info.info.nonNumericKeys = info.nonNumericKeys_num_nil + info.nonNumerikKeys_num_nonNil
+	
+	info.is_continuous_array=info.numericKeys_num_nil==0
+	info.is_true_continuous_array=info.numericKeys_num_nil==0 and info.num_nonNumeric_keys==0
+	info.is_gap_array=info.numericKeys_num_nil>0
+	info.is_true_gap_array=info.numericKeys_num_nil>0 and info.num_nonNumeric_keys==0
+	info.is_dictionary=info.num_nonNumeric_keys>0
+	info.is_true_dictionary=info.num_nonNumeric_keys>0 -- pure dictionary | associativ table
+	info.has_mixed_keys = info.num_numeric_keys>0 and info.num_nonNumeric_keys>0
+	return info
+end
 
 ---What 'size' is expected? Numer of elements, length of array, 'size' is not unique and will always throw an error.<br>
 ---See Table.length()<br>
@@ -159,20 +248,64 @@ function Table.length(t) return #t end
 ---@param t any
 ---@return integer
 ---@deprecated
-function Table.size(t) error("Size is not unique.") end
+function Table.size(t) error("Size() is not unique in function.") end
 
 ---Removes a value from the table
 ---@param t table The table
 ---@param value any the Value to remove
 ---@return boolean # True if the values has been removed; else false
 function Table.remove(t, value)
-    for key, value in pairs(t) do
-        if value == value then
+	--print("Table.remove")
+	if(not table or value==nil) then return false end
+    for key, v in pairs(t) do
+        if v == value then
+			--print("  remove '"..value.."'")
             table.remove(t, key)
+			--print("  > "..serpent.line(t))
             return true
         end
     end
 	return false
+end
+
+function Table.removeAt(t, index)
+	-- BUGFIX subsequent entries will not be moved if next entry is nil
+	local w = t[index+1]==nil
+	if(w) then t[index+1]="dummy" end
+	table.remove(t, index)
+	if(w) then t[index+1]=nil end
+end
+
+---Moves entries
+---@param source table
+---@param startIdx integer
+---@param endIdx integer?
+---@param targetIdx integer
+---@param destination table? not implemented
+---@return table #destination
+---@deprecated DRAFT. subject to change.
+function Table.move(source, startIdx, endIdx, targetIdx, destination)
+	if(destination~=source) then error("Not implemented.") end
+	destination = destination or source
+	if(endIdx==nil) then endIdx = Table.maxIndex(source) end
+
+	if(startIdx > targetIdx) then
+		local length = endIdx - startIdx + 1
+		for i = 0, length - 1 do
+			destination[targetIdx + i] = source[startIdx + i]
+		end
+		if destination == source then
+			for i = targetIdx + length, endIdx do
+				destination[i] = nil
+			end
+		end
+	elseif(targetIdx>startIdx) then
+		error("Not implemented.")
+	else
+		error("Argument out of range.")
+	end
+
+	return destination
 end
 
 ---Gets the unique values.
@@ -298,7 +431,8 @@ end
 ---@param t1 table
 ---@param t2 table
 ---@return boolean # true if the content is equal; elsewhere false
---TODO: may be does not work as expected for sparse arrays
+---TODO: may be does not work as expected for sparse arrays
+---see also List.isEqual or Dictionary.isEqual
 function Table.isEqual(t1,t2)
 	if t1 == t2 then return true end
 	for k,v in pairs(t1) do
@@ -350,6 +484,7 @@ end
 ---@param t2 table
 ---@return table
 function Table.createPatch(t1,t2)
+	-- ⌧ ✕ 🗑️
 	local function createPatch(t1,t2,parentPatch,key)
 		local patch = {}
 		local changes = 0
@@ -509,17 +644,6 @@ function Table.countEntries_DRAFT(t)
 	return maxIndex
 end
 
-function Table.getMaxIndex(t)
-	local function isInteger(v)	return math.floor(v) == v end
-	local maxIndex = 0
-	for k, _ in pairs(t) do
-		if type(k) == "number" and isInteger(k) and k > maxIndex then
-			maxIndex = k
-		end
-	end
-	return maxIndex
-end
-
 function Table.isContinuous(t)
 	local function isInteger(v)	return math.floor(v) == v end
 	local count = 0
@@ -558,5 +682,64 @@ end
 
 ---@deprecated Use List, Array or Dictionary
 function Table.isNilOrEmpty(t) return not t or #t==0 end
+
+---Appends a value
+---@param t any[]|List
+---@param value any
+function Table.append(t, value)
+	table.insert(t, value)
+end
+
+---Appends a sequence of values
+---@param t any[]|List
+---@param list any[]|List the valies to append
+function Table.appendRange(t, list)
+	for index, value in ipairs(list) do
+		Table.append(t, value)
+	end
+end
+
+---Gets the highest numeric index
+---@param t table
+---@param assumeInteger boolean? assumes that all keys are integers. thist is faster.
+---@return integer
+function Table.getMaxIndex(t, assumeInteger)
+	local function isInteger(v)	return math.floor(v) == v end
+	local maxIndex = 0
+	if(assumeInteger) then
+		for k, _ in pairs(t) do
+			if k > maxIndex then
+				maxIndex = k
+			end
+		end
+	else
+		for k, _ in pairs(t) do
+			if type(k) == "number" and isInteger(k) and k > maxIndex then
+				maxIndex = k
+			end
+		end
+	end	
+	return maxIndex
+end
+
+function Table.removeGaps(t, length)
+	if(length==nil) then length = Table.getMaxIndex(t) end
+	local shift=0
+	for i = 1, length do
+		if(t[i]) == nil then
+			shift = shift + 1
+		elseif(shift > 0) then
+			t[i-shift] = t[i]
+			t[i]=nil
+		end
+	end
+	return t
+end
+
+function Table.removeRange(t, itemsToRemove)
+	for _, item in ipairs(itemsToRemove) do
+		Table.remove(t, item)
+	end
+end
 
 return Table

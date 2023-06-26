@@ -1,3 +1,8 @@
+if EventDistributor then
+    if EventDistributor.__guid == "{ADD81DB1-53B9-4D61-9279-401AD277DBEE}" then return EventDistributor end
+    error("A global EventDistributor class already exist.")
+end
+
 --[[
 	Usage:
 	[control.lua]	
@@ -11,16 +16,16 @@
 ]]
 ---@class EventDistributor
 EventDistributor = {
-	tableName = "EventDistributor",
-	guid      = "{ADD81DB1-53B9-4D61-9279-401AD277DBEE}",
-	origin    = "Kux-CoreLib/lib/EventDistributor.lua",
+	__class  = "EventDistributor",
+	__guid   = "{ADD81DB1-53B9-4D61-9279-401AD277DBEE}",
+	__origin = "Kux-CoreLib/lib/EventDistributor.lua",
 }
 
 -- to avoid circular references, the class MUST be defined before require other modules
-
-require("__Kux-CoreLib__/lib/lua")
-require("__Kux-CoreLib__/lib/Table")
-require("__Kux-CoreLib__/lib/List")
+KuxCoreLib = KuxCoreLib or require("__Kux_CoreLib__/init")
+require(KuxCoreLib.lua)
+require(KuxCoreLib.Table)
+require(KuxCoreLib.List)
 
 ---Dictionary of EventId|EventName, table of function
 local events={}
@@ -76,23 +81,26 @@ EventDistributor.getDisplayName=getDisplayName
 local function on_init()
 	--print("EventDistributor.on_init")
 	local handler = events["on_init"]
+	if(not handler) then return end
 	for _,fnc in pairs(handler) do fnc() end
 end
 
 local function on_load()
 	--print("EventDistributor.on_load")
 	local handler = events["on_load"]
+	if(not handler) then return end
 	for _,fnc in pairs(handler) do fnc() end
 end
 
 local function on_configuration_changed(e)
 	--print("EventDistributor.on_configuration_changed")
 	local handler = events["on_configuration_changed"]
+	if(not handler) then return end
 	for _,fnc in pairs(handler) do fnc(e) end
 end
 
 local function on_nth_tick(e)
-	--print("EventDistributor.raise_on_nth_tick "..e.nth_tick)
+	--print("EventDistributor.on_nth_tick "..e.nth_tick)
 	local handler = events["on_nth_tick"][e.nth_tick]
 	if(handler) then
 		for _,fnc in pairs(handler) do fnc(e) end
@@ -100,7 +108,7 @@ local function on_nth_tick(e)
 end
 
 local function on_loaded(e)
-	--print("raise_on_loaded")
+	--print("on_loaded")
 	if(isOnLoadedRaised) then return end
 
 	local handler = events.on_loaded
@@ -115,15 +123,30 @@ local function on_loaded(e)
 end
 
 local function on_event(e)
-	--print("raise "..getDisplayName(e.name))
+	--print("on_event "..getDisplayName(e.name))
 	local eventName, eventId = eventPair(e.name)
 	local key = eventId or eventName
 	local handler = events[key]
+	if(not handler) then return end
+	for _,fnc in pairs(handler) do fnc(e) end
+end
+
+local function on_built(e)
+	--print("EventDistributor.on_built")
+	local handler = events["on_built"]
+	if(not handler) then return end
+	for _,fnc in pairs(handler) do fnc(e) end
+end
+
+local function on_destroy(e)
+	--print("EventDistributor.on_built")
+	local handler = events["on_destroy"]
+	if(not handler) then return end
 	for _,fnc in pairs(handler) do fnc(e) end
 end
 
 ---Registers an event in script
----@param eventIdentifier uint|string
+---@param eventIdentifier integer|uint|string
 ---@param ticks uint|nil only requiried for on_nth_tick
 local function register(eventIdentifier, ticks)
 	--log("register: "..getDisplayName(eventIdentifier))
@@ -152,30 +175,48 @@ local function unregister(eventIdentifier, ticks)
 	end
 end
 
+---Unregisters an event
+---@param eventIdentifier integer|uint|string
+---@param fnc function
 function EventDistributor.unregister(eventIdentifier, fnc)
 	if(not fnc) then error("Argument 'fnc' must not be nil!") end
 	local eventName, eventId = eventPair(eventIdentifier)
 	local key = eventId or eventName
 	Table.remove(events[key], fnc)
 	if(#events[key]>0) then return end
-	unregister(key)
+	if(eventName=="on_built") then
+		EventDistributor.unregister(defines.events.on_built_entity,       on_built)
+		EventDistributor.unregister(defines.events.on_robot_built_entity, on_built)
+		EventDistributor.unregister(defines.events.script_raised_built,   on_built)
+		EventDistributor.unregister(defines.events.script_raised_revive,  on_built)
+	elseif(eventName=="on_destroy") then
+		EventDistributor.unregister(defines.events.on_pre_player_mined_item, on_destroy)
+		EventDistributor.unregister(defines.events.on_robot_pre_mined,       on_destroy)
+		EventDistributor.unregister(defines.events.on_entity_died,           on_destroy)
+		EventDistributor.unregister(defines.events.script_raised_destroy,    on_destroy)
+	else
+		unregister(key)
+	end
 end
 
 ---Registers an event
----@param eventIdentifier uint|string
+---@param eventIdentifier integer|uint|string
 ---@param fnc function
+---@param param any Optional parameter, depends on eventIdentifier (filter)
 ---@return boolean #true if succesfully registered else false
-function EventDistributor.register (eventIdentifier, fnc)
+function EventDistributor.register (eventIdentifier, fnc, param)
 	--print("EventDistributor.register "..getDisplayName(eventIdentifier))
 	if(not fnc) then error("Argument 'fnc' must not be nil!") end
 	local eventName, eventId = eventPair(eventIdentifier)
 	local key = eventId or eventName
-	if(eventName=="on_loaded") then
-		EventDistributor.register_nth_tick(13, on_loaded)
+	if    (eventName=="nth_tick"  ) then error("Argument out of range. name: eventIdentifier, value: "..eventIdentifier)
+	elseif(eventName=="on_loaded" ) then EventDistributor.register_nth_tick(13, on_loaded)
+	elseif(eventName=="on_built"  ) then EventDistributor.register_on_built(nil, fnc); return true
+	elseif(eventName=="on_destroy") then EventDistributor.register_on_destroy(nil, fnc); return true
 	end
 	if(List.isNilOrEmpty(events[key])) then
 		events[key] = {fnc}
-		if(eventName~="on_loaded") then register(eventIdentifier) end
+		if(eventName ~= "on_loaded") then register(eventIdentifier, param) end
 	else
 		if(Table.contains(events[key], fnc)) then return false end
 		table.insert(events[key], fnc)
@@ -210,6 +251,48 @@ function EventDistributor.unregister_on_nth_tick(ticks, fnc)
 	Table.remove(events["on_nth_tick"][ticks], fnc)
 	if(#events["on_nth_tick"][ticks]>0) then return end
 	unregister("on_nth_tick",ticks)
+end
+
+local function register_artifical_event(key,fnc)
+	if(List.isNilOrEmpty(events[key])) then
+		events[key] = {fnc}
+		--if(eventName ~= "on_loaded") then register(eventIdentifier, param) end
+	else
+		if(Table.contains(events[key], fnc)) then
+			error("Multiple registration of same event is not supported. name: '"..key.."'")
+			--TODO: allow reregister the event
+			return false
+		end
+		table.insert(events[key], fnc)
+	end
+end
+
+function EventDistributor.register_on_built(item_filter, fnc)
+	register_artifical_event("on_built", fnc)
+
+	--TODO: join item_filter. at the moment only the first resgistration works!
+    EventDistributor.register(defines.events.on_built_entity,       on_built, item_filter)
+    EventDistributor.register(defines.events.on_robot_built_entity, on_built, item_filter)
+    EventDistributor.register(defines.events.script_raised_built,   on_built, item_filter)
+    EventDistributor.register(defines.events.script_raised_revive,  on_built, item_filter)
+end
+
+function EventDistributor.register_on_destroy(item_filter, fnc)
+	register_artifical_event("on_destroy", fnc)
+
+	--TODO: join item_filter. at the moment only the first resgistration works!
+	EventDistributor.register(defines.events.on_pre_player_mined_item, on_destroy, item_filter)
+	EventDistributor.register(defines.events.on_robot_pre_mined,       on_destroy, item_filter)
+	EventDistributor.register(defines.events.on_entity_died,           on_destroy, item_filter)
+	EventDistributor.register(defines.events.script_raised_destroy,    on_destroy, item_filter)
+end
+
+function EventDistributor.unregister_on_built(fnc)
+	EventDistributor.unregister("on_built", fnc)
+end
+
+function EventDistributor.unregister_on_destroy(fnc)
+	EventDistributor.unregister("on_destroy", fnc)
 end
 
 ---@deprecated

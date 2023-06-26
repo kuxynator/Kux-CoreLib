@@ -1,6 +1,15 @@
+if Colors then
+    if Colors.__guid == "{E6240471-4450-4C9C-A3D8-43E4284D95E8}" then return Colors end
+    error("A global Colors class already exist.")
+end
+
 ---Color constants
 ---@class Colors Provides color constants
 Colors = {
+	__class  = "Colors",
+	__guid   = "{E6240471-4450-4C9C-A3D8-43E4284D95E8}",
+	__origin = "Kux-CoreLib/lib/Colors.lua",
+
 	white = {r = 1, g = 1, b = 1},
 	lightgrey = {r = 0.75, g = 0.75, b = 0.75},
 	grey = {r = 0.5, g = 0.5, b = 0.5},

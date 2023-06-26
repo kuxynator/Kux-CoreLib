@@ -1,3 +1,7 @@
+if FlyingText then
+    if FlyingText.__guid == "{8BFF3C82-2A4F-41F8-A7B3-C2969A741749}" then return FlyingText end
+    error("A global FlyingText class already exist.")
+end
 
 local function posOffset( pos, offset )
 	return { x=pos.x + offset.x, y=pos.y + offset.y }
@@ -25,9 +29,9 @@ end
 ---flying-text
 ---@class FlyingText
 FlyingText = {
-	moduleName ="FlyingText",
-	guid       = "{8BFF3C82-2A4F-41F8-A7B3-C2969A741749}",
-	origin     = "Kux-CoreLib/lib/FlyingText.lua",
+	__class  ="FlyingText",
+	__guid   = "{8BFF3C82-2A4F-41F8-A7B3-C2969A741749}",
+	__origin = "Kux-CoreLib/lib/FlyingText.lua",
 
 	create = function (player, text, color)
 		color = color or {0.8,0.8,0.8}

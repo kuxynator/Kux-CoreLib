@@ -71,7 +71,15 @@ function safeget(...)
 	local c = select("#",...)
 	for i = 1, c do
 		local v = select(i,...)
-		if i == 1 then o = v else p=o; o=p[v] end
+		if i == 1 then
+			o = v
+		else
+			local fragments = String.split(v,nil, {".","/"})
+			for _,fragment in ipairs(fragments) do
+				p=o;
+				o=p[fragment]
+			end
+		end
 		if i == c then return o end
 		if o == nil then return nil end
 	end
@@ -90,3 +98,8 @@ function safeset(...)
 	end
 	o[select(c-1,...)]=select(c,...)
 end
+
+function anypairs(t)
+	return next, t, nil
+end
+

@@ -1,5 +1,5 @@
 if Array then
-    if Array.guid == "{57811545-A9BF-42D3-9AD5-DDEF82BB9C40}" then return Array end
+    if Array.__guid == "{57811545-A9BF-42D3-9AD5-DDEF82BB9C40}" then return Array end
     error("A global Array class already exist.")
     --TODO combine
 end
@@ -7,18 +7,18 @@ end
 ---Provides array functions
 ---@class Array
 Array = {
-	tableName = "Array",
-	guid      = "{57811545-A9BF-42D3-9AD5-DDEF82BB9C40}",
-	origin    = "Kux-CoreLib/lib/Array.lua",
+	__class  = "Array",
+	__guid   = "{57811545-A9BF-42D3-9AD5-DDEF82BB9C40}",
+	__origin = "Kux-CoreLib/lib/Array.lua",
 
     ---@type integer The length of the array
     length = 0
 }
-
 -- to avoid circular references, the class is defined before require other modules
-require("__Kux-CoreLib__/lib/Assert")
-require("__Kux-CoreLib__/lib/String")
-require("__Kux-CoreLib__/lib/Table")
+KuxCoreLib = KuxCoreLib or require("__Kux_CoreLib__/init")
+require(KuxCoreLib.Table)
+require(KuxCoreLib.Assert)
+require(KuxCoreLib.String)
 
 ---Creates a new array
 ---@param values any[]

@@ -1,7 +1,6 @@
-require "lib.TestRunner"
-require "lib.Tools"
-
+require "tests.setup"
 local tests = {name="lib.Tools"}
+--------------------------------
 
 
 

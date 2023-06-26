@@ -1,20 +1,23 @@
 ---
 ---usage: require "__Kux-CoreLib__/lib/@"
 ---
+KuxCoreLib = KuxCoreLib or require("__Kux-CoreLib__/init")
 
-local libPath = "__Kux-CoreLib__/lib/"
-require(libPath.."lua")
-require(libPath.."Modules")
-require(libPath.."Assert")
-require(libPath.."Colors")
-require(libPath.."Debug")
-require(libPath.."Log")
-require(libPath.."EventDistributor")
-require(libPath.."FileWriter")
-require(libPath.."FlyingText")
-require(libPath.."String")
-require(libPath.."Array")
-require(libPath.."Dictionary")
-require(libPath.."List")
-require(libPath.."Table")
-require(libPath.."Version")
+require(KuxCoreLib.lua)
+require(KuxCoreLib.Modules)
+require(KuxCoreLib.Assert)
+require(KuxCoreLib.Colors)
+require(KuxCoreLib.Debug)
+require(KuxCoreLib.Log)
+require(KuxCoreLib.EventDistributor)
+require(KuxCoreLib.FileWriter)
+require(KuxCoreLib.FlyingText)
+require(KuxCoreLib.String)
+require(KuxCoreLib.Array)
+require(KuxCoreLib.Dictionary)
+require(KuxCoreLib.List)
+require(KuxCoreLib.Table)
+require(KuxCoreLib.Version)
+require(KuxCoreLib.Path)
+
+return KuxCoreLib

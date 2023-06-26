@@ -1,7 +1,6 @@
-require "lib.TestRunner"
-require "lib.Assert"
-
+require "tests.setup"
 local tests = {name="Lua"}
+-----------------------------
 
 --- ipairs loop ends after first nil! this is critical with varargs.
 function tests.array_with_nil_ipairs_loop_ends_after_first_nil()
