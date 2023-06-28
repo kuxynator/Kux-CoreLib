@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 ---@diagnostic disable: deprecated
 if Modules then
     if Modules.__guid == "{7DB9693F-91FE-406A-9090-0797F785D8F5}" then return Modules end

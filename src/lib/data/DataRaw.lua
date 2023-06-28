@@ -1,11 +1,13 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if DataRaw then
-    if DataRaw.__guid == "{56573240-5677-4544-A7A4-C6741FBE00DB}" then return DataRaw end
+    if DataRaw.__guid == "92023dde-c5de-476e-8ca5-85270e130774" then return DataRaw end
     error("A global DataRaw class already exist.")
 end
 
 DataRaw ={
 	__class  = "DataRaw",
-	__guid   = "{88118D09-81A2-4CE6-AF80-309BCA5F4136}",
+	__guid   = "92023dde-c5de-476e-8ca5-85270e130774",
 	__origin = "Kux-CoreLib/lib/data/DataRaw.lua",
 }
 
@@ -67,6 +69,8 @@ end
 function DataRaw.deleteIndex()
     DataRaw.index=nil
 end
+
+
 
 
 

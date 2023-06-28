@@ -1,7 +1,8 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 ---
 ---usage: require "__Kux-CoreLib__/lib/@"
 ---
-KuxCoreLib = KuxCoreLib or require("__Kux-CoreLib__/init")
 
 require(KuxCoreLib.lua)
 require(KuxCoreLib.Modules)

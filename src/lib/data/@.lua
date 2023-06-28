@@ -1,9 +1,10 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 ---
 ---usage: require "__Kux-CoreLib__/lib/data/@"
 ---
 
-KuxCoreLibPath = KuxCoreLibPath or "__Kux-CoreLib__/lib/"
-require(KuxCoreLibPath.."@")
+require(KuxCoreLibPath.."lib/@")
 
 require(KuxCoreLib.Data.DataRaw)
 require(KuxCoreLib.Data.EntityData)

@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if TechnologyIndex then
     if TechnologyIndex.__guid == "{88118D09-81A2-4CE6-AF80-309BCA5F4136}" then return TechnologyIndex end
     error("A global TechnologyIndex class already exist.")

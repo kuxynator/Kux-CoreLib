@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if List then
     if List.__guid == "{C8A1AC2B-DAF8-4A2C-8C4E-A20B500EE576}" then return List end
     error("A global List class already exist.")

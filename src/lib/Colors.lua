@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if Colors then
     if Colors.__guid == "{E6240471-4450-4C9C-A3D8-43E4284D95E8}" then return Colors end
     error("A global Colors class already exist.")

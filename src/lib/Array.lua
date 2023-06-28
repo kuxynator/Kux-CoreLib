@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if Array then
     if Array.__guid == "{57811545-A9BF-42D3-9AD5-DDEF82BB9C40}" then return Array end
     error("A global Array class already exist.")
@@ -15,7 +17,6 @@ Array = {
     length = 0
 }
 -- to avoid circular references, the class is defined before require other modules
-KuxCoreLib = KuxCoreLib or require("__Kux_CoreLib__/init")
 require(KuxCoreLib.Table)
 require(KuxCoreLib.Assert)
 require(KuxCoreLib.String)

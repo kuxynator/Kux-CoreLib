@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if Assert then
     if Assert.__guid == "{4AEB03A1-6391-4209-9856-D421B8914857}" then return Assert end
     error("A global Assert class already exist.")
@@ -32,7 +34,6 @@ Assert = {
     }
 }
 -- to avoid circular references, the class MUST be defined before require other modules
-KuxCoreLib = KuxCoreLib or require("__Kux_CoreLib__/init")
 require(KuxCoreLib.Table)
 
 ---raises an error if value is nil

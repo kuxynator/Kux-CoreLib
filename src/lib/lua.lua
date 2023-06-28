@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 ---@diagnostic disable: lowercase-global
 
 ---iif
@@ -63,6 +65,35 @@ function switchp(key, ...)
 	return switch(key,dic,default)
 end
 
+
+local function getValue(object, fragment, createPartIfNotExits)
+	local name, index = string.match(fragment, "^([^.]+)%[(%d+)%]$")
+	if name and index then
+		if(object[name]==nil) then
+			if(createPartIfNotExits) then
+				object[name]={}
+			else
+				return nil
+			end
+		end
+		if(object[name][tonumber(index)]==nil and createPartIfNotExits) then object[name][tonumber(index)]={} end
+		return object[name][tonumber(index)]
+	else
+		if(object[fragment]==nil and createPartIfNotExits) then object[fragment]={} end
+		return object[fragment]
+	end
+end
+
+local function setValue(object, fragment, value)
+	local name, index = string.match(fragment, "^([^.]+)%[(%d+)%]$")
+	if name and index then
+		if(object[name]==nil) then object[name]={} end
+		object[name][tonumber(index)]=value
+	else
+		object[fragment]=value
+	end
+end
+
 ---safe get accessor
 ---@param ... any path fragmnents
 ---Usage: value = safeget(obj,"fieldA","fieldB") equivalent to obj.fieldA.fieldB, but w/o error if a field is nil
@@ -77,7 +108,7 @@ function safeget(...)
 			local fragments = String.split(v,nil, {".","/"})
 			for _,fragment in ipairs(fragments) do
 				p=o;
-				o=p[fragment]
+				o=getValue(p,fragment)
 			end
 		end
 		if i == c then return o end
@@ -87,16 +118,23 @@ end
 
 ---safe set accessor
 ---@param ... any path framents, last parameter is the value to set
+---example: safeset(t, "foo[1].bar.baz", value)
+---example: safeset(t, foo", index, "bar.baz", value)
 function safeset(...)
 	local p = nil
 	local o = select(1,...)
 	local c = select("#",...)
-	for i = 2, c-2 do
+	local lastFragment = nil
+	for i = 2, c-1 do
 		local v = select(i,...)
-		p=o; o=p[v]
-		if o == nil then o = {}; p[v]=o end
+		local fragments = String.split(v,nil, {".","/"})
+		for iFragment,fragment in ipairs(fragments) do
+			if(i==c-1 and iFragment == #fragments) then lastFragment=fragment; break end
+			p = o;
+			o = getValue(p,fragment,true)
+		end
 	end
-	o[select(c-1,...)]=select(c,...)
+	setValue(o,lastFragment,select(c,...))
 end
 
 function anypairs(t)

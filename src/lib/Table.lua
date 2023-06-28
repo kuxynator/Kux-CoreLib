@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if Table then
     if Table.__guid == "{0a7a6b17-1d2a-4001-a105-2897c4d7f4e6}" then return Table end
     error("A global Table class already exist.")
@@ -6,16 +8,15 @@ end
 
 ---Provides table functions
 ---@class Table
-Table = {
+local Table = {
 	__class  = "Table",
 	__guid   = "{0a7a6b17-1d2a-4001-a105-2897c4d7f4e6}",
 	__origin = "Kux-CoreLib/lib/Table.lua",
 }
 
 -- to avoid circular references, the class MUST be defined before require other modules
-KuxCoreLib = KuxCoreLib or require("__Kux_CoreLib__/init")
-require(KuxCoreLib.Assert)
-require(KuxCoreLib.String)
+local Assert = require(KuxCoreLib.Assert)
+local String = require(KuxCoreLib.String) --[[@as Kux.CoreLib.String]]
 
 ---Gets all values.
 ---@param t table

@@ -1,6 +1,10 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if Log then
     if Log.__guid == "{93D539EB-D2F8-41C8-9BAB-44CFDFE67F00}" then return Log end
-    error("A global Log class already exist.")
+	-- for key, value in pairs(Log) do print("  "..key) end
+    -- error("A global Log class already exist.")
+	log("WARNING Mod incompatibility detected. Override existing 'Log'.")
 end
 
 --- Log module
@@ -12,7 +16,6 @@ Log = {
 }
 
 -- to avoid circular references, the class MUST be defined before require other modules
-KuxCoreLib = KuxCoreLib or require("__Kux_CoreLib__/init")
 require(KuxCoreLib.Modules)
 require(KuxCoreLib.Table)
 

@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if Path then
     if Path.__guid == "{6C02BAA4-AA92-4760-95C9-F62C7EF1E373}" then return Path end
     error("A global Path class already exist.")

@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if TechnologyData then
     if TechnologyData.__guid == "{5789A09A-2D34-40CA-80EB-7A3A81DD1201}" then return TechnologyData end
     error("A global TechnologyData class already exist.")

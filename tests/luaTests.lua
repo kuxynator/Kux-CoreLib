@@ -5,6 +5,23 @@ local tests = {	name="lib.lua"}
 function tests.safeget()
 	local data={a={b="b"}}
 	assert(Assert.IsEqual(safeget(data,"a.b"),"b"))
+
+	data={a={{b="b"}}}
+	assert(Assert.IsEqual(safeget(data,"a[1].b"),"b"))
+end
+
+function tests.safeset()
+	local data={a={b="b"}}
+	safeset(data,"a.b","b2")
+	assert(Assert.IsEqual(data.a.b,"b2"))
+
+	data={}
+	safeset(data,"a.b","b2")
+	assert(Assert.IsEqual(data.a.b,"b2"))
+
+	data={}
+	safeset(data,"a[1].b","b2")
+	assert(Assert.IsEqual(data.a[1].b,"b2"))
 end
 
 function tests.testA ()

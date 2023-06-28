@@ -75,5 +75,25 @@ function tests.add()
 	assert(Assert.IsEqual(#list,11))
 end
 
+function tests.removeAt()
+	local data={1,2,3}
+	local list = List:new(data)
+	list:removeAt(2)
+	assert(Assert.IsEqual(list[2],3))
+	assert(Assert.IsEqual(#list,2))
+
+	data={nil,2,3}
+	list = List:new(data)
+	list:removeAt(2)
+	assert(Assert.IsEqual(list[2],3))
+	assert(Assert.IsEqual(#list,2))
+
+	data={1,nil,3}
+	list = List:new(data)
+	list:removeAt(2)
+	assert(Assert.IsEqual(list[2],3))
+	assert(Assert.IsEqual(#list,2))
+end
+
 ---------------------------------------------------------------------------------------------------
 TestRunner.run(tests)

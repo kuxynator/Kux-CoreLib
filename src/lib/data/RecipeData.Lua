@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if RecipeData then
     if RecipeData.__guid == "{6B1DC373-2A83-4C81-94BD-92E772340FDE}" then return RecipeData end
     error("A global RecipeData class already exist.")

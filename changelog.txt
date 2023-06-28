@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 2.6.0
-Date: 2023-06-21
+Date: 2023-06-28
   Features:
     - ADD class DataRaw
     - ADD class EntityData
@@ -17,7 +17,8 @@ Date: 2023-06-21
   Changes:
     - String.split add second parameter
     - List:insert parmeters swapped (breaking changes!)
-    - safeget new accepts path string
+    - safeget,safeset now accepts path string ("foo.bar.v")
+    - existing external Log classen wil be overriden!
   Bugfixes:
     - FIX a bug in Table.remove
     - FIX a bug in String.escape, '/' was not escaaped

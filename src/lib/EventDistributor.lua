@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if EventDistributor then
     if EventDistributor.__guid == "{ADD81DB1-53B9-4D61-9279-401AD277DBEE}" then return EventDistributor end
     error("A global EventDistributor class already exist.")

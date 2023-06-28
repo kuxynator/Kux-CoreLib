@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if ColorConverter then
     if ColorConverter.__guid == "{C29DBDDA-9A65-424D-98F2-45CDBAD8D2A1}" then return ColorConverter end
     error("A global ColorConverter class already exist.")

@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if PrototypeData then
     if PrototypeData.__guid == "{29042CED-24D6-446E-8265-151D08B0A991}" then return PrototypeData end
     error("A global PrototypeData class already exist.")

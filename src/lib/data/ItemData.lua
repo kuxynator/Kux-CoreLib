@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if ItemData then
     if ItemData.__guid == "{AD869786-5B06-420C-9866-E83F3AB736C0}" then return ItemData end
     error("A global ItemData class already exist.")

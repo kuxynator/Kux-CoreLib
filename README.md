@@ -1,6 +1,9 @@
 # Kuxynator's Core Library
 
-Provides core functionality for Kuxynator's mods.
+Provides core functionality for Kuxynator's [Factorio](https://factorio.com/) [mods](https://mods.factorio.com/user/Kuxanytor).
+
+[![CC VY-NC-BD](https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png)](Zhttps://creativecommons.org/licenses/by-nc-nd/4.0/)  
+This work is licensed under a [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License](https://creativecommons.org/licenses/by-nc-nd/4.0/).
 
 ## Public Library
 - [Lua](#Lua) - Provides public functions missing in lua
@@ -9,19 +12,20 @@ Provides core functionality for Kuxynator's mods.
 - [Assert](#Assert) - Provides messages for assert
 - [Color](#ColorConverter) - Provides color conversion
 - [Colors](#Colors) - Provides color constants
+- ... and more
 
 All other files are internal use only because API not fully tested or work-in-progress. 
 
 ### General usage
 
-1. Create the KuxCoreLib variable, which is requiered by all files you include:<br>
-```KuxCoreLib = KuxCoreLib or requiere("__Kux-CoreLib__/init")```<br>
+1. Create the global `KuxCoreLib`, which is required by all modules you include:<br>
+```require("__Kux-CoreLib__/init")```<br>
 
 2. Init the module globally: <br>
 ```require(KuxCoreLib.<ModuleName>)```  
 ```require(KuxCoreLib.Data.<ModuleName>)```
 
-alternatively you can includa all files using:<br>
+alternatively you can includa all modules using:<br>
 ```require("__Kux-CoreLib__/lib/@")```  
 ```require("__Kux-CoreLib__/lib/data/@")```
 
@@ -33,6 +37,7 @@ alternatively you can includa all files using:<br>
 - switchp
 - safeget
 - safeset
+- ...and more
 
 ### String
 
@@ -56,7 +61,7 @@ Init: ```require(KuxCoreLib.String)```
 
 Provides table functions
 
-Init: ```require(KuxCoreLibPath.."Table")```
+Init: ```require(KuxCoreLibP.Table)```
 
 - Table.getValues - Gets all values.
 - Table.getKeys - Gets all keys
@@ -65,27 +70,14 @@ Init: ```require(KuxCoreLibPath.."Table")```
 - 
 - 
 - 
-- 
-- 
-- 
-- 
-- 
-- 
-- 
-- 
-- 
-- 
-- 
-- 
-- 
-- 
+
 
 
 ### Assert
 
 Provides messages for assert
 
-Init: ```require(KuxCoreLibPath.."Assert")```
+Init: ```require(KuxCoreLib.Assert)```
 
 Usage: ```assert(Assert.IsNotNil(value))```
 

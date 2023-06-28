@@ -1,7 +1,7 @@
 --package.path = "src/?.lua;src/lib/?.lua;src/lib/data/?.lua;tests/?.lua;"
 --package.path = "./src/?/?.lua;tests/?.lua;"
-KuxCoreLibPath = "src/lib/"
+KuxCoreLibPath = "/"
 require("src/init")
 require("tests/FactorioMocks")
-require(KuxCoreLibPath.."data/@")
-require(KuxCoreLibPath.."TestRunner")
+require("lib/data/@")
+require("lib/TestRunner")

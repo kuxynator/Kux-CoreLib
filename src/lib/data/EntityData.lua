@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if EntityData then
     if EntityData.__guid == "{990068A3-AA60-4453-A786-A4F2C7E7CA7F}" then return EntityData end
     error("A global EntityData class already exist.")

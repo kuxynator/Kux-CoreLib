@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 --- @class Event The event class represents an event.
 --- @field name string Gets the name of the event. [ReadOnly]
 --- @field id integer Gets the ID of the event. [ReadOnly]

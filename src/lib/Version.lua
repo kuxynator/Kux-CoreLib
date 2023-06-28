@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if (Version) then
 	if(Version.__guid=="{3F3C2EDA-5537-4643-8A33-6B00A0F42C25}") then return Version end
     local t = {}
@@ -14,7 +16,7 @@ Version = {
 	__origin = "Kux-CoreLib/lib/Version.lua",
 }
 
-KuxCoreLib = KuxCoreLib or require("__Kux_CoreLib__/init")
+-- to avoid circular references, the class MUST be defined before require other modules
 require(KuxCoreLib.String)
 
 Version.baseVersionGreaterOrEqual1d1 = function ()

@@ -1,8 +1,9 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if Debug then
-    if Colors.__guid == "{62243C3D-5389-42F7-B7C2-D87967E2D9AF}" then return Debug end
+    if Debug.__guid == "{62243C3D-5389-42F7-B7C2-D87967E2D9AF}" then return Debug end
     error("A global Debug class already exist.")
 end
-
 
 local function isEnabled()
 	-- return game.get_player(1).mod_settings["Kux-CoreLib_Debug"].value

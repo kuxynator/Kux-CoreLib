@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if FlyingText then
     if FlyingText.__guid == "{8BFF3C82-2A4F-41F8-A7B3-C2969A741749}" then return FlyingText end
     error("A global FlyingText class already exist.")

@@ -1,4 +1,4 @@
-KuxCoreLibPath=""
+KuxCoreLibPath="/" --set path
 package.path = "tests/?.lua;"..package.path
 package.path = "src/?.lua;"..package.path
 package.path = "src/lib/?.lua;"..package.path

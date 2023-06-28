@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if FileWriter then
     if FileWriter.__guid == "{D54DB186-3D06-47CC-ABF7-8C25BCAE1B44}" then return FileWriter end
     error("A global FileWriter class already exist.")

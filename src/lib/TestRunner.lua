@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if TestRunner then
     if TestRunner.__guid == "{68FAAD34-FF3D-40A2-9844-BF1F9400E5A8}" then return TestRunner end
     error("A global TestRunner class already exist.")

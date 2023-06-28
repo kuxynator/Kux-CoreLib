@@ -1,3 +1,5 @@
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+
 if (String) then
 	if(String.__guid=="{0E8BBFAF-73EF-4209-9774-B2CD6A13A296}") then return String end
 
