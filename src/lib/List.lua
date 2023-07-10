@@ -1,15 +1,10 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
-
-if List then
-    if List.__guid == "{C8A1AC2B-DAF8-4A2C-8C4E-A20B500EE576}" then return List end
-    error("A global List class already exist.")
-    --TODO combine
-end
+if(KuxCoreLib.__modules.List) then return KuxCoreLib.__modules.List end
 
 ---Provides a true List 
----@class List
+---@class KuxCoreLib.List
 ---@field length integer Gets the number if items in this List (including nil)
-List = {
+local List = {
 	__class  = "List",
 	__guid   = "{C8A1AC2B-DAF8-4A2C-8C4E-A20B500EE576}",
 	__origin = "Kux-CoreLib/lib/List.lua",
@@ -17,12 +12,13 @@ List = {
     ---@type integer The number of entries in the list
     count = 0
 }
+KuxCoreLib.__modules.List = List
 
--- to avoid circular references, the class is defined before require other modules
-KuxCoreLib = KuxCoreLib or require("__Kux_CoreLib__/init")
-require(KuxCoreLib.Assert)
-require(KuxCoreLib.String)
-require(KuxCoreLib.Table)
+-- to avoid circular references, the class MUST be definied before require other modules
+
+local Assert= KuxCoreLib.That
+local String = KuxCoreLib.String
+local Table = KuxCoreLib.Table
 
 local function createMetatable(t)
 	local mt = {
@@ -50,7 +46,7 @@ end
 ---Creates a new list
 ---@param data table?
 ---@param ownsData boolean?
----@return List
+---@return KuxCoreLib.List
 function List:new(data, ownsData)
 	local instance = {}
 	local mt = {}
@@ -218,5 +214,9 @@ function List:compress()
 end
 
 function List.isNilOrEmpty(t) return not t or #t==0 end
+
+---------------------------------------------------------------------------------------------------
+
+function List.asGlobal() return KuxCoreLib.utils.asGlobal(List) end
 
 return List

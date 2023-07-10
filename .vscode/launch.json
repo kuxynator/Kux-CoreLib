@@ -7,8 +7,8 @@
         {
             "type": "lua",
             "request": "launch",
-            "name": "Debug",
-            "program": "${workspaceFolder}/tests/run.lua",
+            "name": "Run Tests",
+            "program": "${workspaceFolder}/tests/run-tests.lua",
             "env": {
                 "LUA_PATH": "${workspaceFolder}/src/?/?.lua;${workspaceFolder}/tests/?/?.lua;"
             },

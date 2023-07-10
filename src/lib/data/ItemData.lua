@@ -1,16 +1,15 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+if(KuxCoreLib.__modules.ItemData) then return KuxCoreLib.__modules.ItemData end
 
-if ItemData then
-    if ItemData.__guid == "{AD869786-5B06-420C-9866-E83F3AB736C0}" then return ItemData end
-    error("A global ItemData class already exist.")
-end
-
----@Class ItemData
-ItemData = {
+---@class KuxCoreLib.ItemData
+local ItemData = {
 	__class  = "ItemData",
 	__guid   = "{AD869786-5B06-420C-9866-E83F3AB736C0}",
 	__origin = "Kux-CoreLib/lib/data/ItemData.lua",
 }
+KuxCoreLib.__modules.ItemData = ItemData
+---------------------------------------------------------------------------------------------------
+local DataRaw = KuxCoreLib.DataRaw
 
 function ItemData.clone(name, entity)
 	local base = data.raw["item"][name] or ItemData.find(name)
@@ -35,3 +34,9 @@ function ItemData.findType(itemName)
         if(item) then return typeName end
     end
 end
+
+---------------------------------------------------------------------------------------------------
+
+function ItemData.asGlobal() return KuxCoreLib.utils.asGlobal(ItemData) end
+
+return ItemData

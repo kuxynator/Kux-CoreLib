@@ -1,19 +1,16 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
-
-if TechnologyIndex then
-    if TechnologyIndex.__guid == "{88118D09-81A2-4CE6-AF80-309BCA5F4136}" then return TechnologyIndex end
-    error("A global TechnologyIndex class already exist.")
-end
+if(KuxCoreLib.__modules.TechnologyIndex) then return KuxCoreLib.__modules.TechnologyIndex end
 
 -- https://wiki.factorio.com/Prototype/Technology
 
----@class TechnologyIndex
+---@class KuxCoreLib.TechnologyIndex
 TechnologyIndex = {
-	__class  = "Dictionary",
-	__guid   = "{88118D09-81A2-4CE6-AF80-309BCA5F4136}",
+	__class  = "TechnologyIndex",
+	__guid   = "331e212d-14ba-4de5-b69a-c6f50dd30da6",
 	__origin = "Kux-CoreLib/lib/data/TechnologyIndex.lua",
 }
-
+KuxCoreLib.__modules.TechnologyIndex = TechnologyIndex
+---------------------------------------------------------------------------------------------------
 TechnologyIndex.normal={
 	effectsUnlockRecipe = {},
 	ingredients = {},
@@ -106,11 +103,17 @@ local function build(mode)
 end
 
 ---Builds the technology index
----@return TechnologyIndex
+---@return KuxCoreLib.TechnologyIndex
 function TechnologyIndex.build()
     build("normal")
     build("expensive")
     return TechnologyIndex
 end
 
-return TechnologyIndex.build()
+---------------------------------------------------------------------------------------------------
+
+function TechnologyIndex.asGlobal() return KuxCoreLib.utils.asGlobal(TechnologyIndex) end
+
+TechnologyIndex.build()
+
+return TechnologyIndex

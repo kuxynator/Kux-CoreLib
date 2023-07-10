@@ -1,5 +1,7 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
 
+local String = KuxCoreLib.String
+
 ---@diagnostic disable: lowercase-global
 
 ---iif
@@ -98,21 +100,40 @@ end
 ---@param ... any path fragmnents
 ---Usage: value = safeget(obj,"fieldA","fieldB") equivalent to obj.fieldA.fieldB, but w/o error if a field is nil
 function safeget(...)
+	--TODO: handle empty path: safeget(o, "") or safeget(o, nil)
 	local o, p
 	local c = select("#",...)
 	for i = 1, c do
-		local v = select(i,...)
-		if i == 1 then
-			o = v
-		else
-			local fragments = String.split(v,nil, {".","/"})
-			for _,fragment in ipairs(fragments) do
-				p=o;
-				o=getValue(p,fragment)
-			end
+		local v = select(i,...); 
+		if(i==1) then if(type(v)=="string") then o = _G else o = v; goto next end end
+		local fragments = String.split(v,nil, {".","/"})
+		for iFragment,fragment in ipairs(fragments) do
+			if(i==1 and iFragment==1 and fragment=="_G") then goto next end
+			p=o;
+			o=getValue(p,fragment)
 		end
 		if i == c then return o end
 		if o == nil then return nil end
+		::next::
+	end
+	return o
+end
+
+function safegetOrCreate(...)
+	local o, p
+	local c = select("#",...)
+	for i = 1, c do
+		local v = select(i,...); 
+		if(i==1) then if(type(v)=="string") then o = _G else o = v; goto next end end
+		local fragments = String.split(v,nil, {".","/"})
+		for iFragment,fragment in ipairs(fragments) do
+			if(i==1 and iFragment==1 and fragment=="_G") then goto next end
+			p=o;
+			o=getValue(p,fragment)
+			if o == nil then o={}; setValue(p,fragment,o)  end
+		end
+		if i == c then return o end
+		::next::
 	end
 end
 
@@ -122,17 +143,20 @@ end
 ---example: safeset(t, foo", index, "bar.baz", value)
 function safeset(...)
 	local p = nil
-	local o = select(1,...)
+	local o = nil
 	local c = select("#",...)
 	local lastFragment = nil
-	for i = 2, c-1 do
+	for i = 1, c-1 do
 		local v = select(i,...)
+		if(i==1) then if(type(v)=="string") then o = _G else o = v; goto next end end
 		local fragments = String.split(v,nil, {".","/"})
 		for iFragment,fragment in ipairs(fragments) do
+			if(i==1 and iFragment==1 and fragment=="_G") then goto next end
 			if(i==c-1 and iFragment == #fragments) then lastFragment=fragment; break end
 			p = o;
 			o = getValue(p,fragment,true)
 		end
+		::next::
 	end
 	setValue(o,lastFragment,select(c,...))
 end
@@ -141,3 +165,8 @@ function anypairs(t)
 	return next, t, nil
 end
 
+---@class KuxCoreLib.lua
+local lua = {
+	asGlobal=function () end -- dummy, beacause lua like methods are always global
+}
+return lua

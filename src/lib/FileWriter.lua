@@ -1,9 +1,5 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
-
-if FileWriter then
-    if FileWriter.__guid == "{D54DB186-3D06-47CC-ABF7-8C25BCAE1B44}" then return FileWriter end
-    error("A global FileWriter class already exist.")
-end
+if(KuxCoreLib.__modules.FileWriter) then return KuxCoreLib.__modules.FileWriter end
 
 --from Kux-ModExport
 --usage:
@@ -15,14 +11,17 @@ end
 		::continue::
 	end
 ]]
----@class FileWriter
-FileWriter = {
+---@class KuxCoreLib.FileWriter
+local FileWriter = {
 	__class  = "FileWriter",
 	__guid   = "{D54DB186-3D06-47CC-ABF7-8C25BCAE1B44}",
 	__origin = "Kux-CoreLib/lib/FileWriter.lua",
 }
+KuxCoreLib.__modules.FileWriter = FileWriter
 
-require(KuxCoreLib.Assert)
+---------------------------------------------------------------------------------------------------
+
+local That = KuxCoreLib.That
 
 FileWriter.flagAppend = false
 FileWriter.file = nil
@@ -30,8 +29,8 @@ FileWriter.playerId = nil
 
 ---Creates a new FileWriter instance
 FileWriter.create = function(file, playerId)
-	assert(Assert.Argument.IsNotNil(file, "file"))
-	assert(Assert.Argument.IsNotNil(file, "playerId"))
+	assert(That.Argument.IsNotNil(file, "file"))
+	assert(That.Argument.IsNotNil(file, "playerId"))
 
 	local instance = {}
 	instance.this = instance
@@ -76,5 +75,9 @@ FileWriter.writeLocalizedString = function (s)
 	game.write_file(FileWriter.file, {"", s}, FileWriter.flagAppend, FileWriter.playerId)
 	FileWriter.flagAppend = true
 end
+
+---------------------------------------------------------------------------------------------------
+
+function FileWriter.asGlobal() return KuxCoreLib.utils.asGlobal(FileWriter) end
 
 return FileWriter

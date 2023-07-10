@@ -1,17 +1,14 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+if(KuxCoreLib.__modules.RecipeData) then return KuxCoreLib.__modules.RecipeData end
 
-if RecipeData then
-    if RecipeData.__guid == "{6B1DC373-2A83-4C81-94BD-92E772340FDE}" then return RecipeData end
-    error("A global RecipeData class already exist.")
-end
-
----@class RecipeData
-RecipeData= {
+---@class KuxCoreLib.RecipeData
+local RecipeData= {
 	__class  = "RecipeData",
 	__guid   = "{6B1DC373-2A83-4C81-94BD-92E772340FDE}",
 	__origin = "Kux-CoreLib/lib/data/RecipeData.lua",
 }
-
+KuxCoreLib.__modules.RecipeData = RecipeData
+---------------------------------------------------------------------------------------------------
 RecipeData.clone = function(name, item)
 	local base = data.raw["recipe"][name]
 	if(not base) then error("Prototype not found: "..name.." (tyoe: recipe)") end
@@ -59,3 +56,9 @@ RecipeData.recipeFactor = function (recipe, factor)
 	if(recipe.expensive and recipe.expensive~=false) then recipe.expensive = RecipeData.ingredientsFactor(recipe.expensive, factor) end
 	if(recipe.ingredients) then recipe.ingredients = RecipeData.ingredientsFactor(recipe.ingredients, factor) end
 end
+
+---------------------------------------------------------------------------------------------------
+
+function RecipeData.asGlobal() return KuxCoreLib.utils.asGlobal(RecipeData) end
+
+return RecipeData

@@ -1,18 +1,16 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+if(KuxCoreLib.__modules.ColorConverter) then return KuxCoreLib.__modules.ColorConverter end
 
-if ColorConverter then
-    if ColorConverter.__guid == "{C29DBDDA-9A65-424D-98F2-45CDBAD8D2A1}" then return ColorConverter end
-    error("A global ColorConverter class already exist.")
-end
 --'Color' is already used by Factorio as Color Concept
 
 --- ColorConverter module
----@class ColorConverter Provides color conversion
-ColorConverter = {
+---@class KuxCoreLib.ColorConverter Provides color conversion
+local ColorConverter = {
 	__class = "ColorConverter",
 	__guid      = "{C29DBDDA-9A65-424D-98F2-45CDBAD8D2A1}",
 	__origin    = "Kux-CoreLib/lib/ColorConverter.lua"
 }
+KuxCoreLib.__modules.ColorConverter = ColorConverter
 
 -- to avoid circular references, the class is defined before require other modules
 -- require(KuxCoreLibPath.."Math")
@@ -171,5 +169,9 @@ function ColorConverter.hsvToRgb(h, s, v, a)
 
     return r * 255, g * 255, b * 255, a * 255
 end
+
+---------------------------------------------------------------------------------------------------
+
+function ColorConverter.asGlobal() return KuxCoreLib.utils.asGlobal(ColorConverter) end
 
 return ColorConverter

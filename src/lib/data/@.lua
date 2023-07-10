@@ -6,15 +6,12 @@ require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
 
 require(KuxCoreLibPath.."lib/@")
 
-require(KuxCoreLib.Data.DataRaw)
-require(KuxCoreLib.Data.EntityData)
-require(KuxCoreLib.Data.ItemData)
-require(KuxCoreLib.Data.PrototypeData)
---deprecated prototypeUtils.
-require(KuxCoreLib.Data.RecipeData)
-require(KuxCoreLib.Data.TechnologyData)
-require(KuxCoreLib.Data.TechnologyIndex)
+require(KuxCoreLib.Data.DataRaw        ).asGlobal()
+require(KuxCoreLib.Data.EntityData     ).asGlobal()
+require(KuxCoreLib.Data.ItemData       ).asGlobal()
+require(KuxCoreLib.Data.PrototypeData  ).asGlobal()
+require(KuxCoreLib.Data.RecipeData     ).asGlobal()
+require(KuxCoreLib.Data.TechnologyData ).asGlobal()
+require(KuxCoreLib.Data.TechnologyIndex).asGlobal()
 
 return KuxCoreLib
-
-

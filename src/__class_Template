@@ -15,9 +15,9 @@ _CLASS_ = {
 }
 
 -- to avoid circular references, the class is defined before require other modules
-require(KuxCoreLib.Table)
-require(KuxCoreLib.Assert)
-require(KuxCoreLib.String)
+local Table= KuxCoreLib.Table()
+local Assert= KuxCoreLib.Assert()
+local String = KuxCoreLib.String
 
 -- ..
 

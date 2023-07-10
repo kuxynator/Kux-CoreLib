@@ -1,9 +1,5 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
-
-if EventDistributor then
-    if EventDistributor.__guid == "{ADD81DB1-53B9-4D61-9279-401AD277DBEE}" then return EventDistributor end
-    error("A global EventDistributor class already exist.")
-end
+if(KuxCoreLib.__modules.EventDistributor) then return KuxCoreLib.__modules.EventDistributor end
 
 --[[
 	Usage:
@@ -16,18 +12,27 @@ end
 	EventDistributor.register(80, handler)
 	EventDistributor.register("on_init", handler)
 ]]
----@class EventDistributor
-EventDistributor = {
+---@class KuxCoreLib.EventDistributor
+local EventDistributor = {
 	__class  = "EventDistributor",
 	__guid   = "{ADD81DB1-53B9-4D61-9279-401AD277DBEE}",
 	__origin = "Kux-CoreLib/lib/EventDistributor.lua",
 }
+KuxCoreLib.__modules.EventDistributor = EventDistributor
+---------------------------------------------------------------------------------------------------
+
+if(_require and _require ~= require) then --OK
+elseif _require == nil then error("_require is nil!")
+elseif(_require == require) then error("require is not overridden!")
+end
+
+KuxCoreLib.override_require()
+
 
 -- to avoid circular references, the class MUST be defined before require other modules
-KuxCoreLib = KuxCoreLib or require("__Kux_CoreLib__/init")
 require(KuxCoreLib.lua)
-require(KuxCoreLib.Table)
-require(KuxCoreLib.List)
+local Table = KuxCoreLib.Table
+local List = KuxCoreLib.List
 
 ---Dictionary of EventId|EventName, table of function
 local events={}
@@ -318,5 +323,9 @@ function EventDistributor.init()
 		end
 	end
 end
+
+---------------------------------------------------------------------------------------------------
+
+function EventDistributor.asGlobal() return KuxCoreLib.utils.asGlobal(EventDistributor) end
 
 return EventDistributor

@@ -1,13 +1,9 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
-
-if Colors then
-    if Colors.__guid == "{E6240471-4450-4C9C-A3D8-43E4284D95E8}" then return Colors end
-    error("A global Colors class already exist.")
-end
+if(KuxCoreLib.__modules.Colors) then return KuxCoreLib.__modules.Colors end
 
 ---Color constants
----@class Colors Provides color constants
-Colors = {
+---@class KuxCoreLib.Colors Provides color constants
+local Colors = {
 	__class  = "Colors",
 	__guid   = "{E6240471-4450-4C9C-A3D8-43E4284D95E8}",
 	__origin = "Kux-CoreLib/lib/Colors.lua",
@@ -33,5 +29,11 @@ Colors = {
 	purple = {r = 0.6, g = 0.1, b = 0.6},
 	cyan = {r = 0, g = 1, b = 1},
 }
+
+KuxCoreLib.__modules.Colors = Colors
+
+---------------------------------------------------------------------------------------------------
+
+function Colors.asGlobal() return KuxCoreLib.utils.asGlobal(Colors) end
 
 return Colors

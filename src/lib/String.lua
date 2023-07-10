@@ -1,21 +1,19 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
-
-if (String) then
-	if(String.__guid=="{0E8BBFAF-73EF-4209-9774-B2CD6A13A296}") then return String end
-
-	local t = {}
-	for name, value in pairs(String) do table.insert(t,"  "..name.." ("..type(value)..")") end
-	log("dump String: \n{\n"..table.concat(t,"\n").."\n}")
-	error("A global String class already exist.")
-end
+if(KuxCoreLib.__modules.String) then return KuxCoreLib.__modules.String end
 
 ---Provides string functions
----@class Kux.CoreLib.String
-String = {
+---@class KuxCoreLib.String
+local String = {
 	__class  = "String",
 	__guid   = "{0E8BBFAF-73EF-4209-9774-B2CD6A13A296}",
 	__origin = "Kux-CoreLib/lib/String.lua",
+
+	__isInitialized = false,
+	__on_initialized = {}
 }
+KuxCoreLib.__modules.String = String
+---------------------------------------------------------------------------------------------------
+local Table = KuxCoreLib.Table
 
 ---Gets or sets the separator for the next concat call. 
 String.concatSeparator = "" --alias oneTineConcatSeparator
@@ -36,6 +34,14 @@ function String.concat(...)
 	return result
 end
 -- TODO concat options. single/block, tables
+
+---Joins an array of strings
+---@param separator string
+---@param strings string[] The strings to join.
+---@return string
+function String.join(separator, strings)
+	return table.concat(strings,separator)
+end
 
 ---Formats a string
 ---@param format string The format. Placeholders are %1, %2, etc.
@@ -324,6 +330,51 @@ end
 
 function String.repeatN (s, count, separator) return string.rep(s,count,separator) end
 
+function String.overlaps(a,b)
+	-- abcde
+	--    def
+	--> 4, 2
+	local aStart, aEnd , bStart, bEnd
+	
+	for i = 1, math.min(#a, #b) do
+		if a:sub(-i) == b:sub(1, i) then
+			aStart = #a - i + 1
+			aEnd = #a
+			bStart = 1
+			bEnd = i
+			break
+		end
+	end
+	
+	if aStart and aEnd and bStart and bEnd then
+		return aStart, aEnd, bStart, bEnd
+	else
+		return nil
+	end
 
+	-- abc   abc   abc   abc   ab     bc   abc     bce   abc
+	-- abc   ab     bc    b    abc   abc    bce   abc       def 
+end
+
+function String.padLeft(s, length, padChar)
+	local padLength = length - #s
+	if padLength <= 0 then return s end	
+	return string.rep(padChar or " ", padLength) .. s
+end
+
+function String.padRight(s, length, padChar)
+	local padLength = length - #s
+	if padLength <= 0 then return s end	
+	return s .. string.rep(padChar or " ", padLength)
+end
+
+-- String.padCenter / padBoth
+
+---------------------------------------------------------------------------------------------------
+
+function String.asGlobal() return KuxCoreLib.utils.asGlobal(String) end
+
+String.__isInitialized = true
+for _, fnc in ipairs(String.__on_initialized) do fnc() end
 
 return String

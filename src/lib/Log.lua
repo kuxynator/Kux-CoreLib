@@ -1,23 +1,19 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
-
-if Log then
-    if Log.__guid == "{93D539EB-D2F8-41C8-9BAB-44CFDFE67F00}" then return Log end
-	-- for key, value in pairs(Log) do print("  "..key) end
-    -- error("A global Log class already exist.")
-	log("WARNING Mod incompatibility detected. Override existing 'Log'.")
-end
+if(KuxCoreLib.__modules.Log) then return KuxCoreLib.__modules.Log end
 
 --- Log module
----@class Log
-Log = {
+---@class KuxCoreLib.Log
+local Log = {
 	__class  = "Log",
 	__guid   = "{93D539EB-D2F8-41C8-9BAB-44CFDFE67F00}",
 	__origin = "Kux-CoreLib/lib/Log.lua"
 }
+KuxCoreLib.__modules.Log = Log
+---------------------------------------------------------------------------------------------------
 
 -- to avoid circular references, the class MUST be defined before require other modules
-require(KuxCoreLib.Modules)
-require(KuxCoreLib.Table)
+local Modules = KuxCoreLib.Modules
+local Table= KuxCoreLib.Table
 
 if log == nil then log = function (s) --[[dummy]] end end -- fallback if not running in Factorio
 
@@ -177,7 +173,17 @@ function Log.userError(...)
 	game.get_player(1).print(msg, {r = 1, g = 0, b = 0, a = 1})
 end
 
+---------------------------------------------------------------------------------------------------
+
+function Log.asGlobal(mode) return KuxCoreLib.utils.asGlobal(Log, mode) end
 
 this = Log --init local this
 Modules.Log = Log -- add to modules
 return Log
+
+-- if Log then
+--     if Log.__guid == "{93D539EB-D2F8-41C8-9BAB-44CFDFE67F00}" then return Log end
+-- 	-- for key, value in pairs(Log) do print("  "..key) end
+--     -- error("A global Log class already exist.")
+-- 	log("WARNING Mod incompatibility detected. Override existing 'Log'.")
+-- end

@@ -1,13 +1,9 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
-
-if Dictionary then
-    if Dictionary.__guid == "{114989BE-8900-4ABF-91F4-BC5D19537396}" then return Dictionary end
-    error("A global Dictionary class already exist.")
-end
+if(KuxCoreLib.__modules.Dictionary) then return KuxCoreLib.__modules.Dictionary end
 
 ---DRAFT Provides Dictionary functions
----@class Dictionary
-Dictionary = {
+---@class KuxCoreLib.Dictionary
+local Dictionary = {
 	__class  = "Dictionary",
 	__guid   = "{114989BE-8900-4ABF-91F4-BC5D19537396}",
 	__origin = "Kux-CoreLib/lib/Dictionary.lua",
@@ -15,15 +11,16 @@ Dictionary = {
     ---@type integer The number of entries in the list
     count = 0
 }
-
+KuxCoreLib.__modules.Dictionary = Dictionary
+---------------------------------------------------------------------------------------------------
 -- to avoid circular references, the class is defined before require other modules
-require(KuxCoreLib.Table)
-require(KuxCoreLib.Assert)
-require(KuxCoreLib.String)
+local Table = KuxCoreLib.Table
+local Assert = KuxCoreLib.That
+local String = KuxCoreLib.String
 
 ---Creates a new dictionary
 ---@param entries {}|nil
----@return Dictionary
+---@return KuxCoreLib.Dictionary
 function Dictionary:new(entries)
 	local t = Table.shallowCopy(entries or {})
 	setmetatable(t, self)
@@ -46,5 +43,9 @@ function Dictionary:clear()
 		self[key]=nil
 	end
 end
+
+---------------------------------------------------------------------------------------------------
+
+function Dictionary.asGlobal() return KuxCoreLib.utils.asGlobal(Dictionary) end
 
 return Dictionary

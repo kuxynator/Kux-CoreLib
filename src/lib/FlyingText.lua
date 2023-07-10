@@ -1,9 +1,5 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
-
-if FlyingText then
-    if FlyingText.__guid == "{8BFF3C82-2A4F-41F8-A7B3-C2969A741749}" then return FlyingText end
-    error("A global FlyingText class already exist.")
-end
+if(KuxCoreLib.__modules.FlyingText) then return KuxCoreLib.__modules.FlyingText end
 
 local function posOffset( pos, offset )
 	return { x=pos.x + offset.x, y=pos.y + offset.y }
@@ -29,8 +25,8 @@ local function localiseString(text)
 end
 
 ---flying-text
----@class FlyingText
-FlyingText = {
+---@class KuxCoreLib.FlyingText
+local FlyingText = {
 	__class  ="FlyingText",
 	__guid   = "{8BFF3C82-2A4F-41F8-A7B3-C2969A741749}",
 	__origin = "Kux-CoreLib/lib/FlyingText.lua",
@@ -44,5 +40,10 @@ FlyingText = {
 		})
 	end
 }
+KuxCoreLib.__modules.FlyingText = FlyingText
+
+---------------------------------------------------------------------------------------------------
+
+function FlyingText.asGlobal() return KuxCoreLib.utils.asGlobal(FlyingText) end
 
 return FlyingText

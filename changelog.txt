@@ -1,4 +1,31 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.7.0
+Date: 2023-07-10
+  Features:
+    - ADD ModInfo
+    - ADD Debug: getExecutingMod, getCallingMod, getEntryMod
+    - ADD Technology
+    - ADD GuiBuilder
+    - ADD Global
+    - ADD GlobalPlayers
+    - ADD lua: safegetOrCreate
+    - ADD String: join
+    - ADD Flags
+  Changes:
+    - Assert renamed to That (breaking changes)
+    - Assert complaints like in NUnit
+    - all modules are initialized local first (breaking changes)
+      - so every one has the choice now, where modules are visible
+      - NOTE for existing mods: check the visibilitty. require(__Kux-CoreLib__/lib/module) is not global anymore!
+    - documentation updated
+  Bugfixes:
+    - Make some file extensions lowercase
+---------------------------------------------------------------------------------------------------
+Version: 2.6.1
+Date: 2023-06-29
+  Bugfixes:
+    - FIX a error with Table that was accidentally local by default
+---------------------------------------------------------------------------------------------------
 Version: 2.6.0
 Date: 2023-06-28
   Features:
@@ -18,7 +45,7 @@ Date: 2023-06-28
     - String.split add second parameter
     - List:insert parmeters swapped (breaking changes!)
     - safeget,safeset now accepts path string ("foo.bar.v")
-    - existing external Log classen wil be overriden!
+    - existing external Log modules wil be overriden!
   Bugfixes:
     - FIX a bug in Table.remove
     - FIX a bug in String.escape, '/' was not escaaped

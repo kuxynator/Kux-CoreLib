@@ -1,14 +1,9 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
-
-if Array then
-    if Array.__guid == "{57811545-A9BF-42D3-9AD5-DDEF82BB9C40}" then return Array end
-    error("A global Array class already exist.")
-    --TODO combine
-end
+if(KuxCoreLib.__modules.Array) then return KuxCoreLib.__modules.Array end
 
 ---Provides array functions
----@class Array
-Array = {
+---@class KuxCoreLib.Array
+local Array = {
 	__class  = "Array",
 	__guid   = "{57811545-A9BF-42D3-9AD5-DDEF82BB9C40}",
 	__origin = "Kux-CoreLib/lib/Array.lua",
@@ -16,15 +11,17 @@ Array = {
     ---@type integer The length of the array
     length = 0
 }
+KuxCoreLib.__modules.Array = Array
+---------------------------------------------------------------------------------------------------
 -- to avoid circular references, the class is defined before require other modules
-require(KuxCoreLib.Table)
-require(KuxCoreLib.Assert)
-require(KuxCoreLib.String)
+local Table= KuxCoreLib.Table
+local Assert= KuxCoreLib.That
+local String = KuxCoreLib.String
 
 ---Creates a new array
 ---@param values any[]
 ---@param maxlength integer
----@return Array
+---@return KuxCoreLib.Array
 function Array:new(values, maxlength)
 	local t = Table.shallowCopy(values or {})
 	setmetatable(t, self)
@@ -55,5 +52,9 @@ function Array:removeAt(index)
 	table.remove(self, index)
 	self.length = self.length - 1
 end
+
+---------------------------------------------------------------------------------------------------
+
+function Array.asGlobal() return KuxCoreLib.utils.asGlobal(Array) end
 
 return Array

@@ -1,19 +1,15 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+if(KuxCoreLib.__modules.TechnologyData) then return KuxCoreLib.__modules.TechnologyData end
 
-if TechnologyData then
-    if TechnologyData.__guid == "{5789A09A-2D34-40CA-80EB-7A3A81DD1201}" then return TechnologyData end
-    error("A global TechnologyData class already exist.")
-end
-
----@class TechnologyData
+---@class KuxCoreLib.TechnologyData
 TechnologyData = {
-	__class  = "Dictionary",
-	__guid   = "{5789A09A-2D34-40CA-80EB-7A3A81DD1201}",
-	__origin = "Kux-CoreLib/lib/data/TechnologyIndex.lua",
+	__class  = "TechnologyData",
+	__guid   = "69c904c0-8169-454a-a807-d9d5232e9986",
+	__origin = "Kux-CoreLib/lib/data/TechnologyData.lua",
 }
-
-KuxCoreLib = KuxCoreLib or require("__Kux_CoreLib__/init")
-local Table = require(KuxCoreLib.Table)--[[@as Table]]
+KuxCoreLib.__modules.TechnologyData = TechnologyData
+---------------------------------------------------------------------------------------------------
+local Table = KuxCoreLib.Table
 
 ---@deprecated
 Technology=TechnologyData
@@ -92,3 +88,8 @@ function TechnologyData.findByIngredient(ingredient)
 	return technologyNames
 end
 
+---------------------------------------------------------------------------------------------------
+
+function TechnologyData.asGlobal() return KuxCoreLib.utils.asGlobal(TechnologyData) end
+
+return TechnologyData

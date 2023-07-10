@@ -1,21 +1,27 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+if(KuxCoreLib.__modules.TestRunner) then return KuxCoreLib.__modules.TestRunner end
 
-if TestRunner then
-    if TestRunner.__guid == "{68FAAD34-FF3D-40A2-9844-BF1F9400E5A8}" then return TestRunner end
-    error("A global TestRunner class already exist.")
-    --TODO combine
-end
+-- if TestRunner then
+--     if TestRunner.__guid == "{68FAAD34-FF3D-40A2-9844-BF1F9400E5A8}" then return TestRunner end
+--     error("A global TestRunner class already exist.")
+--     --TODO combine
+-- end
 
----@class TestRunner
+---@class KuxCoreLib.TestRunner
 ---Example:  
 ---local tests = {name="Lua"}  
 ---function tests.myTest() ..[your test code].. end  
 ---TestRunner.run(tests)
-TestRunner = {
+local TestRunner = {
 	__class  = "TestRunner",
 	__guid   = "{68FAAD34-FF3D-40A2-9844-BF1F9400E5A8}",
 	__origin = "Kux-CoreLib/lib/TestRunner.lua",
 }
+KuxCoreLib.__modules.TestRunner = TestRunner
+---------------------------------------------------------------------------------------------------
+local Debug = KuxCoreLib.Debug
+local Path = KuxCoreLib.Path
+local String = KuxCoreLib.String
 
 ---@class private
 local private = {}
@@ -41,6 +47,7 @@ function private.runTestClass(testClass)
 		if type(f)~="function" then goto next end
 		local stacktrace =""
 		local innerException
+		local tracebackOutput
 		-- print(testClass.name .. " "..name)
 		local success = xpcall(f, function (ex2)
 			stacktrace = debug.traceback(ex2, 2)
@@ -55,6 +62,9 @@ function private.runTestClass(testClass)
 			--local file, line = private.getFunctionLocation(f)
 			local caller= Debug.util.extractLineBeforeXpcall(stacktrace)
 			local file, line = Debug.util.extractLineInfo(caller)
+			if(String.startsWith(innerException,"...")) then innerException = Path.guessFullName(innerException) or innerException end
+			innerException = Path.getRelativePath(innerException)
+			file = Path.getRelativePath(file)
 			print("FAIL: "..testClass.name.." "..name.." > "..innerException.." in test "..tostring(file)..":"..tostring(line))
 			--print(traceback)
 		end
@@ -118,5 +128,9 @@ function TestRunner.runCollected()
 	end
 	printSummary()
 end
+
+---------------------------------------------------------------------------------------------------
+
+function TestRunner.asGlobal() return KuxCoreLib.utils.asGlobal(TestRunner) end
 
 return TestRunner

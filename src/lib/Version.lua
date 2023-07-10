@@ -1,23 +1,17 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
-
-if (Version) then
-	if(Version.__guid=="{3F3C2EDA-5537-4643-8A33-6B00A0F42C25}") then return Version end
-    local t = {}
-    for name, value in pairs(Version) do table.insert(t,"  "..name.." ("..type(value)..")") end
-    log("dump Version: \n{\n"..table.concat(t,"\n").."\n}")
-    error("A global Version class already exist.")
-end
+if(KuxCoreLib.__modules.Version) then return KuxCoreLib.__modules.Version end
 
 ---Provides version functions
----@class Version
+---@class KuxCoreLib.Version
 Version = {
     __class  = "Version",
 	__guid   = "{3F3C2EDA-5537-4643-8A33-6B00A0F42C25}",
 	__origin = "Kux-CoreLib/lib/Version.lua",
 }
-
+KuxCoreLib.__modules.Version = Version
+---------------------------------------------------------------------------------------------------
 -- to avoid circular references, the class MUST be defined before require other modules
-require(KuxCoreLib.String)
+local String = KuxCoreLib.String
 
 Version.baseVersionGreaterOrEqual1d1 = function ()
 	local v = ""
@@ -63,7 +57,7 @@ end
 ---@param major uint16
 ---@param minor uint16
 ---@param build uint16
----@return Version
+---@return KuxCoreLib.Version
 function Version:new(major,minor,build)
 	self = {
 		majpr=major,
@@ -75,7 +69,7 @@ end
 
 ---Creates a new version from string
 ---@param s string
----@return Version
+---@return KuxCoreLib.Version
 function Version:parse(s)
 	local tokens = splitString(s)
 	self = {
@@ -86,5 +80,10 @@ function Version:parse(s)
 	return self
 end
 
-local this = Version
-return this
+---------------------------------------------------------------------------------------------------
+
+function Version.asGlobal() return KuxCoreLib.utils.asGlobal(Version) end
+
+KuxCoreLib.__modules.Version = Version
+
+return Version

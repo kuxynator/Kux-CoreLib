@@ -1,22 +1,21 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
-
-if Table then
-    if Table.__guid == "{0a7a6b17-1d2a-4001-a105-2897c4d7f4e6}" then return Table end
-    error("A global Table class already exist.")
-    --TODO combine
-end
+if(KuxCoreLib.__modules.Table) then return KuxCoreLib.__modules.Table end
 
 ---Provides table functions
----@class Table
+---@class KuxCoreLib.Table
 local Table = {
 	__class  = "Table",
 	__guid   = "{0a7a6b17-1d2a-4001-a105-2897c4d7f4e6}",
 	__origin = "Kux-CoreLib/lib/Table.lua",
-}
 
+	__isInitialized = false,
+	__on_initialized = {}
+}
+KuxCoreLib.__modules.Table = Table
+---------------------------------------------------------------------------------------------------
 -- to avoid circular references, the class MUST be defined before require other modules
-local Assert = require(KuxCoreLib.Assert)
-local String = require(KuxCoreLib.String) --[[@as Kux.CoreLib.String]]
+local That = KuxCoreLib.That
+local String = KuxCoreLib.String
 
 ---Gets all values.
 ---@param t table
@@ -408,7 +407,7 @@ end
 ---@param versionField string? name of version field. default = "dataVersion"
 ---@return table
 function Table.migrate(t, prototype, versionField)
-	assert(Assert.Argument.IsNotNil(t,"t"))
+	assert(That.Argument.IsNotNil(t,"t"))
 	assert(t~=prototype, "Argument 'prototype' must not be the same value as 't'!")
 	versionField = "dataVersion"
 	if(not prototype.dataVersion and prototype.version) then versionField = "version" end -- for compatibility
@@ -685,15 +684,15 @@ end
 function Table.isNilOrEmpty(t) return not t or #t==0 end
 
 ---Appends a value
----@param t any[]|List
+---@param t any[]|KuxCoreLib.List
 ---@param value any
 function Table.append(t, value)
 	table.insert(t, value)
 end
 
 ---Appends a sequence of values
----@param t any[]|List
----@param list any[]|List the valies to append
+---@param t any[]|KuxCoreLib.List
+---@param list any[]|KuxCoreLib.List the valies to append
 function Table.appendRange(t, list)
 	for index, value in ipairs(list) do
 		Table.append(t, value)
@@ -742,5 +741,72 @@ function Table.removeRange(t, itemsToRemove)
 		Table.remove(t, item)
 	end
 end
+
+function Table.sub(t,startpos,endpos)
+	local subTable = {}
+    local length = #t
+
+	if(endpos==nil) then endpos = length end
+
+    -- Wenn die Startposition negativ ist, wird sie an den richtigen Index angepasst
+    if startpos < 0 then
+        startpos = length + startpos + 1
+    end
+
+    -- Wenn die Endposition negativ ist, wird sie an den richtigen Index angepasst
+    if endpos < 0 then
+        endpos = length + endpos + 1
+    end
+
+    -- Überprüfung, ob die Start- und Endpositionen innerhalb der Grenzen des Tisches liegen
+    if startpos <= endpos and startpos >= 1 and endpos <= length then
+        for i = startpos, endpos do
+            subTable[#subTable + 1] = t[i]
+        end
+    end
+
+    return subTable
+end
+
+function Table.overlaps(a,b)
+	-- abcde
+	--    def
+	--> 4, 2
+	local aStart, aEnd , bStart, bEnd
+	
+	for i = 1, math.min(#a, #b) do
+		if String.join("//",Table.sub(a, -i)) == String.join("//",Table.sub(b, 1, i)) then
+			aStart = #a - i + 1
+			aEnd = #a
+			bStart = 1
+			bEnd = i
+			break
+		end
+	end
+	
+	if aStart and aEnd and bStart and bEnd then
+		return aStart, aEnd, bStart, bEnd
+	else
+		return nil
+	end
+
+	-- abc   abc   abc   abc   ab     bc   abc     bce   abc
+	-- abc   ab     bc    b    abc   abc    bce   abc       def 
+end
+
+function Table.toFlagsDictionary(t)
+	local flags = {}
+	for _, v in ipairs(t) do
+		flags[v] = true
+	end
+	return flags
+end
+
+---------------------------------------------------------------------------------------------------
+
+function Table.asGlobal() return KuxCoreLib.utils.asGlobal(Table) end
+
+Table.__isInitialized = true
+for _, fnc in ipairs(Table.__on_initialized) do fnc() end
 
 return Table

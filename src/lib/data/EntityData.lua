@@ -1,19 +1,17 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+if(KuxCoreLib.__modules.EntityData) then return KuxCoreLib.__modules.EntityData end
 
-if EntityData then
-    if EntityData.__guid == "{990068A3-AA60-4453-A786-A4F2C7E7CA7F}" then return EntityData end
-    error("A global EntityData class already exist.")
-end
-
----@class EntityData
-EntityData = {
+---@class KuxCoreLib.EntityData
+local EntityData = {
 	__class  = "EntityData",
 	__guid   = "{990068A3-AA60-4453-A786-A4F2C7E7CA7F}",
 	__origin = "Kux-CoreLib/lib/data/EntityData.lua",
 }
+KuxCoreLib.__modules.EntityData = EntityData
+---------------------------------------------------------------------------------------------------
+local Table= KuxCoreLib.Table
+local DataRaw = KuxCoreLib.DataRaw
 
-KuxCoreLib = KuxCoreLib or require("__Kux_CoreLib__/init")
-require(KuxCoreLib.Table)
 
 EntityData.clone = function(type, name, newName)
 	local base = data.raw[type][name]
@@ -76,5 +74,9 @@ function EntityData.findType(entityName)
         if(entity) then return typeName end
     end
 end
+
+---------------------------------------------------------------------------------------------------
+
+function EntityData.asGlobal() return KuxCoreLib.utils.asGlobal(EntityData) end
 
 return EntityData
