@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.Modules) then return KuxCoreLib.__modules.Modules end
 
 ---@diagnostic disable: deprecated
@@ -55,8 +55,10 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
-function Modules.asGlobal(mode) return KuxCoreLib.utils.asGlobal(Modules, mode) end
+---Provides Modules in the global namespace
+---@return KuxCoreLib.Modules
+function Modules.asGlobal() return KuxCoreLib.utils.asGlobal(Modules) end
 
-KuxCoreLib.utils.asGlobal(Modules,"override")
+KuxCoreLib.utils.asGlobal(Modules)
 return Modules
 

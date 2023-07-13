@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.FlyingText) then return KuxCoreLib.__modules.FlyingText end
 
 local function posOffset( pos, offset )
@@ -44,6 +44,8 @@ KuxCoreLib.__modules.FlyingText = FlyingText
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides FlyingText in the global namespace
+---@return KuxCoreLib.FlyingText
 function FlyingText.asGlobal() return KuxCoreLib.utils.asGlobal(FlyingText) end
 
 return FlyingText

@@ -1,15 +1,15 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
-if(KuxCoreLib.__modules.GlobalPlayer) then return KuxCoreLib.__modules.GlobalPlayer end
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
+if(KuxCoreLib.__modules.StoragePlayer) then return KuxCoreLib.__modules.StoragePlayer end
 
 ---Provides managed access to the Factorio global table
----@class KuxCoreLib.GlobalPlayer
+---@class KuxCoreLib.StoragePlayer
 ---@field frames {string:LuaGuiElement}
-local GlobalPlayer = {
-	__class  = "GlobalPlayer",
+local StoragePlayer = {
+	__class  = "StoragePlayer",
 	__guid   = "2eab6777-b887-4cf0-922c-41458b63dd2b",
-	__origin = "Kux-CoreLib/lib/global/GlobalPlayer.lua",
+	__origin = "Kux-CoreLib/lib/storage/StoragePlayer.lua",
 }
-KuxCoreLib.__modules.GlobalPlayer = GlobalPlayer
+KuxCoreLib.__modules.StoragePlayer = StoragePlayer
 ---------------------------------------------------------------------------------------------------
 
 local mt = {}
@@ -29,12 +29,12 @@ function mt.__newindex(self, key, value)
 	global.players[self.index][key]=value
 end
 
----Creates a new GlobalPlayer.  
---Usually this function does not need to be called manually. The access is made via Global.Players[index]
+---Creates a new StoragePlayer.  
+--Usually this function does not need to be called manually. The access is made via Storage.Players[index]
 ---@param player LuaPlayer|integer
 ---@param defaultData? table
----@return GlobalPlayer
-function GlobalPlayer:new(player, defaultData)
+---@return StoragePlayer
+function StoragePlayer:new(player, defaultData)
 	if(type(player)=="number") then player=game.players[player] end
 	if(not player) then error("Player does not exist.") end --TODO: return nil??
 	data = safeget("global.players["..player.index.."]")
@@ -46,6 +46,6 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
-function GlobalPlayer.asGlobal() return KuxCoreLib.utils.asGlobal(GlobalPlayer) end
+function StoragePlayer.asGlobal() return KuxCoreLib.utils.asGlobal(StoragePlayer) end
 
-return GlobalPlayer
+return StoragePlayer

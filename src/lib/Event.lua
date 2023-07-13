@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.Event) then return KuxCoreLib.__modules.Event end
 
 --- @class KuxCoreLib.Event The event class represents an event.
@@ -28,6 +28,8 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides Event in the global namespace
+---@return KuxCoreLib.Event
 function Event.asGlobal() return KuxCoreLib.utils.asGlobal(Event) end
 
 return Event

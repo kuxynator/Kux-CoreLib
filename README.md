@@ -6,14 +6,27 @@ Provides core functionality for Kuxynator's [Factorio](https://factorio.com/) [m
 This work is licensed under a [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License](https://creativecommons.org/licenses/by-nc-nd/4.0/).
 
 ## Public Library
-- [lua](#Lua) - Provides public functions missing in lua
-- [String](#String) - Provides string functions
-- [Table](#Table) - Provides table functions
-- [List](#List) - A true list
-- [That](#That) - Provides functions for assert
-- [ColorConverter](#ColorConverter) - Provides color conversion
-- [Colors](#Colors) - Provides color constants
-- ... and more
+
+module | short description
+------|------------
+[lua](#Lua) | Provides public functions missing in lua
+[ModInfo](#ModInfo) | Provides information about the current mod
+[String](#String) | Provides string functions
+[Table](#Table) | Provides table functions
+[List](#List) | A true list
+[That](#That) | Provides functions for assert
+[ColorConverter](#ColorConverter) | Provides color conversion
+[Colors](#Colors) | Provides color constants
+... | and more
+
+Tools for the data stage:
+
+module | short description
+------|------------
+[DataRRaw](#DataRRaw) | Provides tools for the data stage
+[EntityData](#EntityData) | 
+[ItemData](#ItemData) | 
+[RecipeData](#RecipeData) | 
 
 All other modules are internal use only because API not fully tested or work-in-progress. 
 
@@ -157,6 +170,23 @@ Usage:
 make some changes, all changes will be applied to the table immediately.  
 `use_a_table(t)`
 
+### ModInfo
+
+Provides information about the current mod.  
+All information are available in any stage.
+
+name          | description
+--------------|-------------
+name          | The name of the current mod e.g. `"ModName"`
+path          | The path of the current mod e.g. `"__ModName__/"`
+prefix        | The prefix of the current mod e.g. `"ModName-"`
+[current_stage](#current_stage) | The current stage. One of: "settings",..., "data", ..., "control", ,,,
+
+#### current_stage
+Gets the current stage, one of:  
+- "settings", "settings-updates", "settings-final-fixes",  
+- "data", "data-updates", "data-final-fixes",  
+- "control", "control-on-init", "control-on-load", "control-on-configuration-changed", "control-on-loaded"
 
 ## Development environment
 

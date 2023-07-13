@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.DataRaw) then return KuxCoreLib.__modules.DataRaw end
 
 ---@class KuxCoreLib.DataRaw

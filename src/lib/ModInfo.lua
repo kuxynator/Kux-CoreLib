@@ -1,5 +1,10 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
-if(KuxCoreLib.__modules.ModInfo) then return KuxCoreLib.__modules.ModInfo end
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
+if(KuxCoreLib.__modules.ModInfo) then
+	if(KuxCoreLib.__modules.ModInfo.__isInitialized) then
+		KuxCoreLib.__modules.ModInfo.update()
+	end
+	return KuxCoreLib.__modules.ModInfo
+end
 
 -- local isOverriding
 -- if ModInfo then
@@ -30,17 +35,75 @@ if(KuxCoreLib.__modules.ModInfo) then return KuxCoreLib.__modules.ModInfo end
 local ModInfo = {
 	__class  = "ModInfo",
 	__guid   = "35fb3f52-acde-45b9-9792-d1c0f570408b",
-	__origin = "Kux-CoreLib/lib/ModInfo.lua"
+	__origin = "Kux-CoreLib/lib/ModInfo.lua",
+
+	__isInitialized = false,
+	__on_initialized = {},
 }
 KuxCoreLib.__modules.ModInfo = ModInfo
 ---------------------------------------------------------------------------------------------------
-local Debug = KuxCoreLib.Debug
+local debug_util =  require((KuxCoreLibPath or "__Kux-CoreLib__/").."modules/debug_util")
 
-ModInfo.entryMod = Debug.getEntryMod
-ModInfo.callingMod= Debug.getCallingMod(true)
+ModInfo.entryMod = debug_util.getEntryMod()
+
+ModInfo.callingMod = debug_util.getCallingMod(true)
+
+---Gets the current stage
+---@type "settings"|"settings-updates"|"settings-final-fixes"|"data"|"data-updates"|"data-final-fixes"|"control"|"control-on-init"|"control-on-load"|"control-on-configuration-changed"|"control-on-loaded"|"undefined"
+ModInfo.current_stage = "undefined" -- mostly used with match, so nil would be not helpfull
+
+---Gets the current mod name  
+---@type string
+---example `ModName`
+ModInfo.name = nil
+
+---Gets the current mod name as path  
+---@type string
+---example `__ModName__/`
+ModInfo.path = nil
+
+---Gets the current mod name as prefix  
+---@type string
+---example `ModName_`
+ModInfo.prefix = nil
+
+---getEntryStage
+---@return "settings"|"settings-updates"|"settings-final-fixes"|"data"|"data-updates"|"data-final-fixes"|"control"
+ModInfo.getEntryStage = debug_util.getEntryStage
+
+---Update current_stage
+function ModInfo.update()
+	if(ModInfo.current_stage~="undefined" and ModInfo.current_stage:match("^control") and ModInfo.name) then return end
+	local stackTrace = debug.traceback()
+	local stage = "undefined"
+	local mod_name = nil
+	for line in stackTrace:gmatch("[^\r\n]+") do
+		local m, f = line:match("__([^/]+)__/([^%.]+)%.lua")
+		if m and f then stage = f; mod_name = m end
+	end
+	if(not ModInfo.current_stage or not ModInfo.current_stage:match("^control")) then
+		ModInfo.current_stage = stage
+	end
+	if(mod_name and stage) then
+		ModInfo.name = mod_name
+		ModInfo.path = "__"..mod_name.."__/"
+		ModInfo.prefix = mod_name.."_"
+	end
+end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides ModInfo in the globale namespace
+---@return KuxCoreLib.ModInfo
 function ModInfo.asGlobal() return KuxCoreLib.utils.asGlobal(ModInfo) end
+
+ModInfo.update()
+
+ModInfo.__isInitialized = true
+for _, fnc in ipairs(ModInfo.__on_initialized) do fnc() end
+
+if(ModInfo.current_stage=="control") then
+	KuxCoreLib.EventDistributor() -- this is reqired for update control states
+end
 
 return ModInfo

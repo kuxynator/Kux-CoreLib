@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.List) then return KuxCoreLib.__modules.List end
 
 ---Provides a true List 
@@ -217,6 +217,8 @@ function List.isNilOrEmpty(t) return not t or #t==0 end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides List in the global namespace
+---@return KuxCoreLib.List
 function List.asGlobal() return KuxCoreLib.utils.asGlobal(List) end
 
 return List

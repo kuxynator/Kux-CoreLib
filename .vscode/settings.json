@@ -52,20 +52,12 @@
         "c:\\Users\\Kay\\AppData\\Roaming\\Code\\User\\workspaceStorage\\6603b2e9fe3f72018ea751b33fada1f0\\justarandomgeek.factoriomod-debug\\sumneko-3rd"
     ],
     "Lua.diagnostics.libraryFiles": "Opened",
-    "Lua.hint.enable": true,
-    "Lua.hint.setType": true,
     "Lua.workspace.ignoreDir": [
         ".vscode",
-        ".vs"
+        ".vs",
+		".build"
     ],
     "Lua.diagnostics.workspaceEvent": "OnChange",
-    "factorio.versions": [
-        {
-            "name": "1.1",
-            "factorioPath": "e:\\Program Files\\Factorio\\1.1\\bin\\x64\\factorio.exe",
-            "active": true
-        }
-    ],
     "code-runner.defaultLanguage": "Lua",
     "code-runner.executorMap": {
         "javascript": "node",
@@ -130,14 +122,5 @@
         "fortran": "cd $dir && gfortran $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
         "sml": "cd $dir && sml $fileName"
     },
-    "code-runner.executorEnv": {
-        "LUA_PATH": "./?.lua;./?/init.lua"
-    },
-    "lua.modulePath": [
-        "./?.lua",
-        "./?/init.lua",
-        "./modules/?.lua"
-    ],
     "editor.insertSpaces": false,
-
 }

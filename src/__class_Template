@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
 if _CLASS_ then
     if _CLASS_.__guid == "{00000000-0000-0000-0000-000000000000}" then return _CLASS_ end

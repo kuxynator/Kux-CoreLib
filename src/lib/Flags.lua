@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.Flags) then return KuxCoreLib.__modules.Flags end
 
 ---@class KuxCoreLib.Flags
@@ -52,6 +52,8 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides Flags in the global namespace
+---@return KuxCoreLib.Flags
 function Flags.asGlobal() return KuxCoreLib.utils.asGlobal(Flags) end
 
 return Flags

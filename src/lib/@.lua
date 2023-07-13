@@ -1,43 +1,40 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
-if(_require and _require ~= require) then --OK
-elseif _require == nil then error("_require is nil!")
-elseif(_require == require) then error("require is not overridden!")
-end
 ---
----usage: require "__Kux-CoreLib__/lib/@"
+---usage: require()"__Kux-CoreLib__/lib/@")
 ---
 
 KuxCoreLib.lua             .asGlobal()
-KuxCoreLib.Modules         .asGlobal()
-KuxCoreLib.Colors          .asGlobal()
-KuxCoreLib.Debug           .asGlobal()
-KuxCoreLib.Log             .asGlobal("integrate")
-KuxCoreLib.EventDistributor.asGlobal()
-KuxCoreLib.FileWriter      .asGlobal()
-KuxCoreLib.FlyingText      .asGlobal()
-KuxCoreLib.String          .asGlobal()
-KuxCoreLib.Array           .asGlobal()
-KuxCoreLib.Dictionary      .asGlobal()
-KuxCoreLib.List            .asGlobal()
-KuxCoreLib.Table           .asGlobal()
-KuxCoreLib.Version         .asGlobal()
-KuxCoreLib.Path            .asGlobal()
-KuxCoreLib.ModInfo         .asGlobal()
+Modules          = KuxCoreLib.Modules         .asGlobal()
+Colors           = KuxCoreLib.Colors          .asGlobal()
+Debug            = KuxCoreLib.Debug           .asGlobal()
+Log              = KuxCoreLib.Log             .asGlobal()
+EventDistributor = KuxCoreLib.EventDistributor--.asGlobal()
+FileWriter       = KuxCoreLib.FileWriter      .asGlobal()
+FlyingText       = KuxCoreLib.FlyingText      .asGlobal()
+String           = KuxCoreLib.String          .asGlobal()
+Array            = KuxCoreLib.Array           .asGlobal()
+Dictionary       = KuxCoreLib.Dictionary      .asGlobal()
+List             = KuxCoreLib.List            .asGlobal()
+Table            = KuxCoreLib.Table           .asGlobal()
+Version          = KuxCoreLib.Version         .asGlobal()
+Path             = KuxCoreLib.Path            .asGlobal()
+ModInfo          = KuxCoreLib.ModInfo         .asGlobal()
+That             = KuxCoreLib.That            .asGlobal()
+Technology       = KuxCoreLib.Technology      .asGlobal()
+
 KuxCoreLib.Player          .asGlobal()
-KuxCoreLib.That            .asGlobal() -- ??
 
 -- entities --
 -- KuxCoreLib.Inserter        .asGlobal()
 
--- global --
-KuxCoreLib.Global          .asGlobal()
-KuxCoreLib.GlobalPlayer    .asGlobal()
-KuxCoreLib.GlobalPlayers   .asGlobal()
+-- storage --
+Storage         = KuxCoreLib.Storage          .asGlobal()
+StoragePlayer   = KuxCoreLib.StoragePlayer    .asGlobal()
+StoragePlayers  = KuxCoreLib.StoragePlayers   .asGlobal()
 
 -- gui --
-KuxCoreLib.GuiBuilder      .asGlobal()
-
+GuiBuilder      = KuxCoreLib.GuiBuilder       .asGlobal()
 
 
 return KuxCoreLib

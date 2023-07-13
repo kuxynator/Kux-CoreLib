@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.Path) then return KuxCoreLib.__modules.Path end
 
 ---@class KuxCoreLib.Path
@@ -69,7 +69,7 @@ function Path.getCurrentDirectory()
 end
 
 function Path.guessFullName(path)
-	-- "...rio\\Mods\\Kux-CoreLib/tests/global/GlobalPlayersTests.lua"
+	-- "...rio\\Mods\\Kux-CoreLib/tests/storage/GlobalPlayersTests.lua"
 
 	local curFolder = Path.getCurrentDirectory()
 	local fragments = String.split(path, nil, { "\\", "/" })
@@ -169,6 +169,8 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides Path in the global namespace
+---@return KuxCoreLib.Path
 function Path.asGlobal() return KuxCoreLib.utils.asGlobal(Path) end
 
 return Path

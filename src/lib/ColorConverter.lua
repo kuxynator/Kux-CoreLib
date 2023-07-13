@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.ColorConverter) then return KuxCoreLib.__modules.ColorConverter end
 
 --'Color' is already used by Factorio as Color Concept
@@ -172,6 +172,8 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides ColorConverter in the global namespace
+---@return KuxCoreLib.ColorConverter
 function ColorConverter.asGlobal() return KuxCoreLib.utils.asGlobal(ColorConverter) end
 
 return ColorConverter

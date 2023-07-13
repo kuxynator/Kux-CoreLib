@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.7.1
+Date: 2023-07-11
+  Changes:
+    - rename 'global' into 'storage', resp. all other 'Global...' names into "Storage...' 
+---------------------------------------------------------------------------------------------------
 Version: 2.7.0
 Date: 2023-07-10
   Features:
@@ -6,8 +11,9 @@ Date: 2023-07-10
     - ADD Debug: getExecutingMod, getCallingMod, getEntryMod
     - ADD Technology
     - ADD GuiBuilder
-    - ADD Global
-    - ADD GlobalPlayers
+    - ADD Global  (Storage in >= 2.7.1)
+    - ADD GlobalPlayer (StoragePlayer in >= 2.7.1)
+    - ADD GlobalPlayers (StoragePlayers in >= 2.7.1)
     - ADD lua: safegetOrCreate
     - ADD String: join
     - ADD Flags

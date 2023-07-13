@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.Array) then return KuxCoreLib.__modules.Array end
 
 ---Provides array functions
@@ -55,6 +55,8 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides Array in the global namespace
+---@return KuxCoreLib.Array
 function Array.asGlobal() return KuxCoreLib.utils.asGlobal(Array) end
 
 return Array

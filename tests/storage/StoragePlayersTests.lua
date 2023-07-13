@@ -1,10 +1,10 @@
 require "tests.setup"
-local tests = {name="GlobalPlayer"}
+local tests = {name="StoragePlayer"}
 local ignore = {}
 ---------------------------------------------------------------------------------------------------
-local Global = KuxCoreLib.Global
-local GlobalPlayer = KuxCoreLib.GlobalPlayer
-local GlobalPlayers = KuxCoreLib.GlobalPlayers
+local Storage = KuxCoreLib.Storage
+local StoragePlayer = KuxCoreLib.StoragePlayer
+local StoragePlayers = KuxCoreLib.StoragePlayers
 
 function tests.a()
 	--#region Mock
@@ -13,7 +13,7 @@ function tests.a()
 	game.players[1] = game.players[1] or {index = 1, name = "MockUser1"}
 	--#endregion
 
-	local gp=GlobalPlayers[1]
+	local gp=StoragePlayers[1]
 	gp.test1="test1"
 	assert(That.IsEqual(global.players[1].test1, "test1"))
 end
@@ -25,7 +25,7 @@ function tests.frames()
 	game.players[1] = game.players[1] or {index = 1, name = "MockUser1"}
 	--#endregion
 
-	local gp=GlobalPlayer:new(1,{})
+	local gp=StoragePlayer:new(1,{})
 	assert(That.IsNotNil(gp.frames))
 end
 

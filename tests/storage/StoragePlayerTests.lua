@@ -1,8 +1,8 @@
 require "tests.setup"
-local tests = {name="GlobalPlayer"}
+local tests = {name="StoragePlayer"}
 local ignore = {}
 ---------------------------------------------------------------------------------------------------
-local GlobalPlayer = KuxCoreLib.GlobalPlayer
+local StoragePlayer = KuxCoreLib.StoragePlayer
 
 function tests.new_new()
 	--#region Mock
@@ -12,7 +12,7 @@ function tests.new_new()
 	game.players[1] = game.players[1] or {index = 1, name = "MockUser1"}
 	--#endregion
 
-	local gp = GlobalPlayer:new(1,{foo="default"})
+	local gp = StoragePlayer:new(1,{foo="default"})
 
 	assert(That.IsEqual(global.players[1].foo,"default"))
 end
@@ -26,7 +26,7 @@ function tests.new_exist()
 	game.players[1] = game.players[1] or {index = 1, name = "MockUser1"}
 	--#endregion
 
-	local gp = GlobalPlayer:new(1,{foo="default"})
+	local gp = StoragePlayer:new(1,{foo="default"})
 
 	assert(That.IsEqual(global.players[1].foo,"existing"))
 end
@@ -38,7 +38,7 @@ function tests.new_playerNotExist()
 	game = {};  game.players = {}
 	--#endregion
 
-	assert(That.HasError(function () GlobalPlayer:new(1,{}) end))
+	assert(That.HasError(function () StoragePlayer:new(1,{}) end))
 end
 
 ---------------------------------------------------------------------------------------------------

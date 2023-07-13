@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.Player) then return KuxCoreLib.__modules.Player end
 
 ---@class KuxCoreLib.Player
@@ -23,6 +23,8 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides Player in the global namespace
+---@return KuxCoreLib.Player
 -- function Player.asGlobal(mode) return KuxCoreLib.utils.asGlobal(Player,mode) end
 function Player.asGlobal(mode) return Player end -- concurrent 'Player 'already exist in various mods
 

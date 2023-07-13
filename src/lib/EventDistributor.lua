@@ -1,6 +1,5 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.EventDistributor) then return KuxCoreLib.__modules.EventDistributor end
-
 --[[
 	Usage:
 	[control.lua]	
@@ -17,31 +16,38 @@ local EventDistributor = {
 	__class  = "EventDistributor",
 	__guid   = "{ADD81DB1-53B9-4D61-9279-401AD277DBEE}",
 	__origin = "Kux-CoreLib/lib/EventDistributor.lua",
+
+	__isInitialized = false,
+	__on_initialized = {}
 }
+setmetatable(EventDistributor,{
+	---dummy method to use with `require.KuxCoreLib.EventDistributor()
+	__call = function (t, ...) end
+})
 KuxCoreLib.__modules.EventDistributor = EventDistributor
+
 ---------------------------------------------------------------------------------------------------
 
-if(_require and _require ~= require) then --OK
-elseif _require == nil then error("_require is nil!")
-elseif(_require == require) then error("require is not overridden!")
-end
-
-KuxCoreLib.override_require()
-
+log("Stage: "..KuxCoreLib.ModInfo.current_stage)
+if(KuxCoreLib.ModInfo.current_stage~="control") then
+	function EventDistributor.asGlobal() return KuxCoreLib.utils.asGlobal(EventDistributor) end
+	return nil
+end -- events are only available in control stage
 
 -- to avoid circular references, the class MUST be defined before require other modules
-require(KuxCoreLib.lua)
+KuxCoreLib.lua.asGlobal()
 local Table = KuxCoreLib.Table
 local List = KuxCoreLib.List
+local ModInfo = KuxCoreLib.ModInfo
 
 ---Dictionary of EventId|EventName, table of function
 local events={}
 
 local isOnLoadedRaised = false
 
-local mapEventNumnerToName = {}
+local mapEventNumberToName = {}
 for name, value in pairs(defines.events) do
-	mapEventNumnerToName[value] = name
+	mapEventNumberToName[value] = name
 end
 
 ---Get name and id of an event
@@ -54,7 +60,7 @@ local function eventPair (eventIdentifier)
 	local eventId = nil
 	local eventType = type(eventIdentifier)
 	if eventType == "number" then
-		eventName = mapEventNumnerToName[eventIdentifier]
+		eventName = mapEventNumberToName[eventIdentifier]
 		eventId = eventIdentifier
 	elseif eventType == "string" then
 		eventName = eventIdentifier
@@ -71,7 +77,7 @@ end
 ---@param id integer number of the custom event
 ---@param name string name of the custom event
 function EventDistributor.registerName(id,name)
-	mapEventNumnerToName[id]=name
+	mapEventNumberToName[id]=name
 end
 
 local function getDisplayName(event)
@@ -85,32 +91,42 @@ end
 
 EventDistributor.getDisplayName=getDisplayName
 
+---common handler for all events which do not have an explicit eventhandler
+local function on_event(e)
+	--print("on_event "..getDisplayName(e.name))
+	local eventName, eventId = eventPair(e.name)
+	local key = eventId or eventName
+	local handlers = events[key]
+	if(not handlers) then return end
+	for _,fnc in pairs(handlers) do fnc(e) end
+end
+
 local function on_init()
 	--print("EventDistributor.on_init")
-	local handler = events["on_init"]
-	if(not handler) then return end
-	for _,fnc in pairs(handler) do fnc() end
+	local handlers = events["on_init"]
+	if(not handlers) then return end
+	for _,fnc in pairs(handlers) do fnc() end
 end
 
 local function on_load()
 	--print("EventDistributor.on_load")
-	local handler = events["on_load"]
-	if(not handler) then return end
-	for _,fnc in pairs(handler) do fnc() end
+	local handlers = events["on_load"]
+	if(not handlers) then return end
+	for _,fnc in pairs(handlers) do fnc() end
 end
 
 local function on_configuration_changed(e)
 	--print("EventDistributor.on_configuration_changed")
-	local handler = events["on_configuration_changed"]
-	if(not handler) then return end
-	for _,fnc in pairs(handler) do fnc(e) end
+	local handlers = events["on_configuration_changed"]
+	if(not handlers) then return end
+	for _,fnc in pairs(handlers) do fnc(e) end
 end
 
 local function on_nth_tick(e)
 	--print("EventDistributor.on_nth_tick "..e.nth_tick)
-	local handler = events["on_nth_tick"][e.nth_tick]
-	if(handler) then
-		for _,fnc in pairs(handler) do fnc(e) end
+	local handlers = events["on_nth_tick"][e.nth_tick]
+	if(handlers) then
+		for _,fnc in pairs(handlers) do fnc(e) end
 	end
 end
 
@@ -118,9 +134,9 @@ local function on_loaded(e)
 	--print("on_loaded")
 	if(isOnLoadedRaised) then return end
 
-	local handler = events.on_loaded
-	if(handler) then
-		for _,fnc in pairs(handler) do fnc(e) end
+	local handlers = events.on_loaded
+	if(handlers) then
+		for _,fnc in pairs(handlers) do fnc(e) end
 	end
 
 	--print("set isLoadRaised=true")
@@ -129,32 +145,23 @@ local function on_loaded(e)
 	EventDistributor.unregister_on_nth_tick(e.nth_tick, on_loaded)
 end
 
-local function on_event(e)
-	--print("on_event "..getDisplayName(e.name))
-	local eventName, eventId = eventPair(e.name)
-	local key = eventId or eventName
-	local handler = events[key]
-	if(not handler) then return end
-	for _,fnc in pairs(handler) do fnc(e) end
-end
-
 local function on_built(e)
 	--print("EventDistributor.on_built")
-	local handler = events["on_built"]
-	if(not handler) then return end
-	for _,fnc in pairs(handler) do fnc(e) end
+	local handlers = events["on_built"]
+	if(not handlers) then return end
+	for _,fnc in pairs(handlers) do fnc(e) end
 end
 
 local function on_destroy(e)
 	--print("EventDistributor.on_built")
-	local handler = events["on_destroy"]
-	if(not handler) then return end
-	for _,fnc in pairs(handler) do fnc(e) end
+	local handlers = events["on_destroy"]
+	if(not handlers) then return end
+	for _,fnc in pairs(handlers) do fnc(e) end
 end
 
 ---Registers an event in script
 ---@param eventIdentifier integer|uint|string
----@param ticks uint|nil only requiried for on_nth_tick
+---@param ticks uint|nil only requirid for on_nth_tick
 local function register(eventIdentifier, ticks)
 	--log("register: "..getDisplayName(eventIdentifier))
 	local eventName, eventId = eventPair(eventIdentifier)
@@ -302,30 +309,53 @@ function EventDistributor.unregister_on_destroy(fnc)
 	EventDistributor.unregister("on_destroy", fnc)
 end
 
----@deprecated
-function EventDistributor.init()
-	if(false) then
-		for key, value in pairs(events) do
-			if type(key)=="number" then
-				--print("script.on_event "..getEventDisplayName(key))
-				script.on_event(key, on_event)
-			elseif(key=="on_init" or key=="on_load" or key=="on_configuration_changed")  then
-				script[key](on_event)
-			elseif(key=="on_nth_tick" ) then
-				for ticks, value2 in pairs(value) do
-					script.on_nth_tick(ticks,on_event)
-				end
-			else
-				--print("script.on_event "..key .. " is not a number. skipped.")
+---DRAFT ONLY
+function EventDistributor.register_with_filter(eventIdentifier, filter, fnc)
+	local eventName, eventId = eventPair(eventIdentifier)
+	if(eventId ~= nil and eventId>0) then
+		local currentFilters = script.get_event_filter(eventId) --[[@as table]]
+		if(currentFilters==nil) then
+			EventDistributor.register(eventIdentifier,fnc,filter)
+			return
+		elseif(#filter>0) then
+			for _,f in ipairs(filter) do
+				table.insert(currentFilters,f)
 			end
-			-- register_on_entity_destroyed(entity)
-			::next::
+		else
+			table.insert(currentFilters,filter)
 		end
+		script.set_event_filter(eventId, currentFilters)
 	end
 end
 
+local function internal_on_onit()
+	ModInfo.current_stage="control-on-init"
+end
+
+local function internal_on_load()
+	ModInfo.current_stage="control-on-load"
+end
+
+local function internal_on_configuration_changed()
+	ModInfo.current_stage="control-on-configuration-changed"
+end
+
+local function internal_on_loaded()
+	ModInfo.current_stage="control-on-loaded"
+end
+
+EventDistributor.register("on_init", internal_on_onit)
+EventDistributor.register("on_load", internal_on_load)
+EventDistributor.register("on_loaded", internal_on_loaded)
+EventDistributor.register("on_configuration_changed", internal_on_configuration_changed)
+
 ---------------------------------------------------------------------------------------------------
 
+---Provides EventDistributor in the global namespace
+---@return KuxCoreLib.EventDistributor
 function EventDistributor.asGlobal() return KuxCoreLib.utils.asGlobal(EventDistributor) end
+
+EventDistributor.__isInitialized = true
+for _, fnc in ipairs(EventDistributor.__on_initialized) do fnc() end
 
 return EventDistributor

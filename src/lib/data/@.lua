@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
 ---
 ---usage: require "__Kux-CoreLib__/lib/data/@"
@@ -6,12 +6,12 @@ require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
 
 require(KuxCoreLibPath.."lib/@")
 
-require(KuxCoreLib.Data.DataRaw        ).asGlobal()
-require(KuxCoreLib.Data.EntityData     ).asGlobal()
-require(KuxCoreLib.Data.ItemData       ).asGlobal()
-require(KuxCoreLib.Data.PrototypeData  ).asGlobal()
-require(KuxCoreLib.Data.RecipeData     ).asGlobal()
-require(KuxCoreLib.Data.TechnologyData ).asGlobal()
-require(KuxCoreLib.Data.TechnologyIndex).asGlobal()
+KuxCoreLib.Data.DataRaw        .asGlobal()
+KuxCoreLib.Data.EntityData     .asGlobal()
+KuxCoreLib.Data.ItemData       .asGlobal()
+KuxCoreLib.Data.PrototypeData  .asGlobal()
+KuxCoreLib.Data.RecipeData     .asGlobal()
+KuxCoreLib.Data.TechnologyData .asGlobal()
+KuxCoreLib.Data.TechnologyIndex.asGlobal()
 
 return KuxCoreLib

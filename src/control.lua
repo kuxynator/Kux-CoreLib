@@ -1,6 +1,11 @@
-DataStage = "control"
+require("lib/@")
 if script.active_mods["gvv"] then require("__gvv__.gvv")() end
 require("mod")
+
+print("ModInfo.current_stage: "..ModInfo.current_stage)
+print("ModInfo.name   "..ModInfo.name)
+print("ModInfo.prefix "..ModInfo.prefix)
+print("ModInfo.path   "..ModInfo.path)
 
 ---@class KuxCoreLibInternal
 KuxCoreLibInternal={}
@@ -141,3 +146,4 @@ EventDistributor.register("on_loaded",function ()
     --error("=====STOP=====")
 end)
 --]]
+

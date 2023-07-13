@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.Table) then return KuxCoreLib.__modules.Table end
 
 ---Provides table functions
@@ -804,6 +804,8 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides Table in the global namespace
+---@return KuxCoreLib.Table
 function Table.asGlobal() return KuxCoreLib.utils.asGlobal(Table) end
 
 Table.__isInitialized = true

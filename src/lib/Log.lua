@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.Log) then return KuxCoreLib.__modules.Log end
 
 --- Log module
@@ -175,6 +175,8 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides Log in the global namespace
+---@return KuxCoreLib.Log
 function Log.asGlobal(mode) return KuxCoreLib.utils.asGlobal(Log, mode) end
 
 this = Log --init local this

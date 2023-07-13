@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.That) then return KuxCoreLib.__modules.That end
 
 ---@class KuxCoreLib.GuiBuilder
@@ -11,7 +11,7 @@ KuxCoreLib.__modules.GuiBuilder = GuiBuilder
 ---------------------------------------------------------------------------------------------------
 local Table= KuxCoreLib.Table()
 local Debug= KuxCoreLib.Debug()
-local GlobalPlayers = KuxCoreLib.GlobalPlayers
+local StoragePlayers = KuxCoreLib.StoragePlayers
 
 function GuiBuilder.generateName(name)
 	return Debug.getCallingMod(true).."_"..name
@@ -30,8 +30,8 @@ function GuiBuilder.createRelativeToGui(player, name, caption, gui, position)
 	print("createRelativeToGui '"..name.."'")
 	if(not gui) then error("Argument must not nil! Name: 'gui'"); end
 	if(not position) then error("Argument must not nil! Name: 'position'"); end
-	local oldframe = GlobalPlayers[player.index].frames[name]
-	if(oldframe) then oldframe.destroy(); GlobalPlayers[player.index].frames[name]=nil end
+	local oldframe = StoragePlayers[player.index].frames[name]
+	if(oldframe) then oldframe.destroy(); StoragePlayers[player.index].frames[name]=nil end
 
 	local frame = player.gui.relative.add({
 		type = "frame",
@@ -44,7 +44,7 @@ function GuiBuilder.createRelativeToGui(player, name, caption, gui, position)
 		}
 	})
 
-	GlobalPlayers[player.index].frames[name]=frame
+	StoragePlayers[player.index].frames[name]=frame
 	return frame
 end
 
@@ -56,10 +56,10 @@ function GuiBuilder.destroyFrame(player, name)
 	name = GuiBuilder.generateName(name)
 	print("destroyFrame '"..name.."'")
 
-	local frame = GlobalPlayers[player].frames[name]
+	local frame = StoragePlayers[player].frames[name]
 	if frame then
 		frame.destroy()
-		GlobalPlayers[player].frames[name]=nil
+		StoragePlayers[player].frames[name]=nil
 	end
 end
 

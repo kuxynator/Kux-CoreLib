@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.Colors) then return KuxCoreLib.__modules.Colors end
 
 ---Color constants
@@ -34,6 +34,8 @@ KuxCoreLib.__modules.Colors = Colors
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides Colors in the global namespace
+---@return KuxCoreLib.Colors
 function Colors.asGlobal() return KuxCoreLib.utils.asGlobal(Colors) end
 
 return Colors

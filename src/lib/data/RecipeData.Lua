@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.RecipeData) then return KuxCoreLib.__modules.RecipeData end
 
 ---@class KuxCoreLib.RecipeData

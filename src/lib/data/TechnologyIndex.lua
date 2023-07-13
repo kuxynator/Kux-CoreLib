@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.TechnologyIndex) then return KuxCoreLib.__modules.TechnologyIndex end
 
 -- https://wiki.factorio.com/Prototype/Technology

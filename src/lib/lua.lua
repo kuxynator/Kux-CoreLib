@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
 local String = KuxCoreLib.String
 
@@ -104,8 +104,11 @@ function safeget(...)
 	local o, p
 	local c = select("#",...)
 	for i = 1, c do
-		local v = select(i,...); 
-		if(i==1) then if(type(v)=="string") then o = _G else o = v; goto next end end
+		local v = select(i,...);
+		if(i==1) then
+			if(v == nil) then return nil end -- in case of safeget(nil,...)
+			if(type(v)=="string") then o = _G else o = v; goto next	end
+		end
 		local fragments = String.split(v,nil, {".","/"})
 		for iFragment,fragment in ipairs(fragments) do
 			if(i==1 and iFragment==1 and fragment=="_G") then goto next end

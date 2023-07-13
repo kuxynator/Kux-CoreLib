@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.PrototypeData) then return KuxCoreLib.__modules.PrototypeData end
 
 ---@class KuxCoreLib.PrototypeData

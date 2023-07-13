@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.FileWriter) then return KuxCoreLib.__modules.FileWriter end
 
 --from Kux-ModExport
@@ -78,6 +78,8 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides FileWriter in the global namespace
+---@return KuxCoreLib.FileWriter
 function FileWriter.asGlobal() return KuxCoreLib.utils.asGlobal(FileWriter) end
 
 return FileWriter

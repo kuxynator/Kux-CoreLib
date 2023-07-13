@@ -1,7 +1,7 @@
 require "tests.setup"
 local tests = {	name="lib.lua"}
 ---------------------------------------------------------------------------------------------------
-require(KuxCoreLib.lua)
+KuxCoreLib.lua.asGlobal()
 local Table = KuxCoreLib.Table
 
 function tests.safegetOrCreate()
@@ -26,6 +26,10 @@ function tests.safeget()
 	_G.data={a={{b="b"}}}
 	result = safeget("data.a[1].b")
 	assert(That.IsEqual(result,"b"))
+end
+
+function tests.safeget_nil()
+	assert(That.IsEqual( safeget(nil,"a.b"),nil))
 end
 
 function tests.safeset()

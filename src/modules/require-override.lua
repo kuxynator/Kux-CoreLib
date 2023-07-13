@@ -1,3 +1,5 @@
+if true then return nil end -- module is deprecated
+
 if(KuxCoreLib.__modules.RequireOverride) then
 	KuxCoreLib.override_require()
 	return
@@ -11,6 +13,7 @@ RequireOverride.require_table = {
 }
 
 local function require_override(self,arg)
+	--TODO: Require can't be used outside of control.lua parsing.
 	if(type(arg)=="string") then return _require(arg) end
 	return arg
 end
@@ -35,3 +38,5 @@ function KuxCoreLib.override_require()
 end
 
 KuxCoreLib.override_require()
+
+

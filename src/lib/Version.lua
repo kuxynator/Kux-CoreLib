@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.Version) then return KuxCoreLib.__modules.Version end
 
 ---Provides version functions
@@ -82,6 +82,8 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides Version in the global namespace
+---@return KuxCoreLib.Version
 function Version.asGlobal() return KuxCoreLib.utils.asGlobal(Version) end
 
 KuxCoreLib.__modules.Version = Version

@@ -3,7 +3,7 @@ local tests = {name="Test"}
 local ignore = {}
 ---------------------------------------------------------------------------------------------------
 
-function tests.requiereAll()
+function tests.requireAll()
 	--#region Mock
 	data = {}
 	data.raw = {}

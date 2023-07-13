@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.Technology) then return KuxCoreLib.__modules.Technology end
 
 ---@class KuxCoreLib.Technology
@@ -39,6 +39,8 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides Technology in the global namespace
+---@return KuxCoreLib.Technology
 function Technology.asGlobal() return KuxCoreLib.utils.asGlobal(Technology) end
 
 return Technology

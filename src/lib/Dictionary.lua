@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.Dictionary) then return KuxCoreLib.__modules.Dictionary end
 
 ---DRAFT Provides Dictionary functions
@@ -46,6 +46,8 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides Dictionary in the global namespace
+---@return KuxCoreLib.Dictionary
 function Dictionary.asGlobal() return KuxCoreLib.utils.asGlobal(Dictionary) end
 
 return Dictionary

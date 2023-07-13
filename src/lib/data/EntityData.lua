@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.EntityData) then return KuxCoreLib.__modules.EntityData end
 
 ---@class KuxCoreLib.EntityData

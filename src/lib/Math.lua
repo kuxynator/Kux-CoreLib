@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.Math) then return KuxCoreLib.__modules.Math end
 
 ---@class KuxCoreLib.Math : math
@@ -18,6 +18,8 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides Math in the global namespace
+---@return KuxCoreLib.Math
 function Math.asGlobal() return KuxCoreLib.utils.asGlobal(Math) end
 
 return Math

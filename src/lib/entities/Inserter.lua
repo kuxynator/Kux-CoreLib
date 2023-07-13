@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.Inserter) then return KuxCoreLib.__modules.Inserter end
 
 ---@class KuxCoreLib.Inserter

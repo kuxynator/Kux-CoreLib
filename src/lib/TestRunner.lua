@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.TestRunner) then return KuxCoreLib.__modules.TestRunner end
 
 -- if TestRunner then
@@ -131,6 +131,8 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides TestRunner in the global namespace
+---@return KuxCoreLib.TestRunner
 function TestRunner.asGlobal() return KuxCoreLib.utils.asGlobal(TestRunner) end
 
 return TestRunner

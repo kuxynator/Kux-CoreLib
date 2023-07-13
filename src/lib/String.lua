@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.String) then return KuxCoreLib.__modules.String end
 
 ---Provides string functions
@@ -372,6 +372,8 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
+---Provides String in the global namespace
+---@return KuxCoreLib.String
 function String.asGlobal() return KuxCoreLib.utils.asGlobal(String) end
 
 String.__isInitialized = true

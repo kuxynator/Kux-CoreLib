@@ -1,4 +1,4 @@
-require((KuxCoreLibPath or "__Kux-CoreLib__/").."init")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.That) then return KuxCoreLib.__modules.That end
 
 ---@class KuxCoreLib.That Provides messages for assert
@@ -595,6 +595,8 @@ That.Is=Is
 -- assert(That("foo", Is.Not.EqualTo("foo").Or.String.Not.StartsWith("f")))
 ---------------------------------------------------------------------------------------------------
 
+---Provides That in the global namespace
+---@return KuxCoreLib.That
 function That.asGlobal()
 	KuxCoreLib.utils.asGlobal(Is)
 	return KuxCoreLib.utils.asGlobal(That)
