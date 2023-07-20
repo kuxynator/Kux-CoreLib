@@ -15,4 +15,13 @@
 -- 	}
 --   })
 require("init")
-print(KuxCoreLib.ModInfo.current_stage)
+
+data:extend({
+	{
+		setting_type = "runtime-global",
+		name = "Kux-CoreLib_".."on_load_LogEvents_Summary",
+		type = "bool-setting",
+		default_value = false,
+		order = ""
+	}
+  })

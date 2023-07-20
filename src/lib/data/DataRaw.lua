@@ -69,6 +69,50 @@ function DataRaw.deleteIndex()
     DataRaw.index=nil
 end
 
+
+---@class CustomInputTemplate : CustomInput
+---@name string? name of the prototype. nil: auto
+---@name_prefix boolean|string false: nor prefix, true: use mod.prefix, string: custom prefix
+DataRaw.CustomInput_key_template={
+	type="custom-input",
+	name=nil,
+	key_sequence="",
+	include_selected_prototype=true,
+	consuming="game-only",
+	name_prefix=false
+}
+
+DataRaw.mapping_keys_de={
+	["Z"]="Y",
+	["Y"]="Z",
+	["ß"]="MINUS",			-- ß
+	["´"]="EQUALS",			-- ´
+	["Ü"]="LEFTBRACKET",	-- Ü
+	["+"]="RIGHTBRACKET",	-- +
+	["#"]="BACKSLASH",		-- #
+	["Ö"]="SEMICOLON",		-- Ö
+	["Ä"]="APOSTROPHE",		-- Ä
+	["^"]="GRAVE",			-- ^
+	["-"]="SLASH",			-- Minus Key
+}
+
+---Adds a keyboard CustomInput
+---@param key_sequence CI_key_sequence|CI_key_sequence[]
+function DataRaw.add_keyboard_CustomInput(key_sequence, template)
+	if(type(key_sequence)=="table") then
+		for _, v in ipairs(key_sequence) do	DataRaw.add_keyboard_CustomInput(v)	end
+		return
+	end
+	template = template or DataRaw.CustomInput_key_template
+	local t = table.deepcopy(template)
+	t.name=key_sequence
+	t.key_sequence=key_sequence
+	data:extend{t}
+end
+
+
+
+
 ---------------------------------------------------------------------------------------------------
 
 function DataRaw.asGlobal() return KuxCoreLib.utils.asGlobal(DataRaw) end

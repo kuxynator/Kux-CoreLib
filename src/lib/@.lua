@@ -22,6 +22,7 @@ Path             = KuxCoreLib.Path            .asGlobal()
 ModInfo          = KuxCoreLib.ModInfo         .asGlobal()
 That             = KuxCoreLib.That            .asGlobal()
 Technology       = KuxCoreLib.Technology      .asGlobal()
+StringBuilder    = KuxCoreLib.StringBuilder   .asGlobal()
 
 KuxCoreLib.Player          .asGlobal()
 

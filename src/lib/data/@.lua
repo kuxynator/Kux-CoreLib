@@ -7,11 +7,15 @@ require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 require(KuxCoreLibPath.."lib/@")
 
 KuxCoreLib.Data.DataRaw        .asGlobal()
-KuxCoreLib.Data.EntityData     .asGlobal()
-KuxCoreLib.Data.ItemData       .asGlobal()
-KuxCoreLib.Data.PrototypeData  .asGlobal()
-KuxCoreLib.Data.RecipeData     .asGlobal()
-KuxCoreLib.Data.TechnologyData .asGlobal()
-KuxCoreLib.Data.TechnologyIndex.asGlobal()
+
+if(KuxCoreLib.ModInfo.current_stage:match("^data")) then
+	KuxCoreLib.Data.EntityData     .asGlobal()
+	KuxCoreLib.Data.ItemData       .asGlobal()
+	KuxCoreLib.Data.PrototypeData  .asGlobal()
+	KuxCoreLib.Data.RecipeData     .asGlobal()
+	KuxCoreLib.Data.TechnologyData .asGlobal()
+	KuxCoreLib.Data.TechnologyIndex.asGlobal()
+	KuxCoreLib.Data.AnimationData  .asGlobal()
+end
 
 return KuxCoreLib

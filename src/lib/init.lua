@@ -38,6 +38,7 @@ end
 ---@field String KuxCoreLib.String
 ---@field Table KuxCoreLib.Table
 ---@field Technology KuxCoreLib.Technology
+---@field StringBuilder KuxCoreLib.StringBuilder
 ---@field TestRunner KuxCoreLib.TestRunner
 ---@field That KuxCoreLib.That
 ---@field Version KuxCoreLib.Version
@@ -173,6 +174,18 @@ function KuxCoreLib.utils.asGlobal(t, mode)
 	_G[name] = t
 	return t
 end
+
+---Requires all modules as global
+function KuxCoreLib.requireAll()
+	if(KuxCoreLib.ModInfo.current_stage:match("^data") or KuxCoreLib.ModInfo.current_stage:match("^settings")) then
+		require("__Kux-CoreLib__/lib/data/@")
+	elseif(KuxCoreLib.ModInfo.current_stage=="control") then
+		require("__Kux-CoreLib__/lib/@")
+	end
+	return KuxCoreLib
+end
+
+
 
 KuxCoreLib.Data = {}
 setmetatable(KuxCoreLib.Data,{

@@ -15,6 +15,16 @@ KuxCoreLib.__modules.String = String
 ---------------------------------------------------------------------------------------------------
 local Table = KuxCoreLib.Table
 
+---Create a string.
+---@param s string The base string.
+---@param count integer The number of repetitions
+---@return string
+String.new = function(s, count)
+	local r = ""
+	for i = 1, count, 1 do r = r .. s end
+	return r
+end
+
 ---Gets or sets the separator for the next concat call. 
 String.concatSeparator = "" --alias oneTineConcatSeparator
 
@@ -212,6 +222,30 @@ function String.escape(s)
 	return r
 end
 
+--source: [1]
+local _escapeMatches = {
+    ["^"] = "%^";
+    ["$"] = "%$";
+    ["("] = "%(";
+    [")"] = "%)";
+    ["%"] = "%%";
+    ["."] = "%.";
+    ["["] = "%[";
+    ["]"] = "%]";
+    ["*"] = "%*";
+    ["+"] = "%+";
+    ["-"] = "%-";
+    ["?"] = "%?";
+    ["\0"] = "%z";
+}
+
+--source: [1]
+---Escapes a string for gsub/gmatch.
+---@param s string The string to escape.
+String.escape_dld=function(s)
+	return (s:gsub(".", _escapeMatches))
+end
+
 ---Escapes a string[]
 ---@param t string[]
 ---@return string[]
@@ -321,6 +355,9 @@ function String.isNilOrEmpty(s)
 	return s == nil or string.len(s) == 0
 end
 
+---@deprecated Use isNilOrEmpty
+String.isNullOrEmpty = String.isNilOrEmpty
+
 ---Checks if a string is nil, empty or consists only of whitespace characters.
 ---@tparam string s The string to be checked.
 ---@treturn bool Returns true if the string is nil or contains only whitespace characters, false otherwise.
@@ -368,7 +405,15 @@ function String.padRight(s, length, padChar)
 	return s .. string.rep(padChar or " ", padLength)
 end
 
+function String.richText(p,v,s)
+    -- [color=#57AEFF][/color]
+    if type(s)=="table" then s = serpent.line(s) end -- LocalisedString
+    return "["..p.."="..v.."]"..s.."[/"..p.."]"
+end
+
 -- String.padCenter / padBoth
+
+-- [1]: https://github.com/lua-nucleo/lua-nucleo/blob/v0.1.0/lua-nucleo/string.lua#L245-L267 
 
 ---------------------------------------------------------------------------------------------------
 

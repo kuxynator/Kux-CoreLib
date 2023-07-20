@@ -106,4 +106,17 @@ if(ModInfo.current_stage=="control") then
 	KuxCoreLib.EventDistributor() -- this is reqired for update control states
 end
 
+function ModInfo.new()
+	local mod = setmetatable(
+		{
+			__base = KuxCoreLib.ModInfo
+		},
+		{
+			__index = KuxCoreLib.ModInfo,
+			__metatable = "Metatable is protected!"
+		}
+	)
+	return mod
+end
+
 return ModInfo

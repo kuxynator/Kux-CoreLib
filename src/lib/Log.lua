@@ -173,6 +173,34 @@ function Log.userError(...)
 	game.get_player(1).print(msg, {r = 1, g = 0, b = 0, a = 1})
 end
 
+---Formats a parameter.
+---@param s? any The value. (can be nil)
+---@return string
+function Log.P(s)
+    if s == nil then return "" end
+    if type(s)=="string" then return " \""..s.."\"" end
+    return " "..tostring(s)
+end
+
+---Formats a parameter.
+---@param name string
+---@param s? any The value. (can be nil)
+---@return string
+function Log.NP(name,s)
+    if s == nil then return "" end
+    if type(s)=="string" then return " "..name..":\""..s.."\"" end
+    return " "..name..":"..tostring(s)
+end
+---Formats a parameter.
+---@param name string
+---@param s? any The value. (can be nil)
+---@return string
+function Log.LNP(name,s)
+    if s == nil then return "" end
+    if type(s)=="string" then return "\n  "..name..":\""..s.."\"" end
+    return "\n  "..name..":"..tostring(s)
+end
+
 ---------------------------------------------------------------------------------------------------
 
 ---Provides Log in the global namespace

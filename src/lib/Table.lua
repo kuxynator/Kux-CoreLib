@@ -166,6 +166,7 @@ function Table.countNonNumericKeys(t)
 	end
 end
 
+---Counts all entries for mixed tables (keys and indicies)
 function Table.countAll(t)
 	local nnk = Table.countNonNumericKeys(t)
 	local l =  #t --TODO: does not work with gap array
@@ -680,8 +681,8 @@ function Table.hasIndices(t)
 	return false
 end
 
----@deprecated Use List, Array or Dictionary
-function Table.isNilOrEmpty(t) return not t or #t==0 end
+---isNilOrEmpty
+function Table.isNilOrEmpty(t) return t==nil or Table.isEmpty(t) end
 
 ---Appends a value
 ---@param t any[]|KuxCoreLib.List

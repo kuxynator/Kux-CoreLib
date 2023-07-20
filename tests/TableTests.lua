@@ -269,6 +269,8 @@ function tests.isEmpty()
 	t[2]=nil; assert(That.IsTrue(Table.isEmpty(t)))
 	t={a="a"}; assert(That.IsFalse(Table.isEmpty(t)))
 	t.a=nil; assert(That.IsTrue(Table.isEmpty(t)))
+	t = {1,2,3, a="a"};t[2]=nil;t[1]=nil;t["a"]=nil;assert(That.IsFalse(Table.isEmpty(t)))
+	t[3]=nil;assert(That.IsTrue(Table.isEmpty(t)))
 end
 
 function tests.isEqual()

@@ -2,7 +2,7 @@ require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.TechnologyData) then return KuxCoreLib.__modules.TechnologyData end
 
 ---@class KuxCoreLib.TechnologyData
-TechnologyData = {
+local TechnologyData = {
 	__class  = "TechnologyData",
 	__guid   = "69c904c0-8169-454a-a807-d9d5232e9986",
 	__origin = "Kux-CoreLib/lib/data/TechnologyData.lua",
@@ -10,9 +10,6 @@ TechnologyData = {
 KuxCoreLib.__modules.TechnologyData = TechnologyData
 ---------------------------------------------------------------------------------------------------
 local Table = KuxCoreLib.Table
-
----@deprecated
-Technology=TechnologyData
 
 function TechnologyData.clone(name, newName)
 	local base = data.raw["technology"][name]
