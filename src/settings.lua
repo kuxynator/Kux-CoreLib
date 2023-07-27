@@ -24,4 +24,4 @@ data:extend({
 		default_value = false,
 		order = ""
 	}
-  })
+})

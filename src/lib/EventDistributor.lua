@@ -197,6 +197,7 @@ end
 ---@param eventIdentifier uint|string
 ---@param ticks uint|nil only requiried for on_nth_tick
 local function unregister(eventIdentifier, ticks)
+	if(game.is_multiplayer()) then return end
 	--log("unregister: "..getDisplayName(eventIdentifier)..iif(ticks~=nil," ticks="..ticks,""))
 	local eventName, eventId = eventPair(eventIdentifier)
 	if    (eventName=="on_init"                 ) then script[eventName](nil)
