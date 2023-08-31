@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.8.0
+Date: 2023-08-29
+  Features:
+    - ADD class Trace
+    - ADD class Events
+    - ADD EventDistributor: register_on_timer, unregister_on_timer
+    - ADD SettingsData.extend
+  Bugfixes:
+    - FIX a bug in safeget
+---------------------------------------------------------------------------------------------------
 Version: 2.7.3
 Date: 2023-07-27
   Features:

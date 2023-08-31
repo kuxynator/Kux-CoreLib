@@ -69,6 +69,7 @@ end
 
 
 local function getValue(object, fragment, createPartIfNotExits)
+	--print("getValue", object or "<nil>", fragment or "<nil>", createPartIfNotExits)
 	local name, index = string.match(fragment, "^([^.]+)%[(%d+)%]$")
 	if name and index then
 		if(object[name]==nil) then
@@ -114,9 +115,8 @@ function safeget(...)
 			if(i==1 and iFragment==1 and fragment=="_G") then goto next end
 			p=o;
 			o=getValue(p,fragment)
+			if o == nil then return nil end
 		end
-		if i == c then return o end
-		if o == nil then return nil end
 		::next::
 	end
 	return o

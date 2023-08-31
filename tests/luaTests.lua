@@ -4,6 +4,25 @@ local tests = {	name="lib.lua"}
 KuxCoreLib.lua.asGlobal()
 local Table = KuxCoreLib.Table
 
+function tests.safeget_global()
+	_G.global = _G.global or {}
+	global.a = {b="b"}
+	local result = safeget("global.a.b")
+	assert(That.IsEqual(result,"b"))
+
+	global.a.b = nil
+	result = safeget("global.a.b")
+	assert(That.IsNil(result))
+
+	global.a = nil
+	result = safeget("global.a.b")
+	assert(That.IsNil(result))
+
+	global = nil
+	result = safeget("global.a.b")
+	assert(That.IsNil(result))
+end
+
 function tests.safegetOrCreate()
 	local data={}
 	local result = safegetOrCreate(data,"a.b")

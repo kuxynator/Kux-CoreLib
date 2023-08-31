@@ -30,7 +30,7 @@ local util = {}
 
 if(KuxCoreLib.ModInfo.current_stage~="control") then
 	function EventDistributor.asGlobal() return KuxCoreLib.utils.asGlobal(EventDistributor) end
-	return nil
+	return EventDistributor
 end -- events are only available in control stage
 
 -- to avoid circular references, the class MUST be defined before require other modules
@@ -83,7 +83,7 @@ end
 
 local function getDisplayName(event)
 	local eventName, eventId = eventPair(event)
-	if(not eventId or eventId==0) then
+	if(not eventId or eventId<0) then
 		return eventName or "unknown"
 	else
 		return (eventName or "custom").."("..tostring(eventId)..")"
@@ -172,6 +172,18 @@ local function on_destroy(e)
 	for _,fnc in pairs(handlers) do fnc(e) end
 end
 
+---@param e NthTickEventData 
+local function on_timer(e)
+	local handlers = events["on_timer"][e.tick]
+	if(handlers) then
+		for _,fnc in pairs(handlers) do fnc(e) end
+		events["on_timer"][e.tick] = nil
+		if(Table.count(events["on_timer"]) == 0) then
+			EventDistributor.unregister_on_nth_tick(1, on_timer)
+		end
+	end
+end
+
 local function check_customInput(name)
 	if(game.custom_input_prototypes[name]) then return end
 	error("CustomInput does not exist. Name:'"..tostring(name).."'")
@@ -187,7 +199,7 @@ local function register(eventIdentifier, param)
 	elseif(eventName=="on_load"                 ) then script[eventName](on_load)
 	elseif(eventName=="on_configuration_changed") then script[eventName](on_configuration_changed)
 	elseif(eventName=="on_nth_tick"             ) then script.on_nth_tick(param,  on_nth_tick)
-	elseif(eventId and eventId > 0              ) then script.on_event(eventId,   on_event)
+	elseif(eventId and eventId >= 0             ) then script.on_event(eventId,   on_event)
 	else   --[[check_customInput(eventName); ]]        script.on_event(eventName, on_event_customInput)
 	end
 	-- can't use check_customInput, because 'game' is not yet available
@@ -195,7 +207,7 @@ end
 
 ---Unregisters an event in script
 ---@param eventIdentifier uint|string
----@param ticks uint|nil only requiried for on_nth_tick
+---@param ticks uint|nil only required for on_nth_tick
 local function unregister(eventIdentifier, ticks)
 	if(game.is_multiplayer()) then return end
 	--log("unregister: "..getDisplayName(eventIdentifier)..iif(ticks~=nil," ticks="..ticks,""))
@@ -204,7 +216,7 @@ local function unregister(eventIdentifier, ticks)
 	elseif(eventName=="on_load"                 ) then script[eventName](nil)
 	elseif(eventName=="on_configuration_changed") then script[eventName](nil)
 	elseif(eventName=="on_nth_tick"             ) then script.on_nth_tick(ticks, nil)
-	elseif(eventId and eventId > 0              ) then script.on_event(eventId, nil)
+	elseif(eventId and eventId >= 0             ) then script.on_event(eventId, nil)
 	else error("Unknown event: "..getDisplayName(eventIdentifier))
 	end
 end
@@ -213,7 +225,7 @@ end
 ---@param eventIdentifier integer|uint|string
 ---@param fnc function
 function EventDistributor.unregister(eventIdentifier, fnc)
-	if(not fnc) then error("Argument 'fnc' must not be nil!") end
+	assert(fnc~=nil, "Invalid Argument. 'fnc' must not be nil!")
 	local eventName, eventId = eventPair(eventIdentifier)
 	local key = eventId or eventName
 	Table.remove(events[key], fnc)
@@ -236,15 +248,16 @@ end
 ---Registers an event
 ---@param eventIdentifier integer|uint|string
 ---@param fnc function
----@param param any Optional parameter, depends on eventIdentifier (filter)
+---@param arg any Optional parameter, depends on eventIdentifier (filter)
 ---@return boolean #true if succesfully registered else false
-function EventDistributor.register (eventIdentifier, fnc, param)
-	if(eventIdentifier==nil) then error("Argumrnt 'eventIdentifier' must not be nil.") end
-	if(fnc==nil) then error("Argument 'fnc' must not be nil.") end
-	if(type(fnc)~="function") then error("Argument 'fnc' must be a function.") end
+function EventDistributor.register (eventIdentifier, fnc, arg)
+	assert(eventIdentifier~=nil,  "Invalid Argument. 'eventIdentifier' must not be nil.")
+	assert(fnc~=nil,              "Invalid Argument. 'fnc' must not be nil.")
+	assert(type(fnc)=="function", "Invalid Argument. 'fnc' must be a function.")
+
 	if(type(eventIdentifier)=="table") then
 		for _, ei in ipairs(eventIdentifier) do
-			EventDistributor.register(ei, fnc, param)
+			EventDistributor.register(ei, fnc, arg)
 		end
 		return true
 	end
@@ -254,12 +267,13 @@ function EventDistributor.register (eventIdentifier, fnc, param)
 	local key = eventId or eventName
 	if    (eventName=="nth_tick"  ) then error("Argument out of range. name: eventIdentifier, value: "..eventIdentifier)
 	elseif(eventName=="on_loaded" ) then EventDistributor.register_nth_tick(1, on_loaded)
+	elseif(eventName=="on_timer"  ) then error("Argument out of range. name: eventIdentifier, value: "..eventIdentifier)
 	elseif(eventName=="on_built"  ) then EventDistributor.register_on_built(nil, fnc); return true
 	elseif(eventName=="on_destroy") then EventDistributor.register_on_destroy(nil, fnc); return true
-	end
+	end	
 	if(List.isNilOrEmpty(events[key])) then
 		events[key] = {fnc}
-		if(eventName ~= "on_loaded") then register(eventIdentifier, param) end
+		if(eventName ~= "on_loaded") then register(eventIdentifier, arg) end
 	else
 		if(Table.contains(events[key], fnc)) then return false end
 		table.insert(events[key], fnc)
@@ -273,7 +287,7 @@ end
 ---@return boolean #true if succesfully registered else false
 function EventDistributor.register_nth_tick(ticks, fnc)
 	--print("EventDistributor.register "..getDisplayName("on_nth_tick"))
-	if(not fnc) then error("Argument 'fnc' must not be nil!") end
+	assert(type(fnc)=="function", "Invalid Argument. 'fnc' must be a function.")
 	if not events["on_nth_tick"] then events["on_nth_tick"] = {} end
 	if (List.isNilOrEmpty(events["on_nth_tick"][ticks])) then
 		events["on_nth_tick"][ticks] = {fnc}
@@ -290,10 +304,29 @@ end
 ---@param fnc function
 function EventDistributor.unregister_on_nth_tick(ticks, fnc)
 	--print("EventDistributor.unregister_on_nth_tick "..tick)
-	if(not fnc) then error("Argument 'fbc' must not be nil!") end
+	assert(type(fnc)=="function", "Invalid Argument. 'fnc' must be a function.")
 	Table.remove(events["on_nth_tick"][ticks], fnc)
 	if(#events["on_nth_tick"][ticks]>0) then return end
 	unregister("on_nth_tick",ticks)
+end
+
+---Registers an on_timer
+---@param tick uint the number of ticks after the event is raised.
+---@param fnc function
+---@return boolean #true if succesfully registered else false
+function EventDistributor.register_on_timer(tick, fnc)
+	assert(type(tick)=="number", "Invalid Argument. 'tick' must be a integer.")
+	assert(type(fnc)=="function", "Invalid Argument. 'fnc' must be a function.")
+	tick = tick + game.tick
+	if not events["on_timer"] then events["on_timer"] = {} end
+	if (List.isNilOrEmpty(events["on_timer"][tick])) then
+		events["on_timer"][tick] = {fnc}
+		EventDistributor.register_nth_tick(1, on_timer)
+	else
+		if(Table.contains(events["on_timer"][tick], fnc)) then return false end
+		table.insert(events["on_timer"][tick], fnc)
+	end
+	return true
 end
 
 local function register_artifical_event(key,fnc)
@@ -381,7 +414,7 @@ function util.log_summary()
 	log(sb:toString())
 end
 
-local function internal_on_onit()
+local function internal_on_init()
 	ModInfo.current_stage="control-on-init"
 end
 
@@ -400,7 +433,7 @@ local function internal_on_loaded(e)
 	-- end
 end
 
-EventDistributor.register("on_init", internal_on_onit)
+EventDistributor.register("on_init", internal_on_init)
 EventDistributor.register("on_load", internal_on_load)
 EventDistributor.register("on_loaded", internal_on_loaded)
 EventDistributor.register("on_configuration_changed", internal_on_configuration_changed)
@@ -414,4 +447,5 @@ function EventDistributor.asGlobal() return KuxCoreLib.utils.asGlobal(EventDistr
 EventDistributor.__isInitialized = true
 for _, fnc in ipairs(EventDistributor.__on_initialized) do fnc() end
 
+print("returning EventDistributor "..type(EventDistributor))
 return EventDistributor
