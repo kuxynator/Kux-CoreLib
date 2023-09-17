@@ -1,4 +1,4 @@
----@class debug_util
+---@class KuxCoreLib.debug_util
 local debug_util = {} --> Debug.util
 
 local function unescapeWhitespaces(str)

@@ -37,12 +37,14 @@ end
 --#region
 
 local function merge(order_index, common, data, final_fixes)
+	--print("merge", order_index, common, data, final_fixes)
 	local merged = {}
 	--merge common-- << extend(common)
 	for k,v in pairs(common) do merged[k] = v end
 	merged.setting_type = merged.setting_type or common[1] or error("Missing value 'setting_type'")
 	merged.order = (merged.order or common[2])
-	if(merged.order) then merged.order = merged.order..(order_index or "") end
+	if(merged.order) then merged.order = string.format("%s%02d", merged.order, order_index or 0) end
+	--print("  order", merged.order)
 	--correct missspelled names
 	if(merged.setting_type:match("user")) then merged.setting_type = "runtime-per-user"
 	elseif(merged.setting_type:match("global")) then merged.setting_type = "runtime-global"

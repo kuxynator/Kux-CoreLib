@@ -42,14 +42,20 @@ local ModInfo = {
 }
 KuxCoreLib.__modules.ModInfo = ModInfo
 ---------------------------------------------------------------------------------------------------
-local debug_util =  require((KuxCoreLibPath or "__Kux-CoreLib__/").."modules/debug_util")
+local debug_util =  require((KuxCoreLibPath or "__Kux-CoreLib__/").."modules/debug_util") --[[@KuxCoreLib.debug_util]]
 
+---Gets the entry mod
+---@type string
 ModInfo.entryMod = debug_util.getEntryMod()
 
+---Gets the calling mod
+---@type string
 ModInfo.callingMod = debug_util.getCallingMod(true)
 
 ---Gets the current stage
 ---@type "settings"|"settings-updates"|"settings-final-fixes"|"data"|"data-updates"|"data-final-fixes"|"control"|"control-on-init"|"control-on-load"|"control-on-configuration-changed"|"control-on-loaded"|"undefined"
+---
+---Sequence: settings > settings-updates > settings-final-fixes > data > data-updates > data-final-fixes > control > control-on-init > control-on-load > control-on-configuration-changed > control-on-loaded
 ModInfo.current_stage = "undefined" -- mostly used with match, so nil would be not helpfull
 
 ---Gets the current mod name  
@@ -93,7 +99,7 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
----Provides ModInfo in the globale namespace
+---Provides ModInfo in the global namespace
 ---@return KuxCoreLib.ModInfo
 function ModInfo.asGlobal() return KuxCoreLib.utils.asGlobal(ModInfo) end
 

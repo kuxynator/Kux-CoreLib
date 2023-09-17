@@ -16,6 +16,19 @@ local Storage = {
 KuxCoreLib.__modules.Storage = Storage
 ---------------------------------------------------------------------------------------------------
 
+---Gets a value indicating wether the Storage (resp. the `global` variable) can be read.
+---@type boolean
+---
+---`global` can be read in or after 'on_init' and 'on_load'
+Storage.canRead = false
+
+---Gets a value indicating wether the Storage (resp. the `global` variable) can be changed.
+---@type boolean
+---
+---`global` can be changed in or after 'on_init' or after 'on_load'
+Storage.canWrite = false
+
+
 local StoragePlayers = KuxCoreLib.StoragePlayers
 
 local getter = {

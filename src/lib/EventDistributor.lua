@@ -39,6 +39,7 @@ local Table = KuxCoreLib.Table
 local List = KuxCoreLib.List
 local ModInfo = KuxCoreLib.ModInfo
 local StringBuilder = KuxCoreLib.StringBuilder
+local Storage = KuxCoreLib.Storage
 
 ---Dictionary of EventId|EventName, table of function
 local events={}
@@ -95,8 +96,15 @@ EventDistributor.getDisplayName=getDisplayName
 local function on_init()
 	--print("EventDistributor.on_init")
 	local handlers = events["on_init"]
-	if(not handlers) then return end
-	for _,fnc in pairs(handlers) do fnc() end
+	if(handlers) then 
+		for _,fnc in pairs(handlers) do fnc() end
+	end
+
+	 -- we set the state in advance, the state is valid on next tick
+	ModInfo.isModLoaded = true
+	ModInfo.current_stage = "control-on-loaded"
+	Storage.canRead = true
+	Storage.canWrite = true
 end
 
 local function on_load()
@@ -108,13 +116,25 @@ local function on_load()
 	if(settings.global["Kux-CoreLib_".."on_load_LogEvents_Summary"].value) then
 		util.log_summary()
 	end
+
+	 -- we set the state in advance, the state is valid on next tick
+	 ModInfo.isModLoaded = true
+	 ModInfo.current_stage = "control-on-loaded"
+	 Storage.canRead = true
+	 Storage.canWrite = true
 end
 
 local function on_configuration_changed(e)
+	ModInfo.current_stage = "control-on-configuration-changed"
+
 	--print("EventDistributor.on_configuration_changed")
 	local handlers = events["on_configuration_changed"]
-	if(not handlers) then return end
-	for _,fnc in pairs(handlers) do fnc(e) end
+	if(not handlers) then
+		for _,fnc in pairs(handlers) do fnc(e) end
+	end
+
+	 -- we set the state in advance, the state is valid on next tick
+	 ModInfo.current_stage = "control-on-loaded"
 end
 
 local function on_nth_tick(e)
@@ -447,5 +467,4 @@ function EventDistributor.asGlobal() return KuxCoreLib.utils.asGlobal(EventDistr
 EventDistributor.__isInitialized = true
 for _, fnc in ipairs(EventDistributor.__on_initialized) do fnc() end
 
-print("returning EventDistributor "..type(EventDistributor))
 return EventDistributor

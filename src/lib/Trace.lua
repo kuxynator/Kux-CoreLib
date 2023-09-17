@@ -89,9 +89,9 @@ local EventDistributor = KuxCoreLib.EventDistributor
 local Events = KuxCoreLib.Events
 
 local function on_close_clicked(e)
-	if(not e.element and e.element.name~="KuxCoreLib_trace_messagebox_close") then return end
+	if(not e.element or e.element.name~="KuxCoreLib_trace_messagebox_close") then return end
 	local player = game.players[e.player_index]
-	player.gui.center.KuxCoreLib_trace_messagebox.destroy()
+	player.gui.screen.KuxCoreLib_trace_messagebox.destroy()
 	EventDistributor.unregister(defines.events.on_gui_click, on_close_clicked)
 	global.events.Trace.on_close_clicked = nil
 end
@@ -100,15 +100,18 @@ function Trace.showMessage(player, message)
 	--TODO: not for multiplayer
 	--game.show_message_dialog{text=message, 
 	-- style?=…, wrapper_frame_style?=
-	local g = player.gui.center.KuxCoreLib_trace_messagebox
+	local g = player.gui.screen.KuxCoreLib_trace_messagebox
 	if(g) then g.destroy() end
 
-	local frame = player.gui.center.add {
+	local frame = player.gui.screen.add {
 		type = "frame",
 		name = "KuxCoreLib_trace_messagebox",
 		caption = "Trace Notice",
 		direction = "vertical"
 	}
+    -- local screen_width = player.display_resolution.width
+    -- local screen_height = player.display_resolution.height    
+    -- frame.location = {screen_width - frame.style.minimal_width, screen_height - frame.style.minimal_height}
 
 	local textbox = frame.add {
 		type = "text-box",
@@ -131,12 +134,30 @@ function Trace.showMessage(player, message)
 	global.events.Trace.on_close_clicked = true
 end
 
-
-Events.on_load(function()
-	if(safeget("global.events.Trace.on_close_clicked")) then
-		Events.on_event(defines.events.on_gui_click, on_close_clicked)
+function Trace.formatEntityEvent(e)
+	local entity = e.entity or e.created_entity or e.last_entity
+	if(not entity) then return "???" end
+	local sb = ""
+	if(entity.name=="entity-ghost") then
+		sb=sb.."entity-ghost ("..(entity.ghost_name)..")"
+	else
+		sb=sb..entity.name.. " (#"..(entity.unit_number or "-")..")"
 	end
-end)
+	sb=sb.." ["..EventDistributor.getDisplayName(e.name).."]"
+	return sb
+end
+
+local function on_events_initialized()
+	Events.on_load(function()
+		if(safeget("global.events.Trace.on_close_clicked")) then
+			Events.on_event(defines.events.on_gui_click, on_close_clicked)
+		end
+	end)
+end
+
+if(Events.__isInitialized) then on_events_initialized() 
+else table.insert(Events.__on_initialized, on_events_initialized) 
+end
 ---------------------------------------------------------------------------------------------------
 end_init()
 return Trace
