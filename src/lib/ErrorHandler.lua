@@ -148,6 +148,7 @@ local function on_loaded()
 end
 
 local function on_events_initialized()
+	if(ModInfo.current_stage ~= "control") then return end
 	Events.on_load(on_load)
 	Events.on_loaded(on_loaded)
 end

@@ -59,6 +59,8 @@ end
 ---@field StoragePlayer KuxCoreLib.StoragePlayer
 ---@field StoragePlayers KuxCoreLib.StoragePlayers
 ---@field GuiBuilder KuxCoreLib.GuiBuilder
+---@field PickerDollies KuxCoreLib.PickerDollies
+
 KuxCoreLib = {
 	__class  = "KuxCoreLib",
 	__guid   = "7c4df965-a929-4f58-92e6-4cfa6a60f4b8",
@@ -102,6 +104,7 @@ local require_map = { --RUN (F5) to AUTOGENERATE
         TestRunner = "",
         That = "",
         Version = "",
+		PickerDollies = "",
         DataRaw = "data",
         EntityData = "data",
         ItemData = "data",

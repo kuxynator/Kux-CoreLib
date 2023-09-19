@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.8.2
+  Features:
+    - ADD PickerDollies support (optional)
+    - ADD Events.on_entity_moved (using PickerDollies)
+    - ADD Events.getDisplayName, registerName (alias for same functions in EventDistributor)
+---------------------------------------------------------------------------------------------------
 Version: 2.8.1
   Features:
     - ADD ModInfo.isModLoaded

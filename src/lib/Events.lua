@@ -12,12 +12,27 @@ local Events = {
 }
 KuxCoreLib.__modules.Events = Events
 ---------------------------------------------------------------------------------------------------
-if(KuxCoreLib.ModInfo.current_stage~="control") then
-	function Events.asGlobal() return KuxCoreLib.utils.asGlobal(Events) end
+local function initilized()
+	Events.__isInitialized = true
+	for _, fnc in ipairs(Events.__on_initialized) do fnc() end
+end
+
+---Provides Events in the global namespace
+---@return KuxCoreLib.Events
+function Events.asGlobal() return KuxCoreLib.utils.asGlobal(Events) end
+---------------------------------------------------------------------------------------------------
+
+if(KuxCoreLib.ModInfo.current_stage ~= "control") then
+	initilized()
 	return Events
 end -- events are only available in control stage
 
+--- control stage only ----------------------------------------------------------------------------
+
 local EventDistributor = KuxCoreLib.EventDistributor
+
+Events.getDisplayName = EventDistributor.getDisplayName or error("Invalid state.")
+Events.registerName = EventDistributor.registerName or error("Invalid state.")
 
 ---@param fnc function
 ---@return boolean
@@ -66,13 +81,12 @@ function Events.on_built(fnc, filters) return EventDistributor.register("on_buil
 ---@return boolean
 function Events.on_destroy(fnc, filters) return EventDistributor.register("on_destroy", fnc, filters) end
 
+---[EXPERIMENTAL] on_entity_moved (using PickerDollies)
+---@param fnc fun(e: KuxCoreLib.on_entity_moved)
+---@param filters EventFilter? [Not Implemented]
+---@return boolean
+function Events.on_entity_moved(fnc, filters) return EventDistributor.register("on_entity_moved", fnc, filters) end
+
 ---------------------------------------------------------------------------------------------------
-
----Provides Events in the global namespace
----@return KuxCoreLib.Events
-function Events.asGlobal() return KuxCoreLib.utils.asGlobal(Events) end
-
-Events.__isInitialized = true
-for _, fnc in ipairs(Events.__on_initialized) do fnc() end
-
+initilized()
 return Events

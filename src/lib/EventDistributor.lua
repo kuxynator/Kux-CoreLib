@@ -40,6 +40,7 @@ local List = KuxCoreLib.List
 local ModInfo = KuxCoreLib.ModInfo
 local StringBuilder = KuxCoreLib.StringBuilder
 local Storage = KuxCoreLib.Storage
+local PickerDollies = KuxCoreLib.PickerDollies
 
 ---Dictionary of EventId|EventName, table of function
 local events={}
@@ -92,6 +93,8 @@ local function getDisplayName(event)
 end
 
 EventDistributor.getDisplayName=getDisplayName
+
+--#region event handlers
 
 local function on_init()
 	--print("EventDistributor.on_init")
@@ -204,6 +207,28 @@ local function on_timer(e)
 	end
 end
 
+---@class KuxCoreLib.on_entity_moved : PickerDollies.dolly_moved_entity
+---@field name string name of the event "on_entity_moved"
+---@field tick uint the tick the event was raised
+
+---@param e PickerDollies.dolly_moved_entity
+local function on_entity_moved(e)
+	---@cast e KuxCoreLib.on_entity_moved	
+	local handlers = events["on_entity_moved"]
+	if(handlers) then
+		local e1={
+			name = "on_entity_moved",
+			tick = game.tick,
+			player_index = e.player_index,
+			entity = e.moved_entity,
+			start_postion = e.start_pos			
+		} --[[@as KuxCoreLib.on_entity_moved]]
+		for _,fnc in pairs(handlers) do fnc(e1) end
+	end
+end
+
+--#endregion event handlers
+
 local function check_customInput(name)
 	if(game.custom_input_prototypes[name]) then return end
 	error("CustomInput does not exist. Name:'"..tostring(name).."'")
@@ -212,7 +237,7 @@ end
 ---Registers an event in script
 ---@param eventIdentifier integer|uint|string
 ---@param param any ticks | filter
-local function register(eventIdentifier, param)
+local function script_register(eventIdentifier, param)
 	--log("register: "..getDisplayName(eventIdentifier))
 	local eventName, eventId = eventPair(eventIdentifier)
 	if    (eventName=="on_init"                 ) then script[eventName](on_init)
@@ -260,8 +285,24 @@ function EventDistributor.unregister(eventIdentifier, fnc)
 		EventDistributor.unregister(defines.events.on_robot_pre_mined,       on_destroy)
 		EventDistributor.unregister(defines.events.on_entity_died,           on_destroy)
 		EventDistributor.unregister(defines.events.script_raised_destroy,    on_destroy)
+	elseif(eventName=="on_entity_moved") then
+		PickerDollies.unregister()
 	else
 		unregister(key)
+	end
+end
+
+local function register_artifical_event(key, fnc)
+	if(List.isNilOrEmpty(events[key])) then
+		events[key] = {fnc}
+		--if(eventName ~= "on_loaded") then register(eventIdentifier, param) end
+	else
+		if(Table.contains(events[key], fnc)) then
+			error("Multiple registration of same event is not supported. name: '"..key.."'")
+			--TODO: allow reregister the event
+			return false
+		end
+		table.insert(events[key], fnc)
 	end
 end
 
@@ -290,10 +331,11 @@ function EventDistributor.register (eventIdentifier, fnc, arg)
 	elseif(eventName=="on_timer"  ) then error("Argument out of range. name: eventIdentifier, value: "..eventIdentifier)
 	elseif(eventName=="on_built"  ) then EventDistributor.register_on_built(nil, fnc); return true
 	elseif(eventName=="on_destroy") then EventDistributor.register_on_destroy(nil, fnc); return true
-	end	
+	elseif(eventName=="on_entity_moved") then EventDistributor.register_on_entity_moved(fnc, arg) return true
+	end
 	if(List.isNilOrEmpty(events[key])) then
 		events[key] = {fnc}
-		if(eventName ~= "on_loaded") then register(eventIdentifier, arg) end
+		if(eventName ~= "on_loaded") then script_register(eventIdentifier, arg) end
 	else
 		if(Table.contains(events[key], fnc)) then return false end
 		table.insert(events[key], fnc)
@@ -311,7 +353,7 @@ function EventDistributor.register_nth_tick(ticks, fnc)
 	if not events["on_nth_tick"] then events["on_nth_tick"] = {} end
 	if (List.isNilOrEmpty(events["on_nth_tick"][ticks])) then
 		events["on_nth_tick"][ticks] = {fnc}
-		register("on_nth_tick",ticks)
+		script_register("on_nth_tick",ticks)
 	else
 		if(Table.contains(events["on_nth_tick"][ticks], fnc))  then return false end
 		table.insert(events["on_nth_tick"][ticks], fnc)
@@ -347,20 +389,6 @@ function EventDistributor.register_on_timer(tick, fnc)
 		table.insert(events["on_timer"][tick], fnc)
 	end
 	return true
-end
-
-local function register_artifical_event(key,fnc)
-	if(List.isNilOrEmpty(events[key])) then
-		events[key] = {fnc}
-		--if(eventName ~= "on_loaded") then register(eventIdentifier, param) end
-	else
-		if(Table.contains(events[key], fnc)) then
-			error("Multiple registration of same event is not supported. name: '"..key.."'")
-			--TODO: allow reregister the event
-			return false
-		end
-		table.insert(events[key], fnc)
-	end
 end
 
 function EventDistributor.register_on_built(item_filter, fnc)
@@ -407,6 +435,17 @@ function EventDistributor.register_with_filter(eventIdentifier, filter, fnc)
 			table.insert(currentFilters,filter)
 		end
 		script.set_event_filter(eventId, currentFilters)
+	end
+end
+
+function EventDistributor.register_on_entity_moved(fnc, filter)
+	trace("EventDistributor.register_on_entity_moved")
+	register_artifical_event("on_entity_moved", fnc)
+	PickerDollies.initialize(on_entity_moved, filter)
+	if(ModInfo.current_stage=="control") then
+		--we can not register the event yet, because we need the event Id from PickerDollies and this can only be retrieved when an event occurs.
+		EventDistributor.register("on_load", PickerDollies.initialize)
+		EventDistributor.register("on_init", PickerDollies.initialize)
 	end
 end
 
