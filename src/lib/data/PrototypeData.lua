@@ -38,6 +38,9 @@ function PrototypeData.energyUsageFactor(entity, factor)
 	entity.energy_usage = PrototypeData.energyFactor(entity.energy_usage, factor)
 end
 
+---@type KuxCorelib.PrototypeData.Extend
+PrototypeData.extend = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/data/PrototypeData-extend") --[[@as KuxCorelib.PrototypeData.Extend]]
+
 ---------------------------------------------------------------------------------------------------
 
 function PrototypeData.asGlobal() return KuxCoreLib.utils.asGlobal(PrototypeData) end

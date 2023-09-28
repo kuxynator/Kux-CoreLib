@@ -68,8 +68,10 @@ local function write(append, ...)
 	print(str)
 end
 
+---@param ... any
 function Trace.write(...) write(false, ...) end
 
+---@param ... any
 function Trace.append(...) write(true, ...) end
 
 function Trace.on() local last = _G._trace_isEnabled; _G._trace_isEnabled = true; return last end

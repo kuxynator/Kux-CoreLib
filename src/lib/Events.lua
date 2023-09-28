@@ -87,6 +87,12 @@ function Events.on_destroy(fnc, filters) return EventDistributor.register("on_de
 ---@return boolean
 function Events.on_entity_moved(fnc, filters) return EventDistributor.register("on_entity_moved", fnc, filters) end
 
+---Registeres an custom event
+---@param input_name string
+---@param fnc fun(e: EventData.CustomInputEvent)
+---@return unknown
+function Events.on_custom_input(input_name, fnc) return EventDistributor.register(input_name, fnc) end
+
 ---------------------------------------------------------------------------------------------------
 initilized()
 return Events

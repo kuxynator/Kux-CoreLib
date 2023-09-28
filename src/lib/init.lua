@@ -60,6 +60,8 @@ end
 ---@field StoragePlayers KuxCoreLib.StoragePlayers
 ---@field GuiBuilder KuxCoreLib.GuiBuilder
 ---@field PickerDollies KuxCoreLib.PickerDollies
+---@field Factorissimo KuxCoreLib.Factorissimo
+---@field SurfacesMod KuxCoreLib.SurfacesMod
 
 KuxCoreLib = {
 	__class  = "KuxCoreLib",
@@ -118,7 +120,9 @@ local require_map = { --RUN (F5) to AUTOGENERATE
         Storage = "storage",
         StoragePlayer = "storage",
         StoragePlayers = "storage",
-        GuiBuilder = "gui",		
+        GuiBuilder = "gui",
+		Factorissimo = "mods",
+		SurfacesMod = "mods",
 }
 
 local KuxCoreLib_metatable = {}

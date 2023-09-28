@@ -1,4 +1,17 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.9.0
+  Features:
+    - ADD Factorissimo a Factorissimo API
+    - ADD SurfacesMod a Surfaces API
+    - ADD Events.on_custom_input
+    - ADD PrototypeData.extend
+  Bugfixes:
+    - FIX naming in SettingsData.extend
+---------------------------------------------------------------------------------------------------
+Version: 2.8.3
+  Bugfixes:
+    - FIX a bug in Settingsdata.extend (wrong prefix)
+---------------------------------------------------------------------------------------------------
 Version: 2.8.2
   Features:
     - ADD PickerDollies support (optional)

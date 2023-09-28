@@ -91,7 +91,10 @@ setmetatable(SettingsData.extend,{
 })
 
 local function getPrefix(self)
-	return (self.common.prefix or SettingsData.extend.prefix)
+	return (self.common.prefix or SettingsData.extend.prefix or mod.prefix)
+end
+local function getName(self, name)
+	return getPrefix(self)..name
 end
 
 ---@class KuxCorelib.BoolSetting
@@ -105,7 +108,7 @@ function SettingsData.extend:bool(t)
 	self.count = self.count + 1
 	local d = merge(self.count, self.common, t, {
 		type          = "bool-setting",
-		name          = mod.prefix..(t.name or t[1]),
+		name          =  getName(self, t.name or t[1]),
 		default_value = tostring(t.default_value or t[2] or false),
 		-- forced_value -- Only loaded if hidden = true
 	})
@@ -125,7 +128,7 @@ function SettingsData.extend:int(t)
 	self.count = self.count + 1
 	local d = merge(self.count, self.common, t, {
 		type           = "int-setting",
-		name           = mod.prefix..(t.name or t[1]),
+		name           = getName(self, t.name or t[1]),
 		default_value  = t.default_value or t[2] or t.default or error("Missing value 'default_value'"),
 		allowed_values = t.allowed_values or t.allowed or t[3],
 		minimum_value  = t.minimum_value or t.min,
@@ -147,7 +150,7 @@ function SettingsData.extend:double(t)
 	self.count = self.count + 1
 	local d = merge(self.count, self.common, t, {
 		type           = "double-setting",
-		name           = mod.prefix..(t.name or t[1]),
+		name           = getName(self, t.name or t[1]),
 		default_value  = t.default_value or t[2] or t.default or error("Missing value 'default_value'"),
 		allowed_values = t.allowed_values or t.allowed or t[3],
 		minimum_value  = t.minimum_value or t.min,
@@ -169,7 +172,7 @@ function SettingsData.extend:string(t)
 	self.count = self.count + 1
 	local d = merge(self.count, self.common, t, {
 		type           = "string-setting",
-		name           = getPrefix(self)..(t.name or t[1]),
+		name           = getName(self, t.name or t[1]),
 		default_value  = t.default_value or t[2] or t.default or error("Missing value 'default_value'"),
 		allowed_values = t.allowed_values or t.allowed or t[3],
 		--allow_blank 
@@ -188,7 +191,7 @@ function SettingsData.extend:color(t)
 	self.count = self.count + 1
 	local d = merge(self.count, self.common, t, {
 		type          = "color-setting",
-		name          = mod.prefix..(t.name or t[1]),
+		name          = getName(self, t.name or t[1]),
 		default_value = t.default_value or t[2] or t.default or error("default_value is mandatory"),
 	})
 	data:extent{d}
