@@ -1,6 +1,7 @@
 ---@class KuxCorelib.PrototypeData.Extend.Arguments
 
 ---@class KuxCorelib.PrototypeData.Extend
+---@field prefix string
 local extend = {
 	---@type string
 	prefix = nil,
@@ -20,7 +21,7 @@ local function call_extend(self, t)
 end
 
 setmetatable(extend,{
-	__call =call_extend
+	__call = call_extend
 })
 
 local function getPrefix(self)

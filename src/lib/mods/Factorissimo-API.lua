@@ -1,19 +1,19 @@
 ---@class Factorissimo.FactoryObject
----@field id any
----@field inactive any
----@field outside_surface any
----@field outside_x any
----@field outside_y any
----@field outside_door_x any
----@field outside_door_y any
----@field inside_surface any
----@field inside_x any
----@field inside_y any,
----@field inside_door_x any
----@field inside_door_y any
----@field force any
+---@field id integer
+---@field inactive boolean
+---@field outside_surface LuaSurface
+---@field outside_x integer
+---@field outside_y integer
+---@field outside_door_x integer
+---@field outside_door_y integer
+---@field inside_surface LuaSurface 
+---@field inside_x integer
+---@field inside_y integer,
+---@field inside_door_x integer
+---@field inside_door_y integer
+---@field force LuaForce
 ---@field layout any
----@field building any
+---@field building LuaEntity
 ---@field outside_energy_receiver any
 ---@field outside_overlay_displays any[]
 ---@field outside_port_markers any[]
@@ -22,11 +22,12 @@
 ---@field outside_power_pole any
 ---@field middleman_id any
 ---@field direct_connection any
----@field stored_pollution any
+---@field stored_pollution number
 ---@field connections any[]
 ---@field connection_settings any --{{*}*}
 ---@field connection_indicators any[]
 ---@field upgrades any
+---@field build boolean
 
 ---@class Factorissimo.global
 ---@field factories Factorissimo.FactoryObject[] List of all factories

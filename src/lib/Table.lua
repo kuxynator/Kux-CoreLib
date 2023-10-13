@@ -144,6 +144,11 @@ lastIndex
 ---Supports LuaCustomTable: (simple using #t)
 ---@param t table
 ---@return integer
+---
+---See also List.count() which ist optimized for arrays.  
+---See also Dictionary.count()  
+--- 
+--- WARNING entries in a mixed dictionar/gap arrays are not counted correctly.
 function Table.count(t) -- alias 'countNonNil'
 	--[[ from original table_size docu:
 		>>Returns the size of a table with non-continuous keys.
@@ -151,12 +156,23 @@ function Table.count(t) -- alias 'countNonNil'
 		the size of tables with non-continuous keys, as the standard # operator 
 		does not work correctly for these. The function is a C++ implementation, 
 		which is faster than doing the same in Lua<<
-
+		--
 		NOTE The # operator works correctly! The difference is: It counts also nil elements but no keys.
 	]]
 
 	if t.object_name=="LuaCustomTable" then return #t end
-	return table_size(t)
+	--return table_size(t) --does not seem to count dictionary keys!
+	local c = #t
+	for k,_ in pairs(t) do
+		if(type(k)~="number" or (not math.ceil(k)==k and k>c) ) then c=c+1 end
+	end
+	return c
+end
+
+function Table.countPairs(t)
+	local c = 0
+	for k,_ in pairs(t) do c=c+1 end
+	return c
 end
 
 function Table.countNonNumericKeys(t)
@@ -164,6 +180,7 @@ function Table.countNonNumericKeys(t)
 	for k,_ in pairs(t) do
 		if(type(k)~="number") then c=c+1 end
 	end
+	return c
 end
 
 ---Counts all entries for mixed tables (keys and indicies)

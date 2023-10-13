@@ -3,13 +3,159 @@ if(KuxCoreLib.__modules.Trace) then return KuxCoreLib.__modules.Trace end
 
 ---Provides trace functions
 ---@class KuxCoreLib.Trace
+---@field public sign_color Color
+---@field public text_color Color
+---@field public background_color Color
+--- ---
+--- **Usage:**  
+--- `Trace.write(...)` or short `Trace(...)`  
+--- `Trace.append(...)`
 local Trace = {
 	__class  = "Trace",
 	__guid   = "d37816ef-cba2-46af-8c46-56be0fd02322",
 	__origin = "Kux-CoreLib/lib/Trace.lua",
 
 	__isInitialized = false,
-	__on_initialized = {}
+	__on_initialized = {},
+
+	prefix_sign = "○",
+	sign_color = {192,192,192},--lightgray
+	text_color= {192,192,192},--lightgray
+	background_color = {0,0,0},--black
+
+	---@type KuxCoreLib.Trace.Colors
+	colors = {		
+		black = {0,0,0},
+		red = {255,0,0},
+		green = {0,255,0},
+		blue = {0,0,255},
+		yellow = {255,255,0},
+		white = {255,255,255},
+		gray = {128,128,128},
+		orange = {255,128,0},
+		purple = {128,0,255},
+		brown = {128,64,0},
+		pink = {255,0,255},
+		cyan = {0,255,255},
+		olive = {128,128,0},
+		teal = {0,128,128},
+		navy = {0,0,128},
+		darkred = {128,0,0},
+		darkgreen = {0,128,0},
+		darkblue = {0,0,128}, --same as navy
+		darkyellow = {128,128,0},
+		darkgray = {64,64,64},
+		darkorange = {128,64,0}, -- same as brown
+		darkpurple = {64,0,128},
+		darkbrown = {64,32,0},
+		darkpink = {128,0,128},
+		darkcyan = {0,128,128},
+		darkolive = {64,64,0},
+		darkteal = {0,64,64},
+		darknavy = {0,0,64},
+		lightgray = {192,192,192},
+		lightred = {255,192,192},
+		lightgreen = {192,255,192},
+		lightblue = {192,192,255},
+		lightyellow = {255,255,192},
+		lightorange = {255,224,192},
+		lightpurple = {192,192,255},
+		lightbrown = {192,160,128},
+		lightpink = {255,192,255},
+		lightcyan = {192,255,255},
+		lightolive = {192,192,128},
+		lightteal = {192,255,255},
+		lightnavy = {192,192,255},
+		gray_16 ={16,16,16},
+		gray_32 ={32,32,32},
+	},
+	signs = {
+		"●", -- error
+		"○",
+		"■",
+		"□",
+		"▲", -- warning
+		"△",
+		"▼",
+		"▽",
+		"◆",
+		"◇",
+		"◈",
+		"◉",
+		"◊",
+		"○",
+		"◌",
+		"◍",
+		"◎",
+		"●",
+		"◐",
+		"◑",
+		"◒",
+		"◓",
+		"◔",
+		"◕",
+		"◖",
+		"◗",
+		"◘",
+		"◙",
+		"◚",
+		"◛",
+		"◜",
+		"◝",
+		"◞",
+		"◟",
+		"◠",
+		"◡",
+		"◢",
+		"◣",
+		"◤",
+		"◥",
+		"◦",
+		"◧",
+		"◨",
+		"◩",
+		"◪",
+		"◫",
+		"◬",
+		"◭",
+		"◮",
+		"◯",
+		"◰",
+		"◱",
+		"◲",
+		"◳",
+		"◴",
+		"◵",
+		"◶",
+		"◷",
+		"◸",
+		"◹",
+		"◺",
+		"◻",
+		"◼",
+		"◽",
+		"◾",
+		"◿",
+		"☀",
+		"☁",
+		"☂",
+		"☃",
+		"☄",
+		"★",
+		"☆",
+		"☇",
+		"☈",
+		"☉",
+		"☊",
+		"☋",
+		"☌",
+		"☍",
+		"☎",
+		"☏",
+		"☐",
+		"☑",
+	}
+
 }
 KuxCoreLib.__modules.Trace = Trace
 ---------------------------------------------------------------------------------------------------
@@ -49,24 +195,93 @@ local function timestamp()
     return string.format("%d,%02d:%02d:%02d.%03d", days, hours, minutes, seconds, milliseconds)
 end
 
+local function set_text_color(color)
+	local rot, gruen, blau = color.r or color[1], color.g or color[2], color.b or color[3]
+
+	-- Prüfen, ob die Farben gültig si
+	if type(rot) ~= "number" or rot < 0 or rot > 255 then
+	  print("Ungültige Farbe: " .. rot)
+	  return
+	end
+  
+	if type(gruen) ~= "number" or gruen < 0 or gruen > 255 then
+	  print("Ungültige Farbe: " .. gruen)
+	  return
+	end
+  
+	if type(blau) ~= "number" or blau < 0 or blau > 255 then
+	  print("Ungültige Farbe: " .. blau)
+	  return
+	end
+
+	--normalize 0..1 to 0..255
+	--0,0,1 ist not very dark blue, but blue 0,0,255 
+	--1,1,1 ist not very dark gray, but white 255,255,255 
+	if(rot<=1 and gruen<=1 and blau<=1) then
+		rot   = rot   * 255
+		gruen = gruen * 255
+		blau  = blau  * 255
+	end
+  
+	-- Escape-Sequenz für die Vordergrundfarbe generieren
+	--local farbe_code = string.format("\033[38;2;%d;%d;%dm", math.floor(rot / 255 * 5), math.floor(gruen / 255 * 5), math.floor(blau / 255 * 5))
+  	local farbe_code = string.format("\27[38;2;%d;%d;%dm", math.floor(rot), math.floor(gruen), math.floor(blau))
+
+	-- Text ausgeben
+	--print(farbe_code .. "Hallo Welt!" .. "\033[0m")
+	return farbe_code
+end
+
+local function set_background_color(color) return set_text_color(color):gsub("\27%[38;2","\27[48;2") end
+
+local function reset_color()
+	return "\27[0m"
+end
+local function reset_background_color()
+	return "\27[49m"
+end
+
+local function reset_foregound_color()
+	return "\27[39m"
+end
+
+local function colortext(text, color) return set_text_color(color)..text..reset_foregound_color() end
+
+local function colorbackground(text, color) return set_background_color(color)..text..reset_background_color() end
+
+Trace.colortext = colortext
+
 local function write(append, ...)
 	if(not _trace_isEnabled) then return end
 	local args = {...}
-	local str = "● "..timestamp()..": "
+	local str = colortext(Trace.prefix_sign.." ", Trace.sign_color)..timestamp()..": "
 	if(append) then str = str:gsub(".", " ") end
 	for i, arg in ipairs(args) do
 		if(type(arg)=="function") then pcall(function() arg = tostring(arg()) end) end
 		if(type(arg)=="string") then
 			--str = str .. "'"..tostring(arg) .. "' "
-			str = str .. tostring(arg) .. " "
+			str = str .. colortext(tostring(arg), Trace.text_color) .. " "
 		--elseif(type(arg)=="table") then
 		--	str = str .. serpent.block(arg, {comment=false}) .. " "
 		else
-			str = str .. tostring(arg) .. " "
+			str = str .. colortext(tostring(arg), Trace.text_color) .. " "
 		end
 	end
-	print(str)
+	--background_color
+	print(colorbackground(str, Trace.background_color))
 end
+
+---DRAFT
+function Trace.warning(...)
+	local str = colortext(Trace.prefix_sign.." ", Trace.sign_color)..timestamp()..": "
+	write(str ..colortext("⚠ WARNING: ", Trace.colors.orange), ...)
+end
+---DRAFT
+function Trace.error(...)
+	local str = colortext(Trace.prefix_sign.." ", Trace.sign_color)..timestamp()..": "
+	write(str ..colortext("🛑 ERROR: ", Trace.colors.red), ...)
+end
+
 
 ---@param ... any
 function Trace.write(...) write(false, ...) end
@@ -163,3 +378,48 @@ end
 ---------------------------------------------------------------------------------------------------
 end_init()
 return Trace
+
+---@class KuxCoreLib.Trace.Colors : Color[]
+---@field black Color
+---@field red Color
+---@field green Color
+---@field blue Color
+---@field yellow Color
+---@field white Color
+---@field gray Color
+---@field orange Color
+---@field purple Color
+---@field brown Color
+---@field pink Color
+---@field cyan Color
+---@field olive Color
+---@field teal Color
+---@field navy Color
+---@field darkred Color
+---@field darkgreen Color
+---@field darkblue Color
+---@field darkyellow Color
+---@field darkgray Color
+---@field darkorange Color
+---@field darkpurple Color
+---@field darkbrown Color
+---@field darkpink Color
+---@field darkcyan Color
+---@field darkolive Color
+---@field darkteal Color
+---@field darknavy Color
+---@field lightgray Color
+---@field lightred Color
+---@field lightgreen Color
+---@field lightblue Color
+---@field lightyellow Color
+---@field lightorange Color
+---@field lightpurple Color
+---@field lightbrown Color
+---@field lightpink Color
+---@field lightcyan Color
+---@field lightolive Color
+---@field lightteal Color
+---@field lightnavy Color
+---@field gray_16 Color
+---@field gray_32 Color

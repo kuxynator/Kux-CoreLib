@@ -2,11 +2,11 @@ local luaunit = require"luaunit"
 
 -- local functions are not detected
 
-function testPass()
+local function testPass()
     luaunit.assertEquals({1, 2, 3}, {1, 2, 3})
 end
 
-function testFail()
+local function testFail()
     luaunit.assertEquals({1, 2, 3}, {1, 2, 4})
 end
 
