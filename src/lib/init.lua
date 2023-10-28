@@ -62,6 +62,7 @@ end
 ---@field PickerDollies KuxCoreLib.PickerDollies
 ---@field Factorissimo KuxCoreLib.Factorissimo
 ---@field SurfacesMod KuxCoreLib.SurfacesMod
+---@field CollisionMaskData KuxCoreLib.CollisionMaskData
 
 KuxCoreLib = {
 	__class  = "KuxCoreLib",
@@ -107,6 +108,7 @@ local require_map = { --RUN (F5) to AUTOGENERATE
         That = "",
         Version = "",
 		PickerDollies = "",
+		CollisionMaskData = "data",
         DataRaw = "data",
         EntityData = "data",
         ItemData = "data",

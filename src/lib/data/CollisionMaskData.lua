@@ -12,6 +12,7 @@ KuxCoreLib.__modules.CollisionMaskData = CollisionMaskData
 function CollisionMaskData.asGlobal() return KuxCoreLib.utils.asGlobal(CollisionMaskData) end
 ---------------------------------------------------------------------------------------------------
 local collision_mask_util = require("__core__/lualib/collision-mask-util") --[[@as collision_mask_util]]
+CollisionMaskData.collision_mask_util = collision_mask_util
 
 function CollisionMaskData.try_add_layer(prototype, layer)
 	if(not prototype) then return end
@@ -35,4 +36,4 @@ function CollisionMaskData.try_remove_layer(prototype, layer)
 	collision_mask_util.remove_layer(prototype.collision_mask, layer)
 end
 
-return
+return CollisionMaskData

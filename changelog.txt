@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.9.2
+Date: 2023-10-28
+  Features:
+    - Trace: defines_name, defines_displayname, exit
+  Changes:
+    - Trace: color
+  Bugfixes:
+    - Fix CollisionMaskData not found
+---------------------------------------------------------------------------------------------------
 Version: 2.9.1
 Date: 2023-10-13
   Features:

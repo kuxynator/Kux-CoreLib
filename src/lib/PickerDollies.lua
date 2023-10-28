@@ -35,7 +35,7 @@ end
 ---@param eventDistributor_callback function?
 ---@param filter EventFilter?
 function PickerDollies.initialize(eventDistributor_callback, filter)
-	trace("PickerDollies.initialize")
+	--[[TRACE]]trace("PickerDollies.initialize")
 	_eventDistributor_callback = _eventDistributor_callback or eventDistributor_callback or error("Invalid Argument: 'eventDistributor' must not be nil.")
 	_filter = _filter or filter
 

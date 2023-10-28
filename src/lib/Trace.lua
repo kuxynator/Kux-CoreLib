@@ -3,6 +3,7 @@ if(KuxCoreLib.__modules.Trace) then return KuxCoreLib.__modules.Trace end
 
 ---Provides trace functions
 ---@class KuxCoreLib.Trace
+---@field public prefix_sign string
 ---@field public sign_color Color
 ---@field public text_color Color
 ---@field public background_color Color
@@ -24,7 +25,7 @@ local Trace = {
 	background_color = {0,0,0},--black
 
 	---@type KuxCoreLib.Trace.Colors
-	colors = {		
+	colors = {
 		black = {0,0,0},
 		red = {255,0,0},
 		green = {0,255,0},
@@ -165,6 +166,7 @@ local function end_init()
 	function Trace.asGlobal()
 		---@type KuxCoreLib.Trace
 		_G.trace = Trace
+		_G.__trace = Trace
 		return KuxCoreLib.utils.asGlobal(Trace)
 	end
 
@@ -254,8 +256,12 @@ Trace.colortext = colortext
 local function write(append, ...)
 	if(not _trace_isEnabled) then return end
 	local args = {...}
-	local str = colortext(Trace.prefix_sign.." ", Trace.sign_color)..timestamp()..": "
-	if(append) then str = str:gsub(".", " ") end
+	local prefix_sign = Trace.prefix_sign and (Trace.prefix_sign.." ") or ""
+	local str = colortext(prefix_sign, Trace.sign_color)..timestamp()..": "
+	if(append) then
+		local str0 = str:gsub("\27%[[%d;]*m", "")
+		str = str0:gsub(".", " ")
+	end
 	for i, arg in ipairs(args) do
 		if(type(arg)=="function") then pcall(function() arg = tostring(arg()) end) end
 		if(type(arg)=="string") then
@@ -280,6 +286,11 @@ end
 function Trace.error(...)
 	local str = colortext(Trace.prefix_sign.." ", Trace.sign_color)..timestamp()..": "
 	write(str ..colortext("🛑 ERROR: ", Trace.colors.red), ...)
+end
+
+---DRAFT
+function Trace.exit(msg)
+	Trace.append("  >> "..tostring(msg))
 end
 
 
@@ -362,6 +373,37 @@ function Trace.formatEntityEvent(e)
 	end
 	sb=sb.." ["..EventDistributor.getDisplayName(e.name).."]"
 	return sb
+end
+
+---Gets the name of the constant
+---@param list table|string A defines table or a string with the name of the defines table
+---@param value any
+---@return string
+---@return boolean #true if the value was found in the list; else false
+function Trace.defines_name(list, value)
+	if type(list)=="string" then
+		--TODO: support complete path string
+		if list:match("%.") then error("Invalid Argument. 'list' must not contain a dot.") end
+		list = defines[list]
+	end
+	if type(list)~="table" then error("Invalid Argument. 'list' must be a table or a string.") end
+	if not list then return tostring(value),false end
+
+	--TODO: optimize 
+	for name,v in pairs(list) do
+		if v==value then return name,true end
+	end
+	return tostring(value),false
+end
+
+---Gets the display name of the constant
+---@param list table|string A defines table or a string with the name of the defines table
+---@param value any
+---@return string
+function Trace.defines_displayname(list, value)
+	local name, success = Trace.defines_name(list, value)
+	if success then return name.."("..tostring(value)..")" end
+	return tostring(name)
 end
 
 local function on_events_initialized()

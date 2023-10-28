@@ -439,7 +439,7 @@ function EventDistributor.register_with_filter(eventIdentifier, filter, fnc)
 end
 
 function EventDistributor.register_on_entity_moved(fnc, filter)
-	trace("EventDistributor.register_on_entity_moved")
+	--[[TRACE]]trace("EventDistributor.register_on_entity_moved")
 	register_artifical_event("on_entity_moved", fnc)
 	PickerDollies.initialize(on_entity_moved, filter)
 	if(ModInfo.current_stage=="control") then
