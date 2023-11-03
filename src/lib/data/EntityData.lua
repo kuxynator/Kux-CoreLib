@@ -13,7 +13,7 @@ local Table= KuxCoreLib.Table
 local DataRaw = KuxCoreLib.DataRaw
 
 
-EntityData.clone = function(type, name, newName)
+ function EntityData.clone(type, name, newName)
 	local base = data.raw[type][name]
 	if(not base) then error("Prototype not found: "..name.." (type: "..type..")") end
 	local entity = table.deepcopy(base) or {}
@@ -25,6 +25,7 @@ EntityData.clone = function(type, name, newName)
 			if(entity.minable.result == name) then entity.minable.result = newName end
 		end
 	end
+	entity.base=base
 	return entity
 end
 

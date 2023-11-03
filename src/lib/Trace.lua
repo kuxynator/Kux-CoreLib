@@ -414,6 +414,18 @@ local function on_events_initialized()
 	end)
 end
 
+---@type KuxCoreLib.Trace
+Trace.mock = setmetatable({
+	isMock = true,
+	append = function (...) end,
+	exit = function (...) end
+	},
+	{
+		__call = function(self, ...) end,
+		__index = function(_, key) return Trace[key] end,
+	}
+)
+
 if(Events.__isInitialized) then on_events_initialized() 
 else table.insert(Events.__on_initialized, on_events_initialized) 
 end

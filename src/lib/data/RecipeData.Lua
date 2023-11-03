@@ -9,6 +9,7 @@ local RecipeData= {
 }
 KuxCoreLib.__modules.RecipeData = RecipeData
 ---------------------------------------------------------------------------------------------------
+
 RecipeData.clone = function(name, item)
 	local base = data.raw["recipe"][name]
 	if(not base) then error("Prototype not found: "..name.." (tyoe: recipe)") end
@@ -16,6 +17,7 @@ RecipeData.clone = function(name, item)
 	recipe.name = item.name
 	recipe.localised_name = {"recipe-name."..item.name}
 	RecipeData.setResults(recipe, {{amount = 1, name = item.name, type = "item"}})
+	recipe.base=base
 	return recipe
 end
 

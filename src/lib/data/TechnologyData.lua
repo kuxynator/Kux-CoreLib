@@ -13,10 +13,11 @@ local Table = KuxCoreLib.Table
 
 function TechnologyData.clone(name, newName)
 	local base = data.raw["technology"][name]
-	if(not base) then error("Prototype not found: "..name.." (tyoe: technology)") end
+	if(not base) then error("Prototype not found: "..name.." (type: technology)") end
 	local technology = table.deepcopy(base)
 	technology.name = newName
 	--technology.localised_name = {"recipe-name."..newName}
+	technology.base = base
 	return technology
 end
 
@@ -26,6 +27,15 @@ end
 function TechnologyData.removePrerequisites(technology, name)
 	local i = Table.indexOf(technology.prerequisites, name)
 	if(i>0) then table.remove(technology.prerequisites,i) end
+end
+
+---Add prerequisites
+---@param technology Technology
+---@param name string
+function TechnologyData.addPrerequisites(technology, name)
+	assert(data.raw["technology"][name], "Prototype not found: "..name.." (type: technology)")
+	local i = Table.indexOf(technology.prerequisites, name)
+	if(not i) then table.insert(technology.prerequisites,i) end
 end
 
 function TechnologyData.indexOfIngredient(technology, name)

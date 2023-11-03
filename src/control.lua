@@ -1,6 +1,5 @@
 require("lib/@")
 if script.active_mods["gvv"] then require("__gvv__.gvv")() end
-require("mod")
 
 -- print("ModInfo.current_stage: "..ModInfo.current_stage)
 -- print("ModInfo.name   "..ModInfo.name)

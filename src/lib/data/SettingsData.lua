@@ -80,6 +80,7 @@ local function call_extend(self, t)
 end
 
 ---@class KuxCorelib.Extend
+---@field prefix string The name prefix for all settings
 SettingsData.extend = {
 	---@type string
 	prefix = nil,

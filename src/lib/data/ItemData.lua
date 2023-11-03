@@ -18,6 +18,7 @@ function ItemData.clone(name, entity)
 	item.name = entity.name
 	item.localised_name = {"item-name."..entity.name}
 	item.place_result = entity.name
+	item.base=base
 	return item
 end
 
