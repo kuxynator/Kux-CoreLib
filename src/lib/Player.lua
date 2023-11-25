@@ -11,15 +11,21 @@ KuxCoreLib.__modules.Player = Player
 ---------------------------------------------------------------------------------------------------
 
 ---toLuaPlayer
----@param obj integer|LuaPlayer
+---@param arg integer|LuaPlayer
 ---@return LuaPlayer
 ---@diagnostic disable-next-line: lowercase-global
-function toLuaPlayer(obj)
-	local t = iif(type(obj)=="table", obj, nil)
-	if(t and t.create_character) then return obj --[[@as LuaPlayer]] end
-	if(type(obj)=="number") then return game.players[obj] end
+function Player.toLuaPlayer(arg)
+	local t = type(arg)=="table" and arg or nil
+	if(t and t.object_name=="LuaPlayer") then return arg --[[@as LuaPlayer]] end
+	if(type(arg)=="number") then return game.players[arg] end
 	error("Invalid argument.")
 end
+
+---getPlayer
+---@param arg integer|LuaPlayer
+---@return LuaPlayer
+---@diagnostic disable-next-line: lowercase-global
+Player.getPlayer = Player.toLuaPlayer
 
 ---------------------------------------------------------------------------------------------------
 

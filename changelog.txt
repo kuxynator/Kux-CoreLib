@@ -1,4 +1,24 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.10.0
+Date: 2023-11-16
+  Features:
+    - Add ElementBuilder (use KuxCoreLib.GuiBuilder.ElementBuilder)
+    - Add GuiHelper
+  Bugfixes:
+    - Fix loading GuiBuilder
+---------------------------------------------------------------------------------------------------
+Version: 2.9.6
+Date: 2023-11-12
+  Features:
+    - ADD DataGrid
+---------------------------------------------------------------------------------------------------
+Version: 2.9.5
+Date: 2023-11-06
+  Features:
+    - Trace.getIdentifier
+    - Table.getKeysFilterByValue
+    - Factorissimo: getFactory, getToplevelFactory
+---------------------------------------------------------------------------------------------------
 Version: 2.9.4
 Date: 2023-11-03
   Features:
@@ -78,12 +98,12 @@ Date: 2023-07-20
   Changes:
     - EventDistributor.register accepts array for eventIdentifier
   Bugfixes:
-    -  FIX handler for CustomInput events
+    - FIX handler for CustomInput events
 ---------------------------------------------------------------------------------------------------
 Version: 2.7.1
 Date: 2023-07-11
   Changes:
-    - rename 'global' into 'storage', resp. all other 'Global...' names into "Storage...' 
+    - rename 'global' into 'storage', resp. all other 'Global...' names into "Storage...'
 ---------------------------------------------------------------------------------------------------
 Version: 2.7.0
 Date: 2023-07-10
@@ -151,7 +171,7 @@ Version: 2.5.1
 Date: 2023-05-31
   Features:
     - Table.migrate:
-      - ADD parameter versionField 
+      - ADD parameter versionField
       - auto detect versionField "dataVersion", "version"
 ---------------------------------------------------------------------------------------------------
 Version: 2.5.0
@@ -202,7 +222,7 @@ Date: 2020-10-26
       - run
     - lib.lua
       - safeget
-      - safeset 
+      - safeset
   Optimizations:
     - added tests
   Bugfixes:
@@ -225,6 +245,6 @@ Date: 2020-10-21
     - Log
     - Modules
     - FlyingText
-    - lua extension: iif, switch, try catch, 
+    - lua extension: iif, switch, try catch,
   Info:
     - firt public version

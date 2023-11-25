@@ -29,17 +29,43 @@ end
 local FlyingText = {
 	__class  ="FlyingText",
 	__guid   = "{8BFF3C82-2A4F-41F8-A7B3-C2969A741749}",
-	__origin = "Kux-CoreLib/lib/FlyingText.lua",
-
-	create = function (player, text, color)
-		color = color or {0.8,0.8,0.8}
-		player.surface.create_entity({
-			name = "flying-text",
-			position = posOffset(player.position,{x=-0.5, y=0.2}),
-			text = text, color = color
-		})
-	end
+	__origin = "Kux-CoreLib/lib/FlyingText.lua",	
 }
+
+---@class KuxCoreLib.FlyingTextOptions
+---@field player uint|LuaPlayer
+---@field text string|table
+---@field color Color|nil
+---@field position MapPosition|nil
+---@field target LuaEntity|nil
+---@field speed float|nil
+---@field time_to_live uint|nil
+
+---Creates a flying text entity
+function FlyingText.create(player, text, color)
+	--trace.append(serpent.block(player))
+	local args
+	if(type(player)=="table" and not text and not color) then
+		args = player ---@cast args LuaSurface.create_entity_param
+		player = args.player or args[1]
+		args.text = args.text or args[2]
+		args.color = args.color or args[3]
+		args["__class"] = "LuaSurface.create_entity_param"
+		assert(player, "Invalid Argument: 'player' must not be nil.")
+		assert(args.text, "Invalid Argument: 'text' must not be nil.")
+	else
+		args = {
+			text = text,
+			color = color
+		}
+		---@cast args LuaSurface.create_entity_param
+	end
+	args.name = "flying-text"
+	args.position = args.position or posOffset(player.position,{x=-0.5, y=0.2})
+	args.color = args.color or {0.8,0.8,0.8}
+	player.surface.create_entity(args)
+end
+
 KuxCoreLib.__modules.FlyingText = FlyingText
 
 ---------------------------------------------------------------------------------------------------

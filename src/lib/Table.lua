@@ -39,6 +39,16 @@ function Table.getKeys(t)
 	return keys
 end
 
+function Table.getKeysFilterByValue (t,value)
+	local n = {}
+	for k,v in pairs(t) do
+		if v == value then 
+			table.insert(n,k)
+		end
+	end
+	return n
+end
+
 ---Gets the index of the value
 ---@param t any[] The array
 ---@param value any

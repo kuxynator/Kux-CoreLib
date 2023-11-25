@@ -1,5 +1,5 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.That) then return KuxCoreLib.__modules.That end
+if(KuxCoreLib.__modules.GuiBuilder) then return KuxCoreLib.__modules.GuiBuilder end
 
 ---@class KuxCoreLib.GuiBuilder
 local GuiBuilder = {
@@ -9,8 +9,8 @@ local GuiBuilder = {
 }
 KuxCoreLib.__modules.GuiBuilder = GuiBuilder
 ---------------------------------------------------------------------------------------------------
-local Table= KuxCoreLib.Table()
-local Debug= KuxCoreLib.Debug()
+local Table= KuxCoreLib.Table
+local Debug= KuxCoreLib.Debug
 local StoragePlayers = KuxCoreLib.StoragePlayers
 
 function GuiBuilder.generateName(name)
@@ -63,6 +63,8 @@ function GuiBuilder.destroyFrame(player, name)
 	end
 end
 
+
+
 --#region Example
 --[[
 script.on_event(defines.events.on_gui_opened, function(event)
@@ -86,6 +88,9 @@ script.on_event(defines.events.on_gui_closed, function(event)
 end)
 ]]
 --#endregion
+
+---@type KuxCoreLib.ElementBuilder
+GuiBuilder.ElementBuilder = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/gui/ElementBuilder") or error("Invalid state")
 
 ---------------------------------------------------------------------------------------------------
 

@@ -47,6 +47,7 @@ function That.Argument.IsNotNil(value, name, message)
     message = message:gsub("{name}",name)
     return false, message
 end
+
 --assert(That.Argument("a", nil, Is.Not.Nil)
 
 ---raises an error if value is nil or empty

@@ -309,12 +309,43 @@ function Trace.pause(fnc)
 	if was_on then Trace.on() end
 end
 
+---Same as serpent.block but with better support for factorio objects
+---@param value any
+---@param options? table
+---@return string
+function Trace.block(value, options)
+	if(type(value)=="table" and value.object_name) then
+		value = {
+			object_name = value.object_name,
+			type = ({pcall(function() return value.type end)})[2],
+			name = ({pcall(function() return value.name end)})[2],
+		}
+	end
+	return serpent.block(value,options)
+end
+
+---Same as serpent.line but with better support for factorio objects
+---@param value any
+---@param options table?
+---@return string
+function Trace.line(value, options)
+	if(type(value)=="table" and value.object_name) then
+		value = {
+			object_name = value.object_name,
+			type = ({pcall(function() return value.type end)})[2],
+			name = ({pcall(function() return value.name end)})[2],
+		}
+	end
+	return serpent.line(value,options)
+end
+
 if(KuxCoreLib.ModInfo.current_stage~="control") then return end_init() end
 
 ---[control stage only]----------------------------------------------------------------------------
 
 local EventDistributor = KuxCoreLib.EventDistributor
 local Events = KuxCoreLib.Events
+local Player = KuxCoreLib.Player --[[@as KuxCoreLib.Player]]
 
 local function on_close_clicked(e)
 	if(not e.element or e.element.name~="KuxCoreLib_trace_messagebox_close") then return end
@@ -324,8 +355,17 @@ local function on_close_clicked(e)
 	global.events.Trace.on_close_clicked = nil
 end
 
+---shows the trace message box
+---@param player LuaPlayer|number
+---@param message string
 function Trace.showMessage(player, message)
 	--TODO: not for multiplayer
+	local player = player~=nil and Player.toLuaPlayer(player) or nil --[[@as LuaPlayer?]]
+	if(game.is_multiplayer() or not player) then
+		log(message)
+		return
+	end
+	
 	--game.show_message_dialog{text=message, 
 	-- style?=…, wrapper_frame_style?=
 	local g = player.gui.screen.KuxCoreLib_trace_messagebox
@@ -406,6 +446,21 @@ function Trace.defines_displayname(list, value)
 	return tostring(name)
 end
 
+function Trace.getIdentifier(o)
+	local t = type(o)
+	if(t~="table") then return t end
+	local p = {}
+	if(o.object_name) then
+		pcall(function() p.type = o.type end)
+		pcall(function() p.name = o.name end)
+	else
+		p.type = o.type
+		p.name = o.name
+		p.__class = o.__class
+	end
+	return serpent.line(p)
+end
+
 local function on_events_initialized()
 	Events.on_load(function()
 		if(safeget("global.events.Trace.on_close_clicked")) then
@@ -421,6 +476,7 @@ Trace.mock = setmetatable({
 	exit = function (...) end
 	},
 	{
+		---@deprecated Trace disabled
 		__call = function(self, ...) end,
 		__index = function(_, key) return Trace[key] end,
 	}

@@ -93,7 +93,8 @@ function api.get_factory_by_entity(entity)
 	return remote.call('factorissimo', 'get_factory_by_entity', entity)
 end
 
----Returns a factory object from a factory building entity. Throws an error if the factory object isn't found.
+---Returns a factory object from a factory building entity. Throws an error if the factory object isn't found.  
+---In fact the same as get_factory_by_entity, but throws an error instead of returning nil.
 ---@param entity LuaEntity
 ---@return Factorissimo.FactoryObject
 function api.get_factory_by_building(entity)

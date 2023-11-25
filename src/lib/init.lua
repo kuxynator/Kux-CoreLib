@@ -63,6 +63,8 @@ end
 ---@field Factorissimo KuxCoreLib.Factorissimo
 ---@field SurfacesMod KuxCoreLib.SurfacesMod
 ---@field CollisionMaskData KuxCoreLib.CollisionMaskData
+---@field DataGrid KuxCoreLib.DataGrid
+---@field GuiHelper KuxCoreLib.GuiHelper
 
 KuxCoreLib = {
 	__class  = "KuxCoreLib",
@@ -77,7 +79,13 @@ KuxCoreLib = {
 -- e.g. local Debug=require(KuxCoreLibPath.."lib/Debug")
 
 --require(KuxCoreLibPath.."modules/require-override")
-require("__core__/lualib/util")
+if not KuxCoreLibPath or KuxCoreLibPath:match("^__") then
+	require("__core__/lualib/util") 
+else
+	dofile("E:/Program Files/Factorio/1.1/data/core/lualib/util.lua")
+end
+
+--
 --table.deepcopy = util.deepcopy --WORKARROUND for table.deepcopy is nil
 
 local require_map = { --RUN (F5) to AUTOGENERATE
@@ -108,6 +116,9 @@ local require_map = { --RUN (F5) to AUTOGENERATE
         That = "",
         Version = "",
 		PickerDollies = "",
+		DataGrid = "",
+		ErrorHandler = "",
+
 		CollisionMaskData = "data",
         DataRaw = "data",
         EntityData = "data",
@@ -118,11 +129,16 @@ local require_map = { --RUN (F5) to AUTOGENERATE
         TechnologyData = "data",
         TechnologyIndex = "data",
 		BigData = "data",
+
         Inserter = "entities",
         Storage = "storage",
         StoragePlayer = "storage",
         StoragePlayers = "storage",
+
         GuiBuilder = "gui",
+		ElementBuilder = "gui",
+		GuiHelper = "gui",
+
 		Factorissimo = "mods",
 		SurfacesMod = "mods",
 }

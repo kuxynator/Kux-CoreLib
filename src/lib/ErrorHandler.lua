@@ -102,6 +102,7 @@ end
 ---@param err any
 ---@param args ErrorHandler.createReport.args?
 function ErrorHandler.createReport(evt, err, args)
+	local traceback = debug.traceback(err,2)
 	xpcall(function ()
 		args = args or {}
 		if(not args.mod) then args.mod = ModInfo.entryMod end
@@ -113,7 +114,7 @@ function ErrorHandler.createReport(evt, err, args)
 		end
 		if(player) then
 			showErrorReport(player,
-				debug.traceback(err,2) .. "\n" ..
+				traceback .. "\n" ..
 				"----------------------------------------\n" ..
 				args.mod.." v".. game.active_mods[args.mod].."\n" ..
 				"Kux-CoreLib".." v".. game.active_mods["Kux-CoreLib"] .."\n" ..

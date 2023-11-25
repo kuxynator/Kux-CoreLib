@@ -159,7 +159,7 @@ end
 ---@param factory Factorissimo.FactoryObject
 ---@return BoundingBox #the factory wall rectangle
 function Factorissimo.getWallRect(factory)
-	if(not factory) then error("not in a factory") end
+	if(not factory) then error("Invalid Argument. 'factory' must not be nil") end
 	local rect = factory.layout.rectangles[1]
 	assert(rect.tile:match("factory%-wall"), "not a wall rectangle")
 	return get_absolute_rectangle(factory, rect)
@@ -175,6 +175,46 @@ function Factorissimo.getToplevelSurface(entity)
 		if(not factory) then return entity.surface end
 		entity = factory.building
 		if(not entity) then return nil end --factory is not built
+	end
+end
+
+---Gets the factory object for the given argument
+---@param arg LuaEntity|Factorissimo.FactoryObject|LuaPlayer
+---@return (Factorissimo.FactoryObject)?
+function Factorissimo.getFactory(arg)
+	if(not arg) then return nil end
+	if(type(arg)~="table") then return nil end
+	---@cast arg table
+	if(arg.object_name == "LuaEntity") then
+		local entity = arg --[[@as LuaEntity]]
+		if(Factorissimo.isFactoryEntity(entity)) then
+			return Factorissimo.api.get_factory_by_entity(entity)
+		else
+			if(not Factorissimo.isFactoryFloor(entity.surface)) then return nil end
+			return Factorissimo.api.find_surrounding_factory(entity.surface, entity.position)
+		end
+	elseif(arg.object_name == "LuaPlayer") then
+		local player = arg --[[@as LuaPlayer]]
+		if(not Factorissimo.isFactoryFloor(player.surface)) then return nil end
+		return Factorissimo.api.find_surrounding_factory(player.surface, player.position)
+	else
+		--TODO: check if arg is a factory object
+		return arg --[[@as Factorissimo.FactoryObject]]
+	end
+end
+
+---Gets the top level factory object for the given argument
+---@param arg LuaEntity|Factorissimo.FactoryObject
+---@return (Factorissimo.FactoryObject)?
+function Factorissimo.getToplevelFactory(arg)
+	local factory = Factorissimo.getFactory(arg)
+	if(not factory) then return nil end
+	while true do
+		local entity = factory.building
+		if(not entity) then return nil end --factory is not built
+		if(not Factorissimo.isFactoryFloor(entity.surface)) then return factory end
+		factory = Factorissimo.api.find_surrounding_factory(entity.surface, entity.position)
+		if(not factory) then return nil end
 	end
 end
 
