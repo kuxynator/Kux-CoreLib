@@ -8,8 +8,8 @@ if(KuxCoreLib.__modules.Trace) then return KuxCoreLib.__modules.Trace end
 ---@field public text_color Color
 ---@field public background_color Color
 --- ---
---- **Usage:**  
---- `Trace.write(...)` or short `Trace(...)`  
+--- **Usage:**
+--- `Trace.write(...)` or short `Trace(...)`
 --- `Trace.append(...)`
 local Trace = {
 	__class  = "Trace",
@@ -205,26 +205,26 @@ local function set_text_color(color)
 	  print("Ungültige Farbe: " .. rot)
 	  return
 	end
-  
+
 	if type(gruen) ~= "number" or gruen < 0 or gruen > 255 then
 	  print("Ungültige Farbe: " .. gruen)
 	  return
 	end
-  
+
 	if type(blau) ~= "number" or blau < 0 or blau > 255 then
 	  print("Ungültige Farbe: " .. blau)
 	  return
 	end
 
 	--normalize 0..1 to 0..255
-	--0,0,1 ist not very dark blue, but blue 0,0,255 
-	--1,1,1 ist not very dark gray, but white 255,255,255 
+	--0,0,1 ist not very dark blue, but blue 0,0,255
+	--1,1,1 ist not very dark gray, but white 255,255,255
 	if(rot<=1 and gruen<=1 and blau<=1) then
 		rot   = rot   * 255
 		gruen = gruen * 255
 		blau  = blau  * 255
 	end
-  
+
 	-- Escape-Sequenz für die Vordergrundfarbe generieren
 	--local farbe_code = string.format("\033[38;2;%d;%d;%dm", math.floor(rot / 255 * 5), math.floor(gruen / 255 * 5), math.floor(blau / 255 * 5))
   	local farbe_code = string.format("\27[38;2;%d;%d;%dm", math.floor(rot), math.floor(gruen), math.floor(blau))
@@ -365,8 +365,8 @@ function Trace.showMessage(player, message)
 		log(message)
 		return
 	end
-	
-	--game.show_message_dialog{text=message, 
+
+	--game.show_message_dialog{text=message,
 	-- style?=…, wrapper_frame_style?=
 	local g = player.gui.screen.KuxCoreLib_trace_messagebox
 	if(g) then g.destroy() end
@@ -378,7 +378,7 @@ function Trace.showMessage(player, message)
 		direction = "vertical"
 	}
     -- local screen_width = player.display_resolution.width
-    -- local screen_height = player.display_resolution.height    
+    -- local screen_height = player.display_resolution.height
     -- frame.location = {screen_width - frame.style.minimal_width, screen_height - frame.style.minimal_height}
 
 	local textbox = frame.add {
@@ -429,7 +429,7 @@ function Trace.defines_name(list, value)
 	if type(list)~="table" then error("Invalid Argument. 'list' must be a table or a string.") end
 	if not list then return tostring(value),false end
 
-	--TODO: optimize 
+	--TODO: optimize
 	for name,v in pairs(list) do
 		if v==value then return name,true end
 	end
@@ -482,8 +482,8 @@ Trace.mock = setmetatable({
 	}
 )
 
-if(Events.__isInitialized) then on_events_initialized() 
-else table.insert(Events.__on_initialized, on_events_initialized) 
+if(Events.__isInitialized) then on_events_initialized()
+else table.insert(Events.__on_initialized, on_events_initialized)
 end
 ---------------------------------------------------------------------------------------------------
 end_init()

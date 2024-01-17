@@ -1,8 +1,8 @@
 {
 	"name": "Kux-CoreLib",
-	"version": "2.10.0",
+	"version": "2.11.0",
 	"title": "Kuxynator's Core Library",
-	"author": "Kuxynator",	
+	"author": "Kuxynator",
 	"homepage": "https://fb.me/kuxynator.factorio",
 	"factorio_version": "1.1",
 	"dependencies": [

@@ -14,7 +14,7 @@ else
 	--log("Init KuxCoreLib, first time, required by \n"..debug.traceback(2))
 end
 
----Provides access to Kux-CoreLib modules  
+---Provides access to Kux-CoreLib modules
 ---Usage: `require(KuxCoreLib.MODULENAME)`
 ---@class KuxCoreLib
 ---@field Array KuxCoreLib.Array
@@ -65,6 +65,7 @@ end
 ---@field CollisionMaskData KuxCoreLib.CollisionMaskData
 ---@field DataGrid KuxCoreLib.DataGrid
 ---@field GuiHelper KuxCoreLib.GuiHelper
+---@field GuiElementCache KuxCoreLib.GuiElementCache
 
 KuxCoreLib = {
 	__class  = "KuxCoreLib",
@@ -80,7 +81,7 @@ KuxCoreLib = {
 
 --require(KuxCoreLibPath.."modules/require-override")
 if not KuxCoreLibPath or KuxCoreLibPath:match("^__") then
-	require("__core__/lualib/util") 
+	require("__core__/lualib/util")
 else
 	dofile("E:/Program Files/Factorio/1.1/data/core/lualib/util.lua")
 end
@@ -138,6 +139,7 @@ local require_map = { --RUN (F5) to AUTOGENERATE
         GuiBuilder = "gui",
 		ElementBuilder = "gui",
 		GuiHelper = "gui",
+		GuiElementCache = "gui",
 
 		Factorissimo = "mods",
 		SurfacesMod = "mods",
@@ -167,7 +169,7 @@ KuxCoreLib.utils = {}
 function KuxCoreLib.utils.asGlobal(t, mode)
 	local function getClassFileName(class)
 		--local classTable = getmetatable(class)
-		
+
 		for key, value in pairs(class) do
 		  if type(value) == "function" then
 			local info = debug.getinfo(value, "S")
@@ -202,7 +204,7 @@ function KuxCoreLib.utils.asGlobal(t, mode)
 			print("integrate")
 			-- TODO: handle metatables
 			-- for k, v in pairs(t) do gt[k] = v end -- integrate in there class
-			for k, v in pairs(gt) do t[k]=v end -- integrate in our class			
+			for k, v in pairs(gt) do t[k]=v end -- integrate in our class
 		elseif(mode=="error") then
 			error("A global class '"..name.."' already exist.")
 		else

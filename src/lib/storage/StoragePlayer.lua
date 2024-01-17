@@ -29,7 +29,7 @@ function mt.__newindex(self, key, value)
 	global.players[self.index][key]=value
 end
 
----Creates a new StoragePlayer.  
+---Creates a new StoragePlayer.
 --Usually this function does not need to be called manually. The access is made via Storage.Players[index]
 ---@param player LuaPlayer|integer
 ---@param defaultData? table

@@ -46,6 +46,17 @@ for _,name in ipairs(_style_writable_fields) do
 	assert(isAddField[name]==nil, "Style field '"..name.."' is also an add field.")
 end
 
+function ElementBuilder.validateChildren(children)
+	if(children==nil) then return true end
+	local t = type(children)
+	if(t~="table") then error("Invalid parameter. 'children' must be a table or nil, but is '"..t.."'") end
+	if(#children==0) then return true end
+	for i, f in ipairs(children) do
+		if(type(f)~="function") then error("Invalid parameter. 'children' must be a table of functions, but element "..i.." is '"..type(f).."'") end
+	end
+	return true
+end
+
 ---@param container LuaGuiElement
 ---@param create_children_fnc  function
 ---@param names_dic {string: LuaGuiElement}
@@ -75,16 +86,29 @@ end
 local function create_multi(container, create_children_fnc, names_dic)
 	assert(container~=nil, "Invalid Argument. 'container' must not be nil.")
 	trace("ElementBuilder.create in "..container.name.." from "..type(create_children_fnc))
+
+	local flatten; flatten = function(t1, t2)
+		t2 = t2 or {}
+		for _, elmt in ipairs(t1) do
+			if(type(elmt)=="table") then
+				flatten(elmt, t2)
+			else
+				table.insert(t2, elmt)
+			end
+		end
+		return t2
+	end
+
 	local list =
 		type(create_children_fnc) == "function" and {create_children_fnc} or
-		type(create_children_fnc) == "table" and create_children_fnc or
+		type(create_children_fnc) == "table" and flatten(create_children_fnc) or
 		error("Invalid Argument. 'create_children_fnc' must be a function or a table of functions.")
 	local results = {}
 	for _, f in ipairs(list) do
 		assert(type(f)=="function", "Invalid Argument. 'create_children_fnc' must be a function or a table of functions. but is "..type(f)..": "..serpent.line(f).." container: "..container.name)
-			local elmt = f(container)
-			if(names_dic and not names_dic[elmt.name]) then names_dic[elmt.name]=elmt end -- store first name only
-			table.insert(results, elmt)
+		local elmt = f(container)
+		if(names_dic and not names_dic[elmt.name]) then names_dic[elmt.name]=elmt end -- store first name only
+		table.insert(results, elmt)
 	end
 	return results
 end
@@ -98,10 +122,10 @@ end
 
 ---@param root_container LuaGuiElement
 ---@param create_children_fnc function
----@param names_dic {string: LuaGuiElement}
 ---@return LuaGuiElement
-function ElementBuilder.createView(root_container, names_dic, create_children_fnc)
-	return create(root_container, create_children_fnc, names_dic)
+---@return KuxCoreLib.GuiElementCache.Instance
+function ElementBuilder.createView(root_container, create_children_fnc)
+	return create(root_container, create_children_fnc, nil)
 end
 
 
@@ -167,6 +191,8 @@ end
 local function apply_extra(element, extra)
 	if( not extra) then return end
 	for k,v in pairs(extra) do
+		-- Given object is not a LuaGuiElement.
+		-- on drag_target = "%parent%"
 		element[k] = v
 	end
 end
@@ -219,6 +245,36 @@ local function prep_caption(args)
 	end
 end
 
+local t = {"%self%","%parent%","%parent.parent%"}
+local supported_variables = {}; for _,v in ipairs(t) do supported_variables[v]=true end
+
+local function prep_post(args)
+	local post_args = {}
+
+	for k,v in pairs(args) do
+		-- TODO: make this more generic
+		if(supported_variables[v]) then
+			post_args[k] = v
+			args[k] = nil
+		end
+	end
+	-- trace("ElementBuilder.prep_post "..tostring(args.name))
+	-- trace.append(serpent.block(post_args))
+	return post_args
+end
+
+local function apply_post(element, post_args)
+	for k,v in pairs(post_args) do
+		if(v == "%parent%") then -- drag_target = "%parent%"
+			element[k] = element.parent
+		elseif(v == "%parent.parent%") then
+			element[k] = element.parent.parent
+		elseif(v == "%self%") then
+			element[k] = element
+		end
+	end
+end
+
 ---Base function to create a gui element creation function
 ---@param args table
 local function element_factory(args)
@@ -231,6 +287,7 @@ local function element_factory(args)
 		prep_caption(args)
 		local style    = prep_style(args)
 		local children = prep_children(args)
+		local post     = prep_post(args) -- execute before prep_add
 		local extra    = prep_add(args)
 		--[[TRACE]]--trace("ElementBuilder.element_base "..tostring(container.name).." "..tostring(args.name))
 		--[[TRACE]]--trace.append("  args:  "..serpent.line(args))
@@ -240,10 +297,13 @@ local function element_factory(args)
 		if(names_dic and not names_dic[element.name]) then names_dic[element.name]=element end -- store first name only
 		if(style) then apply_style(element, style) end
 		if(extra) then apply_extra(element, extra) end
+		if(post ) then apply_post (element, post ) end
+
 		if(children) then create_multi(element, children, names_dic) end
 		return element
 	end
 end
+ElementBuilder.factory = element_factory
 
 ---A clickable element. Relevant event: on_gui_click
 ---@param args KuxCoreLib.ElementBuilder.parameter.button
@@ -649,60 +709,60 @@ return ElementBuilder
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.badge_font)
 ---
 ---_Can only be used if this is TabStyle_
----@field badge_font string 
+---@field badge_font string
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.badge_horizontal_spacing)
 ---
 ---_Can only be used if this is TabStyle_
----@field badge_horizontal_spacing int 
+---@field badge_horizontal_spacing int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.bar_width)
 ---
 ---_Can only be used if this is LuaProgressBarStyle_
----@field bar_width uint 
----[RW]  
+---@field bar_width uint
+---[RW]
 ---Space between the table cell contents bottom and border.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.bottom_cell_padding)
 ---
 ---_Can only be used if this is LuaTableStyle_
----@field bottom_cell_padding int 
+---@field bottom_cell_padding int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.bottom_margin)
----@field bottom_margin int 
+---@field bottom_margin int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.bottom_padding)
----@field bottom_padding int 
----[W]  
+---@field bottom_padding int
+---[W]
 ---Space between the table cell contents and border. Sets top/right/bottom/left cell paddings to this value.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.cell_padding)
 ---
 ---_Can only be used if this is LuaTableStyle_
----@field cell_padding int 
+---@field cell_padding int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.clicked_font_color)
 ---
 ---_Can only be used if this is LuaButtonStyle_
----@field clicked_font_color Color 
+---@field clicked_font_color Color
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.clicked_vertical_offset)
 ---
 ---_Can only be used if this is LuaButtonStyle_
----@field clicked_vertical_offset int 
+---@field clicked_vertical_offset int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.color)
 ---
 ---_Can only be used if this is LuaProgressBarStyle_
----@field color Color 
----[R]  
+---@field color Color
+---[R]
 ---Array containing the alignment for every column of this table element. Even though this property is marked as read-only, the alignment can be changed by indexing the LuaCustomTable, like so:
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.column_alignments)
@@ -711,322 +771,322 @@ return ElementBuilder
 ---```
 ---table_element.style.column_alignments[1] = "center"
 ---```
----@field column_alignments LuaCustomTable<uint,Alignment> 
+---@field column_alignments LuaCustomTable<uint,Alignment>
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.default_badge_font_color)
 ---
 ---_Can only be used if this is TabStyle_
----@field default_badge_font_color Color 
+---@field default_badge_font_color Color
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.disabled_badge_font_color)
 ---
 ---_Can only be used if this is TabStyle_
----@field disabled_badge_font_color Color 
+---@field disabled_badge_font_color Color
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.disabled_font_color)
 ---
 ---_Can only be used if this is LuaButtonStyle or LuaTabStyle_
----@field disabled_font_color Color 
+---@field disabled_font_color Color
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.extra_bottom_margin_when_activated)
 ---
 ---_Can only be used if this is ScrollPaneStyle_
----@field extra_bottom_margin_when_activated int 
+---@field extra_bottom_margin_when_activated int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.extra_bottom_padding_when_activated)
 ---
 ---_Can only be used if this is ScrollPaneStyle_
----@field extra_bottom_padding_when_activated int 
+---@field extra_bottom_padding_when_activated int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.extra_left_margin_when_activated)
 ---
 ---_Can only be used if this is ScrollPaneStyle_
----@field extra_left_margin_when_activated int 
+---@field extra_left_margin_when_activated int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.extra_left_padding_when_activated)
 ---
 ---_Can only be used if this is ScrollPaneStyle_
----@field extra_left_padding_when_activated int 
----[W]  
+---@field extra_left_padding_when_activated int
+---[W]
 ---Sets `extra_top/right/bottom/left_margin_when_activated` to this value. An array with two values sets top/bottom margin to the first value and left/right margin to the second value. An array with four values sets top, right, bottom, left margin respectively.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.extra_margin_when_activated)
----@field extra_margin_when_activated int|int[] 
----[W]  
+---@field extra_margin_when_activated int|int[]
+---[W]
 ---Sets `extra_top/right/bottom/left_padding_when_activated` to this value. An array with two values sets top/bottom padding to the first value and left/right padding to the second value. An array with four values sets top, right, bottom, left padding respectively.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.extra_padding_when_activated)
----@field extra_padding_when_activated int|int[] 
+---@field extra_padding_when_activated int|int[]
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.extra_right_margin_when_activated)
 ---
 ---_Can only be used if this is ScrollPaneStyle_
----@field extra_right_margin_when_activated int 
+---@field extra_right_margin_when_activated int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.extra_right_padding_when_activated)
 ---
 ---_Can only be used if this is ScrollPaneStyle_
----@field extra_right_padding_when_activated int 
+---@field extra_right_padding_when_activated int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.extra_top_margin_when_activated)
 ---
 ---_Can only be used if this is ScrollPaneStyle_
----@field extra_top_margin_when_activated int 
+---@field extra_top_margin_when_activated int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.extra_top_padding_when_activated)
 ---
 ---_Can only be used if this is ScrollPaneStyle_
----@field extra_top_padding_when_activated int 
+---@field extra_top_padding_when_activated int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.font)
----@field font string 
+---@field font string
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.font_color)
----@field font_color Color 
----[R]  
+---@field font_color Color
+---[R]
 ---Gui of the [LuaGuiElement](https://lua-api.factorio.com/latest/LuaGuiElement.html) of this style.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.gui)
----@field gui LuaGui 
----[W]  
+---@field gui LuaGui
+---[W]
 ---Sets both minimal and maximal height to the given value.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.height)
----@field height int 
----[RW]  
+---@field height int
+---[RW]
 ---Horizontal align of the inner content of the widget, if any. Possible values are "left", "center" or "right".
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.horizontal_align)
----@field horizontal_align? string 
----[RW]  
+---@field horizontal_align? string
+---[RW]
 ---Horizontal space between individual cells.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.horizontal_spacing)
 ---
 ---_Can only be used if this is LuaTableStyle, LuaFlowStyle or LuaHorizontalFlowStyle_
----@field horizontal_spacing int 
----[RW]  
+---@field horizontal_spacing int
+---[RW]
 ---Whether the GUI element can be squashed (by maximal width of some parent element) horizontally. `nil` if this element does not support squashing. This is mainly meant to be used for scroll-pane The default value is false.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.horizontally_squashable)
----@field horizontally_squashable? boolean 
----[RW]  
+---@field horizontally_squashable? boolean
+---[RW]
 ---Whether the GUI element stretches its size horizontally to other elements. `nil` if this element does not support stretching.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.horizontally_stretchable)
----@field horizontally_stretchable? boolean 
+---@field horizontally_stretchable? boolean
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.hovered_font_color)
 ---
 ---_Can only be used if this is LuaButtonStyle_
----@field hovered_font_color Color 
----[RW]  
+---@field hovered_font_color Color
+---[RW]
 ---Space between the table cell contents left and border.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.left_cell_padding)
 ---
 ---_Can only be used if this is LuaTableStyle_
----@field left_cell_padding int 
+---@field left_cell_padding int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.left_margin)
----@field left_margin int 
+---@field left_margin int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.left_padding)
----@field left_padding int 
----[W]  
+---@field left_padding int
+---[W]
 ---Sets top/right/bottom/left margins to this value. An array with two values sets top/bottom margin to the first value and left/right margin to the second value. An array with four values sets top, right, bottom, left margin respectively.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.margin)
----@field margin int|int[] 
----[RW]  
+---@field margin int|int[]
+---[RW]
 ---Maximal height ensures, that the widget will never be bigger than than that size. It can't be stretched to be bigger.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.maximal_height)
----@field maximal_height int 
----[RW]  
+---@field maximal_height int
+---[RW]
 ---Maximal width ensures, that the widget will never be bigger than than that size. It can't be stretched to be bigger.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.maximal_width)
----@field maximal_width int 
----[RW]  
+---@field maximal_width int
+---[RW]
 ---Minimal height ensures, that the widget will never be smaller than than that size. It can't be squashed to be smaller.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.minimal_height)
----@field minimal_height int 
----[RW]  
+---@field minimal_height int
+---[RW]
 ---Minimal width ensures, that the widget will never be smaller than than that size. It can't be squashed to be smaller.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.minimal_width)
----@field minimal_width int 
----[R]  
+---@field minimal_width int
+---[R]
 ---Name of this style.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.name)
----@field name string 
----[RW]  
+---@field name string
+---[RW]
 ---Natural height specifies the height of the element tries to have, but it can still be squashed/stretched to have a smaller or bigger size.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.natural_height)
----@field natural_height int 
----[RW]  
+---@field natural_height int
+---[RW]
 ---Natural width specifies the width of the element tries to have, but it can still be squashed/stretched to have a smaller or bigger size.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.natural_width)
----@field natural_width int 
----[R]  
+---@field natural_width int
+---[R]
 ---The class name of this object. Available even when `valid` is false. For LuaStruct objects it may also be suffixed with a dotted path to a member of the struct.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.object_name)
----@field object_name string 
----[W]  
+---@field object_name string
+---[W]
 ---Sets top/right/bottom/left paddings to this value. An array with two values sets top/bottom padding to the first value and left/right padding to the second value. An array with four values sets top, right, bottom, left padding respectively.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.padding)
----@field padding int|int[] 
+---@field padding int|int[]
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.pie_progress_color)
 ---
 ---_Can only be used if this is LuaButtonStyle_
----@field pie_progress_color Color 
----[RW]  
+---@field pie_progress_color Color
+---[RW]
 ---How this GUI element handles rich text.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.rich_text_setting)
 ---
 ---_Can only be used if this is LuaLabelStyle, LuaTextBoxStyle or LuaTextFieldStyle_
----@field rich_text_setting defines.rich_text_setting 
----[RW]  
+---@field rich_text_setting defines.rich_text_setting
+---[RW]
 ---Space between the table cell contents right and border.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.right_cell_padding)
 ---
 ---_Can only be used if this is LuaTableStyle_
----@field right_cell_padding int 
+---@field right_cell_padding int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.right_margin)
----@field right_margin int 
+---@field right_margin int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.right_padding)
----@field right_padding int 
+---@field right_padding int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.selected_badge_font_color)
 ---
 ---_Can only be used if this is TabStyle_
----@field selected_badge_font_color Color 
+---@field selected_badge_font_color Color
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.selected_clicked_font_color)
 ---
 ---_Can only be used if this is LuaButtonStyle_
----@field selected_clicked_font_color Color 
+---@field selected_clicked_font_color Color
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.selected_font_color)
 ---
 ---_Can only be used if this is LuaButtonStyle_
----@field selected_font_color Color 
+---@field selected_font_color Color
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.selected_hovered_font_color)
 ---
 ---_Can only be used if this is LuaButtonStyle_
----@field selected_hovered_font_color Color 
+---@field selected_hovered_font_color Color
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.single_line)
 ---
 ---_Can only be used if this is LabelStyle_
----@field single_line boolean 
----[W]  
+---@field single_line boolean
+---[W]
 ---Sets both width and height to the given value. Also accepts an array with two values, setting width to the first and height to the second one.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.size)
----@field size int|int[] 
+---@field size int|int[]
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.stretch_image_to_widget_size)
 ---
 ---_Can only be used if this is ImageStyle_
----@field stretch_image_to_widget_size boolean 
+---@field stretch_image_to_widget_size boolean
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.strikethrough_color)
 ---
 ---_Can only be used if this is LuaButtonStyle_
----@field strikethrough_color Color 
----[RW]  
+---@field strikethrough_color Color
+---[RW]
 ---Space between the table cell contents top and border.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.top_cell_padding)
 ---
 ---_Can only be used if this is LuaTableStyle_
----@field top_cell_padding int 
+---@field top_cell_padding int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.top_margin)
----@field top_margin int 
+---@field top_margin int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.top_padding)
----@field top_padding int 
+---@field top_padding int
 ---[RW]
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.use_header_filler)
 ---
 ---_Can only be used if this is LuaFrameStyle_
----@field use_header_filler boolean 
----[R]  
+---@field use_header_filler boolean
+---[R]
 ---Is this object valid? This Lua object holds a reference to an object within the game engine. It is possible that the game-engine object is removed whilst a mod still holds the corresponding Lua object. If that happens, the object becomes invalid, i.e. this attribute will be `false`. Mods are advised to check for object validity if any change to the game state might have occurred between the creation of the Lua object and its access.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.valid)
----@field valid boolean 
----[RW]  
+---@field valid boolean
+---[RW]
 ---Vertical align of the inner content of the widget, if any. Possible values are "top", "center" or "bottom".
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.vertical_align)
----@field vertical_align? string 
----[RW]  
+---@field vertical_align? string
+---[RW]
 ---Vertical space between individual cells.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.vertical_spacing)
 ---
 ---_Can only be used if this is LuaTableStyle, LuaFlowStyle, LuaVerticalFlowStyle or LuaTabbedPaneStyle_
----@field vertical_spacing int 
----[RW]  
+---@field vertical_spacing int
+---[RW]
 ---Whether the GUI element can be squashed (by maximal height of some parent element) vertically. `nil` if this element does not support squashing. This is mainly meant to be used for scroll-pane The default (parent) value for scroll pane is true, false otherwise.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.vertically_squashable)
----@field vertically_squashable? boolean 
----[RW]  
+---@field vertically_squashable? boolean
+---[RW]
 ---Whether the GUI element stretches its size vertically to other elements. `nil` if this element does not support stretching.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.vertically_stretchable)
----@field vertically_stretchable? boolean 
----[W]  
+---@field vertically_stretchable? boolean
+---[W]
 ---Sets both minimal and maximal width to the given value.
 ---
 ---[View documentation](https://lua-api.factorio.com/latest/LuaStyle.html#LuaStyle.width)
----@field width int 
+---@field width int
 
 --TODO: style for each element
 
