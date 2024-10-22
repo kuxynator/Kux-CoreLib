@@ -4,7 +4,6 @@ local ElementBuilder = {}
 -- automatic handling of style parameters (moved to style and assigned after creation)
 -- automatic handling of non add parameters (assigned after creation)
 
-
 local _add_fields = {"achievement", "allow_decimal", "allow_negative", "allow_none_state",
 	"anchor", "auto_toggle", "badge_text", "caption", "chart_player_index",
 	"clear_and_focus_on_right_click", "clicked_sprite", "column_count", "decorative", "direction",
@@ -282,6 +281,7 @@ local function element_factory(args)
 
 	return function(container)
 		assert(container~=nil, "Invalid Argument. 'container' must not be nil.")
+		log("ElementBuilder.element_factory "..tostring(container.name).." "..tostring(args.name))
 		local names_dic = args.names_dic or {}; args.names_dic = nil
 		prep_name(args, container)
 		prep_caption(args)

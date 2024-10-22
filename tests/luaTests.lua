@@ -5,6 +5,7 @@ KuxCoreLib.lua.asGlobal()
 local Table = KuxCoreLib.Table
 
 function tests.safeget_global()
+	--TODO globaal ist ranmed in to storage (in 2.0)
 	_G.global = _G.global or {}
 	global.a = {b="b"}
 	local result = safeget("global.a.b")

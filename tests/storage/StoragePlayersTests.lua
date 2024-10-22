@@ -8,7 +8,7 @@ local StoragePlayers = KuxCoreLib.StoragePlayers
 
 function tests.a()
 	--#region Mock
-	global = {};
+	global = {}; --TODO 2.0 global = storage
 	game = {};  game.players = {}
 	game.players[1] = game.players[1] or {index = 1, name = "MockUser1"}
 	--#endregion

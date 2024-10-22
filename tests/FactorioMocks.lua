@@ -13,9 +13,19 @@ function toJsonValue(o)
 	return "\""..tostring(o).."\"" -- mock only
 end
 
+--TODO create defines. require("/lualib/defines.lua")
 defines = defines or {}
-
 defines.events = defines.events or {}
+
+defines.direction = defines.direction or {}
+defines.direction.north = 0
+defines.direction.east = 2
+defines.direction.south = 4
+defines.direction.west = 6
+defines.direction.northeast = 1
+defines.direction.southeast = 3
+defines.direction.southwest = 5
+defines.direction.northwest = 7
 
 data = data or {}
 data.raw = data.raw or {}

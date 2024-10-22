@@ -6,7 +6,7 @@
 ---@field outside_y integer
 ---@field outside_door_x integer
 ---@field outside_door_y integer
----@field inside_surface LuaSurface 
+---@field inside_surface LuaSurface
 ---@field inside_x integer
 ---@field inside_y integer,
 ---@field inside_door_x integer
@@ -36,7 +36,7 @@
 ---@field factories_by_entity any {uint:boolean} Map: Entity unit number -> Factory it is a part of
 ---@field surface_factories any {string:Factorissimo.FactoryObject[]} Map: Surface name -> list of factories on it
 ---@field surface_factory_counters {string:integer} Map: Surface name -> number of used factory spots on it
----@field next_factory_surface integer 
+---@field next_factory_surface integer
 ---@field last_player_teleport {uint:any} Map: Player index -> Last teleport time
 ---@field player_preview_active {uint:boolean} Map: Player index -> Whether preview is activated
 ---@field middleman_power_poles any[] List of all factory power pole middlemen
@@ -93,7 +93,7 @@ function api.get_factory_by_entity(entity)
 	return remote.call('factorissimo', 'get_factory_by_entity', entity)
 end
 
----Returns a factory object from a factory building entity. Throws an error if the factory object isn't found.  
+---Returns a factory object from a factory building entity. Throws an error if the factory object isn't found.
 ---In fact the same as get_factory_by_entity, but throws an error instead of returning nil.
 ---@param entity LuaEntity
 ---@return Factorissimo.FactoryObject

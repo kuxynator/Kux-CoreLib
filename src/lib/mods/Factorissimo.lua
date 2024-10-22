@@ -25,10 +25,16 @@ local entity_names = {
 ---@type Factorissimo.API
 Factorissimo.api = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/mods/Factorissimo-API") --[[@as Factorissimo.API]]
 
+function Factorissimo.isAvailable()
+	return remote.interfaces['factorissimo'] ~= nil
+end
+
 ---Gets a value indicating whether surface is is a Factorissimo floor
 ---@param surface LuaSurface|string Surface or surface name
 ---@return boolean
 function Factorissimo.isFactoryFloor(surface)
+	if not Factorissimo.isAvailable() then return false end
+
 	local surface_name =
 		type(surface) == "string" and surface or
 		type(surface) == "table" and surface.name or

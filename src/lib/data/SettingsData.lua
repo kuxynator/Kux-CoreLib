@@ -56,7 +56,7 @@ local function merge(order_index, common, data, final_fixes)
 
 	--merge final_fixes--
 	for k,v in pairs(final_fixes) do merged[k] = v; end
-	merged.allowed_values = final_fixes.allowed_values --WORKOROUND, I dont know wjy allowed_values is set to 0 
+	merged.allowed_values = final_fixes.allowed_values --WORKOROUND, I dont know wjy allowed_values is set to 0
 
 	--clean up--
 	merged.prefix = nil
@@ -107,12 +107,20 @@ end
 ---@param t KuxCorelib.BoolSetting|table BoolSetting | {name, default_value}
 function SettingsData.extend:bool(t)
 	self.count = self.count + 1
+
+	local default_value = tostring(t.default_value or t[2] or false)
+	-- default_value = tostring(t.default_value or t[2] or false),
+
+
 	local d = merge(self.count, self.common, t, {
 		type          = "bool-setting",
 		name          =  getName(self, t.name or t[1]),
-		default_value = tostring(t.default_value or t[2] or false),
+		-- default_value = tostring(t.default_value or t[2] or false)
+		-- FIX for 2.0: Error while loading mod-setting prototype "<NAME>" (bool-setting): Value must be a bool in property tree at ROOT.bool-setting.<NAME>.default_value
+		default_value = tostring(t.default_value or t[2] or false) == "true",
 		-- forced_value -- Only loaded if hidden = true
 	})
+	--print("SettingsData.extend:bool => " .. serpent.block(d)) -- manuall TEST
 	data:extend{d}
 end
 
@@ -121,7 +129,7 @@ end
 ---@field default_value int64 Defines the default value of the setting.
 ---@field minimum_value int64 Defines the lowest possible number.
 ---@field maximum_value int64 Defines the highest possible number.
----@field allowed_values int64[] Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value. 
+---@field allowed_values int64[] Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.
 
 ---Adds int-setting
 ---@param t KuxCorelib.IntSetting|table IntSetting | {name, default_value, allowed_values}
@@ -143,7 +151,7 @@ end
 ---@field default_value double Defines the default value of the setting.
 ---@field minimum_value double Defines the lowest possible number.
 ---@field maximum_value double Defines the highest possible number.
----@field allowed_values double[] Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value. 
+---@field allowed_values double[] Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.
 
 ---Adds double-setting
 ---@param t KuxCorelib.DoubleSetting|table DoubleSetting | {name, default_value, allowed_values}
@@ -165,7 +173,7 @@ end
 ---@field default_value string Defines the default value of the setting.
 ---@field allow_blank bool Defines whether it's possible for the user to set the textfield to empty and apply the setting.
 ---@field auto_trim bool Whether values that are input by the user should have whitespace removed from both ends of the string.
----@field allowed_values double[] Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value. 
+---@field allowed_values double[] Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.
 
 ---Adds string-setting
 ---@param t KuxCorelib.StringSetting|table StringSetting | {name, default_value, allowed_values}
@@ -176,8 +184,8 @@ function SettingsData.extend:string(t)
 		name           = getName(self, t.name or t[1]),
 		default_value  = t.default_value or t[2] or t.default or error("Missing value 'default_value'"),
 		allowed_values = t.allowed_values or t.allowed or t[3],
-		--allow_blank 
-		--auto_trim 
+		--allow_blank
+		--auto_trim
 	})
 	data:extend{d}
 end

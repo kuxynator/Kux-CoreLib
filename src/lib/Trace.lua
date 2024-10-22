@@ -352,7 +352,7 @@ local function on_close_clicked(e)
 	local player = game.players[e.player_index]
 	player.gui.screen.KuxCoreLib_trace_messagebox.destroy()
 	EventDistributor.unregister(defines.events.on_gui_click, on_close_clicked)
-	global.events.Trace.on_close_clicked = nil
+	(global or storage).events.Trace.on_close_clicked = nil
 end
 
 ---shows the trace message box
@@ -397,9 +397,9 @@ function Trace.showMessage(player, message)
 	confirm_button.style.minimal_width = 100
 
 	Events.on_event(defines.events.on_gui_click, on_close_clicked)
-	global.events = global.events or {}
-	global.events.Trace = global.events.Trace or {}
-	global.events.Trace.on_close_clicked = true
+	(global or storage).events = (global or storage).events or {}
+	(global or storage).events.Trace = (global or storage).events.Trace or {}
+	(global or storage).events.Trace.on_close_clicked = true
 end
 
 function Trace.formatEntityEvent(e)
@@ -463,7 +463,7 @@ end
 
 local function on_events_initialized()
 	Events.on_load(function()
-		if(safeget("global.events.Trace.on_close_clicked")) then
+		if(safeget("(global or storage).events.Trace.on_close_clicked")) then
 			Events.on_event(defines.events.on_gui_click, on_close_clicked)
 		end
 	end)

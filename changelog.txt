@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.11.1
+Date: 2024-10-21
+  Features:
+    - add Factorissimo.isAvailable()
+  Changes:
+    - Use of `(global or storage)` as a temporary fix
+  Bugfixes:
+    - Fix a crash in Factorissimo.isFactoryFloor if Factorissimo mod is not available.
+  Info:
+    - push to Factorio 2.0
+---------------------------------------------------------------------------------------------------
 Version: 2.11.0
 Date: 2024-01-17
   Features:

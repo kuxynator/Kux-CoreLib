@@ -23,21 +23,21 @@ local globalPlayers
 ---@return KuxCoreLib.StoragePlayer?
 local function indexHandler(self, key)
     globalPlayers = globalPlayers or Storage.players
-	
+
 	local player = toLuaPlayer(key)
 	if(not player) then return nil end
 
-	-- local pi = global.players[player.index]
+	-- local pi = (global or storage).players[player.index]
 	-- if(pi==nil) then
 	-- 	pi = {}
-	-- 	global.players[player.index]=pi
+	-- 	(global or storage).players[player.index]=pi
 	-- end
-	-- return 
+	-- return
 
-	local data = global.players[key] or {}
-	local gp=StoragePlayer:new(player, data)
-	global.players[key]=data
-	rawset(self,player.index,gp)	--self[player.index] = gp	
+	local storageTable = (global or storage)
+	storageTable.players = storageTable.players or {}  -- Sicherstellen, dass players eine Tabelle ist
+	storageTable.players[key] = data
+	rawset(self,player.index,gp)	--self[player.index] = gp
 	return gp --[[@as KuxCoreLib.StoragePlayer]]
 end
 
@@ -45,9 +45,9 @@ end
 mt.__index = indexHandler
 
 function mt.__newindex(self,key,value)
-	-- global.players = global.players or {}
+	-- (global or storage).players = (global or storage).players or {}
 	-- local player = toLuaPlayer(key)
-	-- global.players[player.index] = value
+	-- (global or storage).players[player.index] = value
 	--if(type(key)=="number") then self[key]=value; return end
 	error("StoragePlayers is protected.")
 end

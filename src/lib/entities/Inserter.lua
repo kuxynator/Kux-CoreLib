@@ -28,7 +28,7 @@ local fine_offset = 0.2 -- bobmods.inserters.offset
 this.changed_position_event = script.generate_event_name()
 
 local function getPlayerInfo(player_index)
-	return global.bobmods.inserters[player_index] ---TODO
+	return (global or storage).bobmods.inserters[player_index] ---TODO
 end
 
 --bobmods.logistics.set_range
@@ -287,7 +287,7 @@ function Inserter.pickup_range(entity, player)
 	end
 end
 
-function this.islongislong2(relPos)	
+function this.islongislong2(relPos)
 	if(abs(relPos.x) > 2.1 or abs(relPos.y) > 2.1) then return false, true end
 	if(abs(relPos.x) > 1.1 or abs(relPos.y) > 1.1) then return false, true end
 	return false,false

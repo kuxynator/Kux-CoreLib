@@ -23,16 +23,16 @@ local loc = "KuxCoreLib.ErrorHandler."
 
 ---Returns the persistent storage for the ErrorHandler
 ---@return KuxCoreLib.ErrorHandler.Storage
-local function storage()
+local function thisStorage()
 	if(ModInfo.current_stage == "control-on-load") then
-		--we must not change 'global'!
-		local temp = table.deepcopy(global.ErrorHandler) or {}
+		--we must not change 'storage' (formerly 'global')!
+		local temp = table.deepcopy((global or storage).ErrorHandler) or {}
 		temp.events = temp.events or {}
 		return temp
 	end
-	global.ErrorHandler = global.ErrorHandler or {}
-	global.ErrorHandler.events = global.ErrorHandler.events or {}
-	return global.ErrorHandler
+	(global or storage).ErrorHandler = (global or storage).ErrorHandler or {}
+	(global or storage).ErrorHandler.events = (global or storage).ErrorHandler.events or {}
+	return (global or storage).ErrorHandler
 end
 
 local function on_error_report_close_clicked(e)
@@ -40,14 +40,14 @@ local function on_error_report_close_clicked(e)
 	local player = game.players[e.player_index]
 	player.gui.screen.KuxCoreLib_error_report_messagebox.destroy()
 	EventDistributor.unregister(defines.events.on_gui_click, on_error_report_close_clicked)
-	global.ErrorHandler.events.on_error_report_close_clicked = nil
+	(global or storage).ErrorHandler.events.on_error_report_close_clicked = nil
 
 	game.show_message_dialog{text={loc.."player-message-error-report-closed"}}
 end
 
 local function showErrorReport(player, message, url)
 	--TODO: not for multiplayer
-	--game.show_message_dialog{text=message, 
+	--game.show_message_dialog{text=message,
 	-- style?=…, wrapper_frame_style?=
 	local g = player.gui.screen.KuxCoreLib_error_report_messagebox
 	if(g) then g.destroy() end
@@ -89,7 +89,7 @@ local function showErrorReport(player, message, url)
 	confirm_button.style.minimal_width = 100
 
 	Events.on_event(defines.events.on_gui_click, on_error_report_close_clicked)
-	storage().events.on_error_report_close_clicked = true
+	thisStorage().events.on_error_report_close_clicked = true
 end
 
 ---@class ErrorHandler.createReport.args
@@ -123,14 +123,14 @@ function ErrorHandler.createReport(evt, err, args)
 				"...describe which steps you have done before...",
 				"https://mods.factorio.com/mod/"..args.mod.."/discussion"
 			)
-		end		
+		end
 	end,function(err2)
 		log(err2)
 	end)
 end
 
 local function on_load()
-	if(storage().events.on_error_report_close_clicked) then
+	if(thisStorage().events.on_error_report_close_clicked) then
 		Events.on_event(defines.events.on_gui_click, on_error_report_close_clicked)
 	end
 end

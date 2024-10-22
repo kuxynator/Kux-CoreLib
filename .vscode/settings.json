@@ -10,13 +10,13 @@
     "Lua.runtime.special": {
         "__object_name": "type"
     },
-    "Lua.runtime.plugin": "c:/Users/Kay/AppData/Roaming/Code/User/workspaceStorage/6603b2e9fe3f72018ea751b33fada1f0/justarandomgeek.factoriomod-debug/sumneko-3rd/factorio/plugin.lua",	
+    "Lua.runtime.plugin": "c:/Users/Kay/AppData/Roaming/Code/User/workspaceStorage/6603b2e9fe3f72018ea751b33fada1f0/justarandomgeek.factoriomod-debug/sumneko-3rd/factorio/plugin.lua",
     "Lua.runtime.version": "Lua 5.2",
-		
+
     "Lua.diagnostics.globals": [
 		"defines",
 		"game",
-		"global",
+		"storage",
 		"script",
 		"remote",
 		"data",
@@ -122,5 +122,5 @@
         "fortran": "cd $dir && gfortran $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
         "sml": "cd $dir && sml $fileName"
     },
-    "editor.insertSpaces": false,
+    "editor.insertSpaces": false
 }
