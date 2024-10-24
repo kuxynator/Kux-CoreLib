@@ -38,6 +38,25 @@ function PrototypeData.energyUsageFactor(entity, factor)
 	entity.energy_usage = PrototypeData.energyFactor(entity.energy_usage, factor)
 end
 
+--Factorio 2.0: Removed hr_version from all graphics definitions. The graphics are now always considered to be in high definition.
+local function fix_hr_version(data)
+	for key, value in pairs(data) do
+		if key == "hr_version" and type(value) == "table" then
+			for hr_key, hr_value in pairs(value) do
+				data[hr_key] = hr_value
+			end
+			data.hr_version = nil
+		elseif type(value) == "table" then
+			fix_hr_version(value)
+		end
+	end
+end
+
+function PrototypeData.finalize(data)
+	fix_hr_version(data)
+	return data
+end
+
 ---@type KuxCorelib.PrototypeData.Extend
 PrototypeData.extend = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/data/PrototypeData-extend") --[[@as KuxCorelib.PrototypeData.Extend]]
 

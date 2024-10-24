@@ -14,6 +14,44 @@ function CollisionMaskData.asGlobal() return KuxCoreLib.utils.asGlobal(Collision
 local collision_mask_util = require("__core__/lualib/collision-mask-util") --[[@as collision_mask_util]]
 CollisionMaskData.collision_mask_util = collision_mask_util
 
+-- Factorio 2.0:
+-- found in prototypes: {"water_tile", "item", "resource", "player", "doodad", "ground_tile", "floor", "object",
+	-- "elevated_rail", "train", "is_object", "is_lower_object", "cliff"}
+
+-- item
+-- meltable
+-- object
+-- player
+-- water_tile
+-- is_object
+-- is_lower_object
+-- elevated_rail
+-- floor
+-- car
+-- transport_belt
+-- rail
+-- train
+-- elevated_train
+-- trigger_target
+-- resource
+-- doodad
+-- ground_tile
+-- cliff
+
+local function fix_layer_name_from_before_2_0(layer_name)
+    if layer_name == "not-colliding-with-itself" or layer_name == "consider-tile-transitions" or layer_name == "colliding-with-tiles-only" then
+		return nil -- moved to an attribute
+	end
+	if string.sub(layer_name, -6) == "-layer" then
+        return string.sub(layer_name, 1, -7) -- Entfernt das "-layer" Suffix
+    end
+	layer_name = string.gsub(layer_name, "-layer$", "")
+	layer_name = string.gsub(layer_name, "-", "_")
+    return layer_name
+end
+
+CollisionMaskData.fix_layer_name_from_before_2_0 = fix_layer_name_from_before_2_0
+
 function CollisionMaskData.try_add_layer(prototype, layer)
 	if(not prototype) then return end
 	if(not prototype.type) then --assume {type, name}
@@ -22,7 +60,20 @@ function CollisionMaskData.try_add_layer(prototype, layer)
 		prototype = p
 	end
 	prototype.collision_mask= prototype.collision_mask or collision_mask_util.get_default_mask(prototype.type)
-	collision_mask_util.add_layer(prototype.collision_mask, layer)
+	if isV1 then
+		collision_mask_util.add_layer(prototype.collision_mask, layer)
+	else
+		if layer == "not-colliding-with-itself" then
+			prototype.collision_mask.not_colliding_with_itself = true
+		elseif layer == "consider-tile-transitions" then
+			prototype.collision_mask.consider_tile_transitions = true
+		elseif layer == "colliding-with-tiles-only" then
+			prototype.collision_mask.colliding_with_tiles_only = true
+		else
+			layer = fix_layer_name_from_before_2_0(layer)
+			prototype.collision_mask.layers[layer] = true
+		end
+	end
 end
 
 function CollisionMaskData.try_remove_layer(prototype, layer)
@@ -32,8 +83,31 @@ function CollisionMaskData.try_remove_layer(prototype, layer)
 		local p = t[prototype[2]]; if not p then return end
 		prototype = p
 	end
-	prototype.collision_mask= prototype.collision_mask or collision_mask_util.get_default_mask(prototype.type)
-	collision_mask_util.remove_layer(prototype.collision_mask, layer)
+	if isV1 then
+		prototype.collision_mask= prototype.collision_mask or collision_mask_util.get_default_mask(prototype.type)
+		collision_mask_util.remove_layer(prototype.collision_mask, layer)
+	else
+		if layer == "not-colliding-with-itself" then
+			prototype.collision_mask.not_colliding_with_itself = false
+		elseif layer == "consider-tile-transitions" then
+			prototype.collision_mask.consider_tile_transitions = false
+		elseif layer == "colliding-with-tiles-only" then
+			prototype.collision_mask.colliding_with_tiles_only = false
+		else
+			layer = fix_layer_name_from_before_2_0(layer)
+			prototype.collision_mask.layers[layer] = nil
+		end
+	end
+end
+
+function CollisionMaskData.extract_layers(prototype)
+    local layers_array = {}
+    if prototype.collision_mask and prototype.collision_mask.layers then
+        for layer, _ in pairs(prototype.collision_mask.layers) do
+            table.insert(layers_array, layer)
+        end
+    end
+    return layers_array
 end
 
 return CollisionMaskData

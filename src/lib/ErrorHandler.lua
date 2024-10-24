@@ -116,8 +116,8 @@ function ErrorHandler.createReport(evt, err, args)
 			showErrorReport(player,
 				traceback .. "\n" ..
 				"----------------------------------------\n" ..
-				args.mod.." v".. game.active_mods[args.mod].."\n" ..
-				"Kux-CoreLib".." v".. game.active_mods["Kux-CoreLib"] .."\n" ..
+				args.mod.." v".. mods[args.mod].."\n" ..
+				"Kux-CoreLib".." v".. mods["Kux-CoreLib"] .."\n" ..
 				"----------------------------------------\n" ..
 				"Steps to repoduce:\n" ..
 				"...describe which steps you have done before...",

@@ -1,5 +1,6 @@
+require("mod")
 require("lib/@")
-if script.active_mods["gvv"] then require("__gvv__.gvv")() end
+if mods["gvv"] then require("__gvv__.gvv")() end
 
 -- print("ModInfo.current_stage: "..ModInfo.current_stage)
 -- print("ModInfo.name   "..ModInfo.name)
@@ -85,7 +86,7 @@ EventDistributor.register("on_loaded",function ()
         end
 
         if(entity_prototype.type=="explosion" or entity_prototype.type=="projectile") then
-            d.position={x,20}   
+            d.position={x,20}
         end
 
         --print(serpent.line(d))
@@ -129,7 +130,7 @@ EventDistributor.register("on_loaded",function ()
     for _, pti in pairs(prototypes) do
         for fieldName, value in pairs(pti.fields) do
             local p = properties[fieldName]
-            if(not p) then 
+            if(not p) then
                 p={name=fieldName, prototypes={}}
                 properties[fieldName]=p
             end
@@ -140,7 +141,7 @@ EventDistributor.register("on_loaded",function ()
     for name, pi in pairs(properties) do
         print(name..":"..table.concat(pi.prototypes, ","))
     end
-    
+
     print("=====STOP=====")
     --error("=====STOP=====")
 end)
