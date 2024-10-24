@@ -42,7 +42,7 @@ end
 function Table.getKeysFilterByValue (t,value)
 	local n = {}
 	for k,v in pairs(t) do
-		if v == value then 
+		if v == value then
 			table.insert(n,k)
 		end
 	end
@@ -61,7 +61,7 @@ function Table.indexOf(t, value)
 end
 
 ---Gets the first key which has the value
----@param t table 
+---@param t table
 ---@param value any
 ---@return integer|string|nil # The key or nil
 function Table.keyOf(t, value)
@@ -85,7 +85,7 @@ function Table.keysOf(t,value)
 	return n
 end
 
---[[ 
+--[[
 Table.indexOfF = function (t,f)
 	for i, v in ipairs(t) do
 		if f(v) then return i end
@@ -131,9 +131,9 @@ end
 --[[
 table
   - array(unspecified)
-    - continuous-array 
-    - gap-array, 
-  - dictionary, 
+    - continuous-array
+    - gap-array,
+  - dictionary,
   - mixed
 LuaCustomTable
 
@@ -148,23 +148,23 @@ size
 lastIndex
 ]]
 
----Returns the number of elements that are not nil.  
----Supports non-continuous arrays: nil is not counted.   
----Supports dictionaries: key are counted.  
+---Returns the number of elements that are not nil.
+---Supports non-continuous arrays: nil is not counted.
+---Supports dictionaries: key are counted.
 ---Supports LuaCustomTable: (simple using #t)
 ---@param t table
 ---@return integer
 ---
----See also List.count() which ist optimized for arrays.  
----See also Dictionary.count()  
---- 
+---See also List.count() which ist optimized for arrays.
+---See also Dictionary.count()
+---
 --- WARNING entries in a mixed dictionar/gap arrays are not counted correctly.
 function Table.count(t) -- alias 'countNonNil'
 	--[[ from original table_size docu:
 		>>Returns the size of a table with non-continuous keys.
-		Factorio provides the table_size() function as a simple way to determine 
-		the size of tables with non-continuous keys, as the standard # operator 
-		does not work correctly for these. The function is a C++ implementation, 
+		Factorio provides the table_size() function as a simple way to determine
+		the size of tables with non-continuous keys, as the standard # operator
+		does not work correctly for these. The function is a C++ implementation,
 		which is faster than doing the same in Lua<<
 		--
 		NOTE The # operator works correctly! The difference is: It counts also nil elements but no keys.
@@ -200,9 +200,9 @@ function Table.countAll(t)
 	return nnk + l-- number of key + length of array
 end
 
----Gets the length of the array. (same as #t)  
----If table is a mixed array/dictionary it returns only the length of the array part including nil elements.  
----A pure dictionary will returns always 0.  
+---Gets the length of the array. (same as #t)
+---If table is a mixed array/dictionary it returns only the length of the array part including nil elements.
+---A pure dictionary will returns always 0.
 ---If you want the number of elemets, see Table.count() or Table.countAll()
 ---@param t table
 ---@return integer
@@ -258,7 +258,7 @@ function Table.stats(t)
 
 	info.info.numericKeys = info.numericKeys_num_nil + info.numerikKeys_num_nonNil
 	info.info.nonNumericKeys = info.nonNumericKeys_num_nil + info.nonNumerikKeys_num_nonNil
-	
+
 	info.is_continuous_array=info.numericKeys_num_nil==0
 	info.is_true_continuous_array=info.numericKeys_num_nil==0 and info.num_nonNumeric_keys==0
 	info.is_gap_array=info.numericKeys_num_nil>0
@@ -388,7 +388,7 @@ function Table.shallowCopyPath(t, props)
 end
 
 --[[ -- this is only a quick and dirty implementation
-function Table.deepCopy(t)	
+function Table.deepCopy(t)
     local orig_type = type(t)
     local copy
     if orig_type == 'table' then
@@ -648,13 +648,13 @@ function Table.diff(t, base)
 	end
 end
 
----Converts a table to a json string. 
+---Converts a table to a json string.
 ---@param t table The table to convert
 --- - [Not available in data stage. 'game' is required'.]
 --- - contains a bugfix for game.table_to_json
 function Table.toJson(t)
 	if(not game) then error("Function not available in current stage.") end
-	local json = game.table_to_json(t)
+	local json = (isV1 and game or helpers).table_to_json(t)
 	--BUGFIX for game.table_to_json
 	json=string.gsub(json,"%:inf",":\"#inf\"")
 	json=string.gsub(json,"%:%-inf",":\"-#inf\"")
@@ -746,7 +746,7 @@ function Table.getMaxIndex(t, assumeInteger)
 				maxIndex = k
 			end
 		end
-	end	
+	end
 	return maxIndex
 end
 
@@ -801,7 +801,7 @@ function Table.overlaps(a,b)
 	--    def
 	--> 4, 2
 	local aStart, aEnd , bStart, bEnd
-	
+
 	for i = 1, math.min(#a, #b) do
 		if String.join("//",Table.sub(a, -i)) == String.join("//",Table.sub(b, 1, i)) then
 			aStart = #a - i + 1
@@ -811,7 +811,7 @@ function Table.overlaps(a,b)
 			break
 		end
 	end
-	
+
 	if aStart and aEnd and bStart and bEnd then
 		return aStart, aEnd, bStart, bEnd
 	else
@@ -819,7 +819,7 @@ function Table.overlaps(a,b)
 	end
 
 	-- abc   abc   abc   abc   ab     bc   abc     bce   abc
-	-- abc   ab     bc    b    abc   abc    bce   abc       def 
+	-- abc   ab     bc    b    abc   abc    bce   abc       def
 end
 
 function Table.toFlagsDictionary(t)
