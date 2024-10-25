@@ -1,3 +1,13 @@
+--[[---------------------------------------------------------------------------
+lib/init.lua
+Is the main entry point for the library.
+It initializes the library and provides access to all modules.
+
+USAGE: require("__Kux-CoreLib__/lib/init")
+
+_G.KuxCoreLib is a global variaböe that provides access to all modules.
+---------------------------------------------------------------------------]]--
+
 -- print(debug.getinfo(1,"S").source)
 -- @D:\Develop\Factorio\Mods\Kux-CoreLib/src\lib\init.lua
 -- @__Kux-CoreLib__/lib/init.lua
@@ -13,6 +23,9 @@ if KuxCoreLib then
 else
 	--log("Init KuxCoreLib, first time, required by \n"..debug.traceback(2))
 end
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/Globals")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/Factorio20Migrations")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/Factorio11BackwardCompatibility")
 
 ---Provides access to Kux-CoreLib modules
 ---Usage: `require(KuxCoreLib.MODULENAME)`

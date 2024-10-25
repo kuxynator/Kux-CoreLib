@@ -26,13 +26,13 @@ local loc = "KuxCoreLib.ErrorHandler."
 local function thisStorage()
 	if(ModInfo.current_stage == "control-on-load") then
 		--we must not change 'storage' (formerly 'global')!
-		local temp = table.deepcopy((global or storage).ErrorHandler) or {}
+		local temp = table.deepcopy(storage.ErrorHandler) or {}
 		temp.events = temp.events or {}
 		return temp
 	end
-	(global or storage).ErrorHandler = (global or storage).ErrorHandler or {}
-	(global or storage).ErrorHandler.events = (global or storage).ErrorHandler.events or {}
-	return (global or storage).ErrorHandler
+	storage.ErrorHandler = storage.ErrorHandler or {}
+	storage.ErrorHandler.events = storage.ErrorHandler.events or {}
+	return storage.ErrorHandler
 end
 
 local function on_error_report_close_clicked(e)
@@ -40,7 +40,7 @@ local function on_error_report_close_clicked(e)
 	local player = game.players[e.player_index]
 	player.gui.screen.KuxCoreLib_error_report_messagebox.destroy()
 	EventDistributor.unregister(defines.events.on_gui_click, on_error_report_close_clicked)
-	(global or storage).ErrorHandler.events.on_error_report_close_clicked = nil
+	storage.ErrorHandler.events.on_error_report_close_clicked = nil
 
 	game.show_message_dialog{text={loc.."player-message-error-report-closed"}}
 end

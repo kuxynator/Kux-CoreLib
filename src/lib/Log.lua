@@ -49,37 +49,37 @@ local data = {}
 
 function Log.on_init ()
 	--log("Kux-Corelib.Log.on_init")
-	(global or storage).moduleData = (global or storage).moduleData or {}
-	data = Table.migrate((global or storage).moduleData.Log or {}, data_prototype)
+	storage.moduleData = storage.moduleData or {}
+	data = Table.migrate(storage.moduleData.Log or {}, data_prototype)
 	update(data)
-	(global or storage).moduleData.Log = data
+	storage.moduleData.Log = data
 end
 
 function Log.on_load ()
 	--log("Kux-Corelib.Log.on_load")
-	if not (global or storage).moduleData or not (global or storage).moduleData.Log then
+	if not storage.moduleData or not storage.moduleData.Log then
 		data = Table.migrate({}, data_prototype)
 		update(data)
 	else
-		data = (global or storage).moduleData.Log
+		data = storage.moduleData.Log
 	end
 end
 
 function Log.on_configuration_changed()
 	--log("Kux-Corelib.Log.on_configuration_changed")
-	(global or storage).moduleData = (global or storage).moduleData or {}
-	(global or storage).moduleData.log = nil -- MIGRATION remove field uded by previous version
-	data = Table.migrate((global or storage).moduleData.Log or {}, data_prototype)
+	storage.moduleData = storage.moduleData or {}
+	storage.moduleData.log = nil -- MIGRATION remove field uded by previous version
+	data = Table.migrate(storage.moduleData.Log or {}, data_prototype)
 	update(data)
-	(global or storage).moduleData.Log = data
+	storage.moduleData.Log = data
 end
 
 function Log.on_runtime_mod_setting_changed(e)
 	--log("Kux-Corelib.Log.on_runtime_mod_setting_changed")
-	(global or storage).moduleData = (global or storage).moduleData or {}
-	data = Table.migrate((global or storage).moduleData.Log or {}, data_prototype)
+	storage.moduleData = storage.moduleData or {}
+	data = Table.migrate(storage.moduleData.Log or {}, data_prototype)
 	update(data)
-	(global or storage).moduleData.Log = data
+	storage.moduleData.Log = data
 	this.onSettingsChanged(e)
 end
 

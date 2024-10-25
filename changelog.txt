@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.11.4
+  Features:
+    - Add ModInfo.version
+  Changes:
+    - ModInfo.new()
+  Bugfixes:
+    - Fix Factorio 2.0 compatibility
+
+---------------------------------------------------------------------------------------------------
 Version: 3.11.3
   Changes:
     - Fix Factorio 2.0 compatibility

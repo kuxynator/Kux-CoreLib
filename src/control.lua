@@ -35,7 +35,7 @@ EventDistributor.register("on_loaded",function ()
     local surface = game.players[1].surface
 
     local x = 0
-    for name, entity_prototype in pairs(game.entity_prototypes) do
+    for name, entity_prototype in pairs(prototypes.entity) do
         print(name,entity_prototype.type)
 
         local pti = prototypes[entity_prototype.type]

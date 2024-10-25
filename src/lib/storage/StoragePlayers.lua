@@ -27,14 +27,14 @@ local function indexHandler(self, key)
 	local player = toLuaPlayer(key)
 	if(not player) then return nil end
 
-	-- local pi = (global or storage).players[player.index]
+	-- local pi = storage.players[player.index]
 	-- if(pi==nil) then
 	-- 	pi = {}
-	-- 	(global or storage).players[player.index]=pi
+	-- 	storage.players[player.index]=pi
 	-- end
 	-- return
 
-	local storageTable = (global or storage)
+	local storageTable = storage
 	storageTable.players = storageTable.players or {}  -- Sicherstellen, dass players eine Tabelle ist
 	storageTable.players[key] = data
 	rawset(self,player.index,gp)	--self[player.index] = gp
@@ -45,9 +45,9 @@ end
 mt.__index = indexHandler
 
 function mt.__newindex(self,key,value)
-	-- (global or storage).players = (global or storage).players or {}
+	-- storage.players = storage.players or {}
 	-- local player = toLuaPlayer(key)
-	-- (global or storage).players[player.index] = value
+	-- storage.players[player.index] = value
 	--if(type(key)=="number") then self[key]=value; return end
 	error("StoragePlayers is protected.")
 end

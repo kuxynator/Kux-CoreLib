@@ -1,4 +1,12 @@
+--[[---------------------------------------------------------------------------
+	ModInfo
+	Provides information about the current mod.
+
+	USAGE: require("__Kux-CoreLib__/lib/ModInfo")
+-----------------------------------------------------------------------------]]
+
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
+
 if(KuxCoreLib.__modules.ModInfo) then
 	if(KuxCoreLib.__modules.ModInfo.__isInitialized) then
 		KuxCoreLib.__modules.ModInfo.update()
@@ -32,6 +40,7 @@ end
 -- end
 
 ---@class KuxCoreLib.ModInfo
+---@
 local ModInfo = {
 	__class  = "ModInfo",
 	__guid   = "35fb3f52-acde-45b9-9792-d1c0f570408b",
@@ -58,17 +67,22 @@ ModInfo.callingMod = debug_util.getCallingMod(true)
 ---Sequence: settings > settings-updates > settings-final-fixes > data > data-updates > data-final-fixes > control > control-on-init > control-on-load > control-on-configuration-changed > control-on-loaded
 ModInfo.current_stage = "undefined" -- mostly used with match, so nil would be not helpfull
 
----Gets the current mod name  
+---Gets the current mod name
 ---@type string
 ---example `ModName`
 ModInfo.name = nil
 
----Gets the current mod name as path  
+---Gets the current mod version
+---@type string
+---example `1.2.3`
+ModInfo.version = nil
+
+---Gets the current mod name as path
 ---@type string
 ---example `__ModName__/`
 ModInfo.path = nil
 
----Gets the current mod name as prefix  
+---Gets the current mod name as prefix
 ---@type string
 ---example `ModName_`
 ModInfo.prefix = nil
@@ -77,7 +91,7 @@ ModInfo.prefix = nil
 ---@return "settings"|"settings-updates"|"settings-final-fixes"|"data"|"data-updates"|"data-final-fixes"|"control"
 ModInfo.getEntryStage = debug_util.getEntryStage
 
----Update current_stage
+---Update `current_stage` and `name`
 function ModInfo.update()
 	if(ModInfo.current_stage~="undefined" and ModInfo.current_stage:match("^control") and ModInfo.name) then return end
 	local stackTrace = debug.traceback()
@@ -95,6 +109,13 @@ function ModInfo.update()
 		ModInfo.path = "__"..mod_name.."__/"
 		ModInfo.prefix = mod_name.."_"
 	end
+	if(not ModInfo.version) then
+		if(script) then
+			ModInfo.version = script.active_mods[mod_name]
+		else
+			ModInfo.version = mods[mod_name]
+		end
+	end
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -108,20 +129,24 @@ ModInfo.update()
 ModInfo.__isInitialized = true
 for _, fnc in ipairs(ModInfo.__on_initialized) do fnc() end
 
-if(ModInfo.current_stage=="control") then
+if(ModInfo.stage=="control") then
 	KuxCoreLib.EventDistributor() -- this is reqired for update control states
 end
 
-function ModInfo.new()
-	local mod = setmetatable(
-		{
-			__base = KuxCoreLib.ModInfo
-		},
-		{
-			__index = KuxCoreLib.ModInfo,
-			__metatable = "Metatable is protected!"
-		}
-	)
+---Creates a new ModInfo instance
+---@param additinalMembers table
+---@return KuxCoreLib.ModInfo
+function ModInfo.new(additinalMembers)
+	local instance = {
+		__base = KuxCoreLib.ModInfo,
+	}
+	if additinalMembers then for key, value in pairs(additinalMembers) do instance[key] = value end end
+	local mt = {
+		__index = KuxCoreLib.ModInfo,
+		__metatable = "Metatable is protected!",
+		__newindex = function() error("ModInfo is protected") end,
+	}
+	local mod = setmetatable(instance,mt)
 	return mod
 end
 

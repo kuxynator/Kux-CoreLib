@@ -2,7 +2,7 @@ require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.EventDistributor) then return KuxCoreLib.__modules.EventDistributor end
 --[[
 	Usage:
-	[control.lua]	
+	[control.lua]
 	require "ModulA"
 
 	[ModuleA.lua]
@@ -99,7 +99,7 @@ EventDistributor.getDisplayName=getDisplayName
 local function on_init()
 	--print("EventDistributor.on_init")
 	local handlers = events["on_init"]
-	if(handlers) then 
+	if(handlers) then
 		for _,fnc in pairs(handlers) do fnc() end
 	end
 
@@ -195,7 +195,7 @@ local function on_destroy(e)
 	for _,fnc in pairs(handlers) do fnc(e) end
 end
 
----@param e NthTickEventData 
+---@param e NthTickEventData
 local function on_timer(e)
 	local handlers = events["on_timer"][e.tick]
 	if(handlers) then
@@ -213,7 +213,7 @@ end
 
 ---@param e PickerDollies.dolly_moved_entity
 local function on_entity_moved(e)
-	---@cast e KuxCoreLib.on_entity_moved	
+	---@cast e KuxCoreLib.on_entity_moved
 	local handlers = events["on_entity_moved"]
 	if(handlers) then
 		local e1={
@@ -221,7 +221,7 @@ local function on_entity_moved(e)
 			tick = game.tick,
 			player_index = e.player_index,
 			entity = e.moved_entity,
-			start_postion = e.start_pos			
+			start_postion = e.start_pos
 		} --[[@as KuxCoreLib.on_entity_moved]]
 		for _,fnc in pairs(handlers) do fnc(e1) end
 	end
@@ -230,7 +230,7 @@ end
 --#endregion event handlers
 
 local function check_customInput(name)
-	if(game.custom_input_prototypes[name]) then return end
+	if(prototypes.custom_input[name]) then return end
 	error("CustomInput does not exist. Name:'"..tostring(name).."'")
 end
 

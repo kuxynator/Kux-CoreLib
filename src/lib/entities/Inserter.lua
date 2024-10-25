@@ -28,7 +28,7 @@ local fine_offset = 0.2 -- bobmods.inserters.offset
 this.changed_position_event = script.generate_event_name()
 
 local function getPlayerInfo(player_index)
-	return (global or storage).bobmods.inserters[player_index] ---TODO
+	return storage.bobmods.inserters[player_index] ---TODO
 end
 
 --bobmods.logistics.set_range

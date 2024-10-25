@@ -6,35 +6,35 @@ local StoragePlayer = KuxCoreLib.StoragePlayer
 
 function tests.new_new()
 	--#region Mock
-	global = {};
-	global.players = {}
+	storage = {};
+	storage.players = {}
 	game = {};  game.players = {}
 	game.players[1] = game.players[1] or {index = 1, name = "MockUser1"}
 	--#endregion
 
 	local gp = StoragePlayer:new(1,{foo="default"})
 
-	assert(That.IsEqual(global.players[1].foo,"default"))
+	assert(That.IsEqual(storage.players[1].foo,"default"))
 end
 
 function tests.new_exist()
 	--#region Mock
-	global = {};
-	global.players = {}
-	global.players[1] = {foo="existing"}
+	storage = {};
+	storage.players = {}
+	storage.players[1] = {foo="existing"}
 	game = {};  game.players = {}
 	game.players[1] = game.players[1] or {index = 1, name = "MockUser1"}
 	--#endregion
 
 	local gp = StoragePlayer:new(1,{foo="default"})
 
-	assert(That.IsEqual(global.players[1].foo,"existing"))
+	assert(That.IsEqual(storage.players[1].foo,"existing"))
 end
 
 function tests.new_playerNotExist()
 	--#region Mock
-	global = {};
-	global.players = {}	
+	storage = {};
+	storage.players = {}
 	game = {};  game.players = {}
 	--#endregion
 

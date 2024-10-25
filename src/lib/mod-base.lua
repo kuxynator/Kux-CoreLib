@@ -1,17 +1,20 @@
 -- USAGE: local mod = require("__Kux-CoreLib__/lib/mod-base"):clone("<YOUR-MOD-NAME>")
 
+KuxCoreLibPath = KuxCoreLibPath or "__Kux-CoreLib__/"
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/Globals")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/Factorio20Migrations")
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/Factorio11BackwardCompatibility")
+
+--- mod-base class
+---@class KuxCoreLib.ModBase
+---@field name string The name of the mod
+---@field path string The file path of the mod
+---@field prefix string The prefix used by the mod
 local mod = {}
 
 mod.name = "mod-base"
-mod.path="__"..mod.name.."__/"
-mod.prefix=mod.name.."-"
-
-if(script) then -- control-stage
-	_G.isV1 = pcall(function() return game.active_mods ~= nil end)
-	_G.mods = script.active_mods
-end
-_G.isV2 = string.sub(mods["base"], 1, 2) == "2."
-
+mod.path = "__"..mod.name.."__/"
+mod.prefix = mod.name.."-"
 
 mod.clone = function(self, name)
 	local copy = {}

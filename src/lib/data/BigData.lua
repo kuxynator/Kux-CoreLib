@@ -88,8 +88,8 @@ if(KuxCoreLib.ModInfo.current_stage:match("^control")) then
 	function BigData.unpack(name)
 		assert(type(name) == "string", "missing name!")
 		-- local prototype = assert(game.item_prototypes[suffix ..  name],
-		-- 				string.format("big data '%s' not defined!", name))		
-		local prototype = assert(game.entity_prototypes[suffix ..  name],
+		-- 				string.format("big data '%s' not defined!", name))
+		local prototype = assert(prototypes.entity[suffix ..  name],
 						string.format("big data '%s' not defined!", name))
 		return decode(prototype.localised_description)
 	end

@@ -5,22 +5,21 @@ KuxCoreLib.lua.asGlobal()
 local Table = KuxCoreLib.Table
 
 function tests.safeget_global()
-	--TODO globaal ist ranmed in to storage (in 2.0)
-	_G.global = _G.global or {}
-	global.a = {b="b"}
-	local result = safeget("global.a.b")
+	_G.storage = _G.storage or {}
+	storage.a = {b="b"}
+	local result = safeget("storage.a.b")
 	assert(That.IsEqual(result,"b"))
 
-	global.a.b = nil
-	result = safeget("global.a.b")
+	storage.a.b = nil
+	result = safeget("storage.a.b")
 	assert(That.IsNil(result))
 
-	global.a = nil
-	result = safeget("global.a.b")
+	storage.a = nil
+	result = safeget("storage.a.b")
 	assert(That.IsNil(result))
 
-	global = nil
-	result = safeget("global.a.b")
+	storage = nil
+	result = safeget("storage.a.b")
 	assert(That.IsNil(result))
 end
 

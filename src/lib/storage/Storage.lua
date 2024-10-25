@@ -33,7 +33,7 @@ Storage.canWrite = false
 local StoragePlayers = KuxCoreLib.StoragePlayers
 
 local getter = {
-	players = function (self) (global or storage).players = (global or storage).players or {}; return StoragePlayers end
+	players = function (self) storage.players = storage.players or {}; return StoragePlayers end
 }
 local function defaultGetter(self) return rawget(self)end
 

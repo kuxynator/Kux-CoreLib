@@ -15,10 +15,10 @@ KuxCoreLib.__modules.StoragePlayer = StoragePlayer
 local mt = {}
 
 local getter = {
-	frames = function (self,key) return safegetOrCreate((global or storage),"players["..self.index.."].frames") end,
+	frames = function (self,key) return safegetOrCreate(storage,"players["..self.index.."].frames") end,
 }
 
-local function defaultGetter(self, key) return ((global or storage) or storage).players[self.index][key]end
+local function defaultGetter(self, key) return storage.players[self.index][key]end
 
 function mt.__index(self,key)
 	return (getter[key] or defaultGetter)(self,key)
@@ -26,7 +26,7 @@ end
 
 function mt.__newindex(self, key, value)
 	if(getter[key]) then error("Property is write protected.") end
-	(global or storage).players[self.index][key]=value
+	storage.players[self.index][key]=value
 end
 
 ---Creates a new StoragePlayer.
@@ -37,8 +37,8 @@ end
 function StoragePlayer:new(player, defaultData)
 	if(type(player)=="number") then player=game.players[player] end
 	if(not player) then error("Player does not exist.") end --TODO: return nil??
-	data = safeget("(global or storage).players["..player.index.."]")
-	if(not data) then data = defaultData or {}; safeset("(global or storage).players["..player.index.."]", defaultData) end
+	data = safeget("storage.players["..player.index.."]")
+	if(not data) then data = defaultData or {}; safeset("storage.players["..player.index.."]", defaultData) end
 	local globalPlayer={index=player.index,_data=data}
 	setmetatable(globalPlayer,mt)
 	return globalPlayer

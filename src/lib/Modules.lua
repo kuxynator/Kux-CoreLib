@@ -28,8 +28,8 @@ function Modules.call(method, ...)
 end
 
 local function initGlobals()
-	(global or storage).moduleData = (global or storage).moduleData or {
-		tableName = "(global or storage).moduleData",
+	storage.moduleData = storage.moduleData or {
+		tableName = "storage.moduleData",
 		guid      = "{87DB96EF-16E8-4A92-B30C-182C9CEBBCA9}",
 		origin    = "Kux-CoreLib/lib/Modules.lua"
 	}
