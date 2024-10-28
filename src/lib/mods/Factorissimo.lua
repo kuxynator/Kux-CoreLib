@@ -38,6 +38,7 @@ function Factorissimo.isFactoryFloor(surface)
 	local surface_name =
 		type(surface) == "string" and surface or
 		type(surface) == "table" and surface.name or
+		type(surface) == "userdata" and surface.name or -- Factorio 2.0
 		error("Invalid surface type: " .. type(surface))
 
 	return surface_name:match("Factory floor %d+") or surface_name:match("factory%-floor%-%d+")

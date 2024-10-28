@@ -39,6 +39,9 @@ end
 -- 	}
 -- end
 
+---@class ModInfoOptions
+---@field separator string The separator for the prefix. default: "_"
+
 ---@class KuxCoreLib.ModInfo
 ---@
 local ModInfo = {
@@ -82,6 +85,11 @@ ModInfo.version = nil
 ---example `__ModName__/`
 ModInfo.path = nil
 
+---Gets the current separator. default: "_"
+---@type string
+---example `_`
+ModInfo.separator = "_"
+
 ---Gets the current mod name as prefix
 ---@type string
 ---example `ModName_`
@@ -104,10 +112,11 @@ function ModInfo.update()
 	if(not ModInfo.current_stage or not ModInfo.current_stage:match("^control")) then
 		ModInfo.current_stage = stage
 	end
+
 	if(mod_name and stage) then
 		ModInfo.name = mod_name
 		ModInfo.path = "__"..mod_name.."__/"
-		ModInfo.prefix = mod_name.."_"
+		ModInfo.prefix = mod_name..ModInfo.separator
 	end
 	if(not ModInfo.version) then
 		if(script) then
@@ -129,13 +138,15 @@ ModInfo.update()
 ModInfo.__isInitialized = true
 for _, fnc in ipairs(ModInfo.__on_initialized) do fnc() end
 
-if(ModInfo.stage=="control") then
+if(ModInfo.current_stage=="control") then
 	KuxCoreLib.EventDistributor() -- this is reqired for update control states
 end
 
 ---Creates a new ModInfo instance
----@param additinalMembers table
+---@param additinalMembers table [optional] additional members
 ---@return KuxCoreLib.ModInfo
+---@overload fun(): KuxCoreLib.ModInfo
+---@overload fun(additinalMembers: table): KuxCoreLib.ModInfo
 function ModInfo.new(additinalMembers)
 	local instance = {
 		__base = KuxCoreLib.ModInfo,
