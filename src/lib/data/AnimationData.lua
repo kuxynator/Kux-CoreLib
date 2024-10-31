@@ -34,10 +34,10 @@ function AnimationData.findFirstIndexOfShadow(layers)
 end
 
 ---comment
----@param animation_template Animation
----@param overlay_template Animation
+---@param animation_template data.Animation
+---@param overlay_template data.Animation
 ---@param add_hr_version boolean
----@return Animation
+---@return data.Animation
 function AnimationData.addOverlay(animation_template, overlay_template, add_hr_version)
 	--[[
 		-- https://wiki.factorio.com/Types/Animation

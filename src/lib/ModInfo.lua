@@ -2,7 +2,21 @@
 	ModInfo
 	Provides information about the current mod.
 
-	USAGE: require("__Kux-CoreLib__/lib/ModInfo")
+	USAGE:
+	create a mod.lua file in your mod root folder with the following content:
+
+	--[[mod.lua]]-----------------------------------------------------------]
+	--	KuxCoreLib = require("__Kux-CoreLib__/lib/init") --[[@as KuxCoreLib]]
+	--	_G.mod = KuxCoreLib.ModInfo.extend({separator = "-"})
+	--  ...
+	--[[--------------------------------------------------------------------]
+
+	Then you can use your `mod` in all stages.
+
+	--[[settings.lua]]------------------------------------------------------]
+	--  require("mod")
+	--  ...
+	--[[--------------------------------------------------------------------]
 -----------------------------------------------------------------------------]]
 
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
@@ -43,7 +57,6 @@ end
 ---@field separator string The separator for the prefix. default: "_"
 
 ---@class KuxCoreLib.ModInfo
----@
 local ModInfo = {
 	__class  = "ModInfo",
 	__guid   = "35fb3f52-acde-45b9-9792-d1c0f570408b",
@@ -113,18 +126,14 @@ function ModInfo.update()
 		ModInfo.current_stage = stage
 	end
 
-	if(mod_name and stage) then
+	if(mod_name) then
 		ModInfo.name = mod_name
 		ModInfo.path = "__"..mod_name.."__/"
-		ModInfo.prefix = mod_name..ModInfo.separator
+		--ModInfo.prefix = ModInfo.name..ModInfo.separator
+		ModInfo.version = script and script.active_mods[mod_name] or mods[mod_name]
 	end
-	if(not ModInfo.version) then
-		if(script) then
-			ModInfo.version = script.active_mods[mod_name]
-		else
-			ModInfo.version = mods[mod_name]
-		end
-	end
+
+	log("ModInfo.update(): stage="..ModInfo.current_stage.." mod="..ModInfo.name.." "..ModInfo.version)
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -142,22 +151,23 @@ if(ModInfo.current_stage=="control") then
 	KuxCoreLib.EventDistributor() -- this is reqired for update control states
 end
 
----Creates a new ModInfo instance
+---Initializes a new mod (due updating ModInfo)
 ---@param additinalMembers table [optional] additional members
 ---@return KuxCoreLib.ModInfo
 ---@overload fun(): KuxCoreLib.ModInfo
 ---@overload fun(additinalMembers: table): KuxCoreLib.ModInfo
 function ModInfo.new(additinalMembers)
-	local instance = {
-		__base = KuxCoreLib.ModInfo,
-	}
+	log("ModInfo.new()")
+	local instance = {}
 	if additinalMembers then for key, value in pairs(additinalMembers) do instance[key] = value end end
-	local mt = {
-		__index = KuxCoreLib.ModInfo,
-		__metatable = "Metatable is protected!",
-		__newindex = function() error("ModInfo is protected") end,
-	}
-	local mod = setmetatable(instance,mt)
+	local mod = setmetatable(instance, {
+		__index = ModInfo,
+		__newindex = function() error("ModInfo is protected.") end,
+		__metatable = "ModInfo is protected"
+	})
+	ModInfo.update()
+	ModInfo.prefix = mod.name..mod.separator
+	log("ModInfo.new() done: prefix="..ModInfo.prefix)
 	return mod
 end
 

@@ -1,10 +1,11 @@
+---@diagnostic disable: deprecated, undefined-field
 --[[---------------------------------------------------------------------------
 	 makes Factorio 2.0 API available in 1.1 mods
 --]]---------------------------------------------------------------------------
 
 if isV2 then return end
 
-_G.storage = global
+_G.storage = storage
 
 -- https://lua-api.factorio.com/latest/classes/LuaHelpers.html
 _G.helpers = helpers or {

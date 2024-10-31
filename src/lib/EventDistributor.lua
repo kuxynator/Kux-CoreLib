@@ -40,7 +40,7 @@ local List = KuxCoreLib.List
 local ModInfo = KuxCoreLib.ModInfo
 local StringBuilder = KuxCoreLib.StringBuilder
 local Storage = KuxCoreLib.Storage
-local PickerDollies = KuxCoreLib.PickerDollies
+local PickerDollies = KuxCoreLib.PickerDollies ---@see KuxCoreLib.PickerDollies
 
 ---Dictionary of EventId|EventName, table of function
 local events={}
@@ -267,7 +267,7 @@ local function unregister(eventIdentifier, ticks)
 end
 
 ---Unregisters an event
----@param eventIdentifier integer|uint|string
+---@param eventIdentifier integer|uint|string|defines.events
 ---@param fnc function
 function EventDistributor.unregister(eventIdentifier, fnc)
 	assert(fnc~=nil, "Invalid Argument. 'fnc' must not be nil!")

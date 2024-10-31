@@ -3,4 +3,4 @@
 --]]---------------------------------------------------------------------------
 
 --- @deprecated Use `storage` instead
-_G.global = storage
+_G.storage = storage

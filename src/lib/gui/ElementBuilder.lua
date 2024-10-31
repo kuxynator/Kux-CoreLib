@@ -4,6 +4,8 @@ local ElementBuilder = {}
 -- automatic handling of style parameters (moved to style and assigned after creation)
 -- automatic handling of non add parameters (assigned after creation)
 
+--TODO adapt for Factorio 2.0
+
 local _add_fields = {"achievement", "allow_decimal", "allow_negative", "allow_none_state",
 	"anchor", "auto_toggle", "badge_text", "caption", "chart_player_index",
 	"clear_and_focus_on_right_click", "clicked_sprite", "column_count", "decorative", "direction",
@@ -58,7 +60,7 @@ end
 
 ---@param container LuaGuiElement
 ---@param create_children_fnc  function
----@param names_dic {string: LuaGuiElement}
+---@param names_dic {string: LuaGuiElement}?
 ---@return LuaGuiElement
 local function create(container, create_children_fnc, names_dic)
 	assert(container~=nil, "Invalid Argument. 'container' must not be nil.")
@@ -122,7 +124,6 @@ end
 ---@param root_container LuaGuiElement
 ---@param create_children_fnc function
 ---@return LuaGuiElement
----@return KuxCoreLib.GuiElementCache.Instance
 function ElementBuilder.createView(root_container, create_children_fnc)
 	return create(root_container, create_children_fnc, nil)
 end

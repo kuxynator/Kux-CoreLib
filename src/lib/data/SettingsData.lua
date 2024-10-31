@@ -15,27 +15,6 @@ SettingsData.runtime = {}
 SettingsData.runtime.global = {}
 SettingsData.runtime.user = {}
 
----#region obsolete, use shorthands
-
----addIntSetting
----@param t IntSetting
----@deprecated use extend
-function SettingsData.addIntSetting(t)
-	t.type="int-setting"
-	data:extend{t}
-	return t
-end
-
----addStringSetting
----@param t StringSetting
----@deprecated use extend
-function SettingsData.addStringSetting(t)
-	t.type="string-setting"
-	data:extend{t}
-	return t
-end
---#region
-
 local function merge(order_index, common, data, final_fixes)
 	--print("merge", order_index, common, data, final_fixes)
 	local merged = {}
@@ -100,8 +79,8 @@ end
 
 ---@class KuxCorelib.BoolSetting
 ---@field name string
----@field default_value bool Defines the default value of the setting.
----@field forced_value bool
+---@field default_value boolean Defines the default value of the setting.
+---@field forced_value boolean
 
 ---Adds bool-setting
 ---@param t KuxCorelib.BoolSetting|table BoolSetting | {name, default_value}
@@ -171,8 +150,8 @@ end
 ---@class KuxCorelib.StringSetting
 ---@field name string
 ---@field default_value string Defines the default value of the setting.
----@field allow_blank bool Defines whether it's possible for the user to set the textfield to empty and apply the setting.
----@field auto_trim bool Whether values that are input by the user should have whitespace removed from both ends of the string.
+---@field allow_blank boolean Defines whether it's possible for the user to set the textfield to empty and apply the setting.
+---@field auto_trim boolean Whether values that are input by the user should have whitespace removed from both ends of the string.
 ---@field allowed_values double[] Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.
 
 ---Adds string-setting

@@ -25,7 +25,7 @@ String.new = function(s, count)
 	return r
 end
 
----Gets or sets the separator for the next concat call. 
+---Gets or sets the separator for the next concat call.
 String.concatSeparator = "" --alias oneTineConcatSeparator
 
 ---Concatenances a string
@@ -61,7 +61,7 @@ function String.format(format, ...)
 	 -- remarks: we have to do this with a for loop elsewhere nil values are not counted or skipped
 	 local result = format
 	local args = {...}
-	local len = #args   
+	local len = #args
 	for i = 1, len, 1 do
 		local v=args[i]
 		if v == nil then v = "" else v = tostring(v) end
@@ -217,7 +217,7 @@ end
 ---@param s string
 ---@return string
 function String.escape(s)
-	--                                            - . + [ ] ( ) $ ^ % ?    
+	--                                            - . + [ ] ( ) $ ^ % ?
 	local r = string.gsub(s,'[%-%.%+%[%]%(%)%$%^%%%?%*]','%%%1')
 	return r
 end
@@ -262,8 +262,8 @@ end
 ---@field printTableRefs boolean
 ---@field recursive boolean
 ---@field maxLevel integer
----@field showNil boolean
----@field useQuotes boolean
+---@field showNil boolean?
+---@field useQuotes boolean?
 -----------------------------
 
 ---prettystr_core
@@ -291,7 +291,7 @@ local function prettystr_core(v,indentLevel,options)
 		--end
 		-- return M.private._table_tostring(v, indentLevel, printTableRefs, cycleDetectTable)
 		return "@Table"
-		-- TODO 
+		-- TODO
 	elseif "number" == type_v then
 		-- eliminate differences in formatting between various Lua versions
 		if v ~= v then return "#NaN" end -- "not a number"
@@ -349,8 +349,8 @@ function String.toChars(s)
 end
 
 ---Checks if a string is nil or  empty.
----@tparam string s The string to be checked.
----@treturn bool Returns true if the string is nil empty, false otherwise.
+---@param s string The string to be checked.
+---@return boolean -Returns true if the string is nil empty, false otherwise.
 function String.isNilOrEmpty(s)
 	return s == nil or string.len(s) == 0
 end
@@ -359,8 +359,8 @@ end
 String.isNullOrEmpty = String.isNilOrEmpty
 
 ---Checks if a string is nil, empty or consists only of whitespace characters.
----@tparam string s The string to be checked.
----@treturn bool Returns true if the string is nil or contains only whitespace characters, false otherwise.
+---@param s string The string to be checked.
+---@return boolean Returns true if the string is nil or contains only whitespace characters, false otherwise.
 function String.isNilOrWhitespace(s)
 	return s == nil or string.len(s) == 0 or string.match(s, "^%s*$")
 end
@@ -372,7 +372,7 @@ function String.overlaps(a,b)
 	--    def
 	--> 4, 2
 	local aStart, aEnd , bStart, bEnd
-	
+
 	for i = 1, math.min(#a, #b) do
 		if a:sub(-i) == b:sub(1, i) then
 			aStart = #a - i + 1
@@ -382,7 +382,7 @@ function String.overlaps(a,b)
 			break
 		end
 	end
-	
+
 	if aStart and aEnd and bStart and bEnd then
 		return aStart, aEnd, bStart, bEnd
 	else
@@ -390,18 +390,18 @@ function String.overlaps(a,b)
 	end
 
 	-- abc   abc   abc   abc   ab     bc   abc     bce   abc
-	-- abc   ab     bc    b    abc   abc    bce   abc       def 
+	-- abc   ab     bc    b    abc   abc    bce   abc       def
 end
 
 function String.padLeft(s, length, padChar)
 	local padLength = length - #s
-	if padLength <= 0 then return s end	
+	if padLength <= 0 then return s end
 	return string.rep(padChar or " ", padLength) .. s
 end
 
 function String.padRight(s, length, padChar)
 	local padLength = length - #s
-	if padLength <= 0 then return s end	
+	if padLength <= 0 then return s end
 	return s .. string.rep(padChar or " ", padLength)
 end
 
@@ -413,7 +413,7 @@ end
 
 -- String.padCenter / padBoth
 
--- [1]: https://github.com/lua-nucleo/lua-nucleo/blob/v0.1.0/lua-nucleo/string.lua#L245-L267 
+-- [1]: https://github.com/lua-nucleo/lua-nucleo/blob/v0.1.0/lua-nucleo/string.lua#L245-L267
 
 ---------------------------------------------------------------------------------------------------
 

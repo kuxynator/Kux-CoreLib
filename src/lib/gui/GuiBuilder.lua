@@ -12,6 +12,7 @@ KuxCoreLib.__modules.GuiBuilder = GuiBuilder
 local Table= KuxCoreLib.Table
 local Debug= KuxCoreLib.Debug
 local StoragePlayers = KuxCoreLib.StoragePlayers
+local Player = KuxCoreLib.Player
 
 function GuiBuilder.generateName(name)
 	return Debug.getCallingMod(true).."_"..name
@@ -25,7 +26,7 @@ end
 ---@param position integer defines.relative_gui_position
 ---@return LuaGuiElement
 function GuiBuilder.createRelativeToGui(player, name, caption, gui, position)
-	player = toLuaPlayer(player)
+	player = Player.toLuaPlayer(player)
 	name = GuiBuilder.generateName(name)
 	print("createRelativeToGui '"..name.."'")
 	if(not gui) then error("Argument must not nil! Name: 'gui'"); end
@@ -52,7 +53,7 @@ end
 ---@param player LuaPlayer|integer
 ---@param name string
 function GuiBuilder.destroyFrame(player, name)
-	player = toLuaPlayer(player)
+	player = Player.toLuaPlayer(player)
 	name = GuiBuilder.generateName(name)
 	print("destroyFrame '"..name.."'")
 

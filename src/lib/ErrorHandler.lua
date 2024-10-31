@@ -19,7 +19,7 @@ local ModInfo = KuxCoreLib.ModInfo
 local loc = "KuxCoreLib.ErrorHandler."
 
 ---@class KuxCoreLib.ErrorHandler.Storage
----@field events {[string]:bool} Dictionary of event name -> is registered
+---@field events {[string]:boolean} Dictionary of event name -> is registered
 
 ---Returns the persistent storage for the ErrorHandler
 ---@return KuxCoreLib.ErrorHandler.Storage

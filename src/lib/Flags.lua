@@ -1,7 +1,7 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.Flags) then return KuxCoreLib.__modules.Flags end
 
----@class KuxCoreLib.Flags
+---@class KuxCoreLib.Flags : { [string]: boolean }
 local Flags = {
 	__class  = "Flags",
 	__guid   = "6b3edfc1-861b-4e38-86c3-1272706f1c59",
@@ -28,13 +28,15 @@ function Flags:isSet(flag)
 	return self[flag]
 end
 
+---
+---@param flags string|string[]
 function Flags:set(flags)
 	if(self==Flags) then error("Invalid operation.") end
 	if(type(flags)=="table") then
 		for _, value in ipairs(flags) do
 			self[value]=true
 		end
-	else
+	elseif type(flags)=="string" then
 		self[flags]=true
 	end
 end

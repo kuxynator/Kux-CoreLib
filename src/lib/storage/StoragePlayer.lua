@@ -33,7 +33,7 @@ end
 --Usually this function does not need to be called manually. The access is made via Storage.Players[index]
 ---@param player LuaPlayer|integer
 ---@param defaultData? table
----@return StoragePlayer
+---@return KuxCoreLib.StoragePlayer
 function StoragePlayer:new(player, defaultData)
 	if(type(player)=="number") then player=game.players[player] end
 	if(not player) then error("Player does not exist.") end --TODO: return nil??

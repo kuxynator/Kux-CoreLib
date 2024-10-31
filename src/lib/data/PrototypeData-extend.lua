@@ -24,9 +24,19 @@ setmetatable(extend,{
 	__call = call_extend
 })
 
+---Returns the prefix
+---@param self KuxCorelib.PrototypeData.Extend
+---@return string
 local function getPrefix(self)
-	return (self.common.prefix or extend.prefix or mod.prefix)
+	return (self.common.prefix or extend.prefix
+		or (_G["mod"] and _G["mod"].prefix or nil)) -- assumnig the mod defines a global "mod" variable
+		or error("No prefix defined. use extend.common.prefix, extend.prefix, or _G.mod.prefix")
 end
+
+---Returns the name with prefix
+---@param self KuxCorelib.PrototypeData.Extend
+---@param name string
+---@return string
 local function getName(self, name)
 	return getPrefix(self)..name
 end
@@ -36,7 +46,7 @@ local function merge(common, data, final_fixes)
 	local merged = {}
 	--merge common-- << extend(common)
 	for k,v in pairs(common) do merged[k] = v end
-		
+
 	--merge data-- << x:int(data)
 	for k,v in pairs(data) do merged[k] = type(k)~="number" and v or nil end
 
@@ -49,23 +59,9 @@ local function merge(common, data, final_fixes)
 	return merged
 end
 
----@class KuxCorelib.CustomInputPrototypeData
----@field key_sequence	string	The default key sequence for this custom input.
----@field alternative_key_sequence	string	The alternative key binding for this control.
----@field controller_key_sequence	string	The controller (game pad) keybinding for this control.
----@field controller_alternative_key_sequence	string	The alternative controller (game pad) keybinding for this control.
----@field linked_game_control	string	When a custom-input is linked to a game control it won't show up in the control-settings GUI and will fire when the linked control is pressed.
----@field consuming	ConsumingType	Sets whether internal game events associated with the same key sequence should be fired or blocked.
----@field enabled	bool	If this custom input is enabled.
----@field enabled_while_spectating	bool	
----@field enabled_while_in_cutscene	bool	
----@field include_selected_prototype	bool	If true, the type and name of the currently selected prototype will be provided as "selected_prototype" in the raised Lua event.
----@field item_to_spawn	ItemID	The item will be created when this input is pressed and action is set to "spawn-item".
----@field action	string "lua" or "spawn-item" or "toggle-personal-roboport" or "toggle-personal-logistic-requests" or "toggle-equipment-movement-bonus"
-
----Adds a custom-input  
+---Adds a custom-input
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaCustomInputPrototype.html)
----@param t KuxCorelib.CustomInputPrototypeData|table CustomInputPrototype | {name, key_sequence}
+---@param t data.CustomInputPrototype|table CustomInputPrototype | {name, key_sequence}
 function extend:custom_input(t)
 	local d = merge(self.common, t, {
 		type          = "custom-input",

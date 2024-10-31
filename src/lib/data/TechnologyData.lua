@@ -22,20 +22,20 @@ function TechnologyData.clone(name, newName)
 end
 
 ---Remove prerequisites
----@param technology Technology
+---@param technology data.TechnologyPrototype
 ---@param name string
 function TechnologyData.removePrerequisites(technology, name)
 	local i = Table.indexOf(technology.prerequisites, name)
-	if(i>0) then table.remove(technology.prerequisites,i) end
+	if(i>0) then table.remove(technology.prerequisites, i) end
 end
 
 ---Add prerequisites
----@param technology Technology
+---@param technology data.TechnologyPrototype
 ---@param name string
 function TechnologyData.addPrerequisites(technology, name)
 	assert(data.raw["technology"][name], "Prototype not found: "..name.." (type: technology)")
 	local i = Table.indexOf(technology.prerequisites, name)
-	if(not i) then table.insert(technology.prerequisites,i) end
+	if(not i) then table.insert(technology.prerequisites, name) end
 end
 
 function TechnologyData.indexOfIngredient(technology, name)

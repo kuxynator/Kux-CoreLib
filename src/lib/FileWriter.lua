@@ -36,19 +36,19 @@ FileWriter.create = function(file, playerId)
 	instance.this = instance
 
 	instance.writeField = function (obj, fieldName)
-		game.write_file(FileWriter.file, "\""..fieldName.."\": "..toJsonValue(obj[fieldName]), FileWriter.flagAppend, FileWriter.playerId)
+		helpers.write_file(FileWriter.file, "\""..fieldName.."\": "..toJsonValue(obj[fieldName]), FileWriter.flagAppend, FileWriter.playerId)
 		FileWriter.flagAppend = true
 	end
 	instance.writeFieldLocalized = function (obj, fieldName)
-		game.write_file(FileWriter.file, {"", "\""..fieldName.."\": \"", obj[fieldName], "\""}, FileWriter.flagAppend, FileWriter.playerId)
+		helpers.write_file(FileWriter.file, {"", "\""..fieldName.."\": \"", obj[fieldName], "\""}, FileWriter.flagAppend, FileWriter.playerId)
 		FileWriter.flagAppend = true
 	end
 	instance.writeString = function (s)
-		game.write_file(FileWriter.file, s, FileWriter.flagAppend, FileWriter.playerId)
+		helpers.write_file(FileWriter.file, s, FileWriter.flagAppend, FileWriter.playerId)
 		FileWriter.flagAppend = true
 	end
 	instance.writeLocalizedString = function (s)
-		game.write_file(FileWriter.file, {"", s}, FileWriter.flagAppend, FileWriter.playerId)
+		helpers.write_file(FileWriter.file, {"", s}, FileWriter.flagAppend, FileWriter.playerId)
 		FileWriter.flagAppend = true
 	end
 
@@ -60,19 +60,19 @@ FileWriter.create = function(file, playerId)
 end
 
 FileWriter.writeField = function (obj, fieldName)
-	game.write_file(FileWriter.file, "\""..fieldName.."\": "..toJsonValue(obj[fieldName]) , FileWriter.flagAppend, FileWriter.playerId)
+	helpers.write_file(FileWriter.file, "\""..fieldName.."\": "..toJsonValue(obj[fieldName]) , FileWriter.flagAppend, FileWriter.playerId)
 	FileWriter.flagAppend = true
 end
 FileWriter.writeFieldLocalized = function (obj, fieldName)
-	game.write_file(FileWriter.file, {"", "\""..fieldName.."\": \"", obj[fieldName], "\""} , FileWriter.flagAppend, FileWriter.playerId)
+	helpers.write_file(FileWriter.file, {"", "\""..fieldName.."\": \"", obj[fieldName], "\""} , FileWriter.flagAppend, FileWriter.playerId)
 	FileWriter.flagAppend = true
 end
 FileWriter.writeString = function (s)
-	game.write_file(FileWriter.file, s, FileWriter.flagAppend, FileWriter.playerId)
+	helpers.write_file(FileWriter.file, s, FileWriter.flagAppend, FileWriter.playerId)
 	FileWriter.flagAppend = true
 end
 FileWriter.writeLocalizedString = function (s)
-	game.write_file(FileWriter.file, {"", s}, FileWriter.flagAppend, FileWriter.playerId)
+	helpers.write_file(FileWriter.file, {"", s}, FileWriter.flagAppend, FileWriter.playerId)
 	FileWriter.flagAppend = true
 end
 

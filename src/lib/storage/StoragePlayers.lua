@@ -1,3 +1,5 @@
+-- TODO revise usage of KuxCoreLib.StoragePlayers, Who uses this?
+
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.StoragePlayers) then return KuxCoreLib.__modules.StoragePlayers end
 
@@ -24,7 +26,7 @@ local globalPlayers
 local function indexHandler(self, key)
     globalPlayers = globalPlayers or Storage.players
 
-	local player = toLuaPlayer(key)
+	local player = Player.toLuaPlayer(key)
 	if(not player) then return nil end
 
 	-- local pi = storage.players[player.index]
@@ -34,10 +36,17 @@ local function indexHandler(self, key)
 	-- end
 	-- return
 
-	local storageTable = storage
-	storageTable.players = storageTable.players or {}  -- Sicherstellen, dass players eine Tabelle ist
-	storageTable.players[key] = data
-	rawset(self,player.index,gp)	--self[player.index] = gp
+	storage.players = storage.players or {}  -- Sicherstellen, dass players eine Tabelle ist
+	storage.players[key] = data
+
+	local gp = storage.players[player.index]
+	if not gp then
+		error("player not initialized") -- TODO revise
+		gp = {}  -- Hier sollte die Initialisierung der Spieler-Daten erfolgen
+		storage.players[player.index] = gp
+	end
+
+	rawset(self, player.index, gp)	--self[player.index] = gp
 	return gp --[[@as KuxCoreLib.StoragePlayer]]
 end
 
@@ -46,7 +55,7 @@ mt.__index = indexHandler
 
 function mt.__newindex(self,key,value)
 	-- storage.players = storage.players or {}
-	-- local player = toLuaPlayer(key)
+	-- local player = Player.toLuaPlayer(key)
 	-- storage.players[player.index] = value
 	--if(type(key)=="number") then self[key]=value; return end
 	error("StoragePlayers is protected.")

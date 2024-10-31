@@ -51,7 +51,7 @@ function Events.on_init(fnc) return EventDistributor.register("on_init", fnc) en
 ---@return boolean
 function Events.on_configuration_changed(fnc) return EventDistributor.register("on_configuration_changed", fnc) end
 
----@param event integer|string defines.events or event name
+---@param event integer|string|defines.events event
 ---@param fnc function
 ---@param filters EventFilter?
 ---@return boolean
@@ -62,7 +62,7 @@ function Events.on_event(event, fnc, filters) return EventDistributor.register(e
 ---@return boolean
 function Events.on_nth_tick(tick, fnc) return EventDistributor.register_nth_tick(tick, fnc) end
 
----[EXPERIMENTAL] 
+---[EXPERIMENTAL]
 ---@param tick uint
 ---@param fnc function
 ---@return boolean

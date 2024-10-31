@@ -5,7 +5,7 @@ local ignore = {}
 
 --#region MOCK
 script = {}
-script.on_event=function (fnc) end
+script.on_event=function (eventId, fnc) end
 script.on_init=function (fnc) end
 script.on_load=function (fnc) end
 script.on_nth_tick=function (tick, fnc) end

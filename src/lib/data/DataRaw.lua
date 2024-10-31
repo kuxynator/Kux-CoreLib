@@ -71,7 +71,7 @@ function DataRaw.deleteIndex()
 end
 
 
----@class CustomInputTemplate : CustomInput
+---@class CustomInputTemplate : data.CustomInputPrototype
 ---@name string? name of the prototype. nil: auto
 ---@name_prefix boolean|string false: nor prefix, true: use mod.prefix, string: custom prefix
 DataRaw.CustomInput_key_template={
