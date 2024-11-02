@@ -235,7 +235,7 @@ local function check_customInput(name)
 end
 
 ---Registers an event in script
----@param eventIdentifier integer|uint|string
+---@param eventIdentifier integer|uint|string|defines.events
 ---@param param any ticks | filter
 local function script_register(eventIdentifier, param)
 	--log("register: "..getDisplayName(eventIdentifier))
@@ -307,7 +307,7 @@ local function register_artifical_event(key, fnc)
 end
 
 ---Registers an event
----@param eventIdentifier integer|uint|string
+---@param eventIdentifier integer|uint|string|defines.events
 ---@param fnc function
 ---@param arg any Optional parameter, depends on eventIdentifier (filter)
 ---@return boolean #true if succesfully registered else false

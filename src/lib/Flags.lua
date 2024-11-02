@@ -23,6 +23,17 @@ function Flags:new(flags)
 	return instance
 end
 
+---Creates a dictionary
+---@param list string[]
+---@return {[string]: boolean}
+function Flags.toDictionary(list)
+	local dic = {}
+	for _, value in ipairs(list) do
+		dic[value]=true
+	end
+	return dic
+end
+
 function Flags:isSet(flag)
 	if(self==Flags) then error("Invalid operation.") end
 	return self[flag]

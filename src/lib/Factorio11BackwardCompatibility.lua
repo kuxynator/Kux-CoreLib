@@ -1,9 +1,9 @@
 ---@diagnostic disable: deprecated, undefined-field
 --[[---------------------------------------------------------------------------
-	 makes Factorio 2.0 API available in 1.1 mods
+	 makes Factorio 2.0 API available in 1.x mods
 --]]---------------------------------------------------------------------------
 
-if isV2 then return end
+if not isV1 then return end
 
 _G.storage = storage
 
@@ -100,3 +100,10 @@ _G.prototypes = prototypes or {
 	--max_pipe_to_ground_distance	:: R uint8
 	--max_underground_belt_distance	:: R uint8
 }
+
+_G.bcu = {}
+_G.bcu.player = {}
+bcu.player.clear_cursor = function(player)
+	if isV10 then return player.clean_cursor() end -- renamed in 1.1.0
+	return player.clear_cursor() -- renamed from clean_cursor
+end

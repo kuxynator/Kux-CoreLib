@@ -42,7 +42,7 @@
     "Lua.workspace.ignoreDir": [
         ".vscode",
         ".vs",
-		".build"
+		".build",
 		".github"
     ],
     "Lua.diagnostics.workspaceEvent": "OnChange",

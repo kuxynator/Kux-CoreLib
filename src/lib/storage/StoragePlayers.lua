@@ -3,7 +3,10 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 if(KuxCoreLib.__modules.StoragePlayers) then return KuxCoreLib.__modules.StoragePlayers end
 
+
 ---@class KuxCoreLib.StoragePlayers
+---@deprecated use KuxCoreLib.PlayerStorage
+---@see use KuxCoreLib.PlayerStorage
 local StoragePlayers = {
 	__class  = "StoragePlayers",
 	__guid   = "eeb5d79b-3522-4296-919a-40d8c430eb5d",

@@ -36,6 +36,9 @@ if not KuxCoreLibPath or KuxCoreLibPath:match("^__") then
 	end
 	isV1 = string.sub(mods["base"], 1, 2) == "1."
 	isV2 = string.sub(mods["base"], 1, 2) == "2."
+	isV10 = string.sub(mods["base"], 1, 4) == "1.0."
+	isV11 = string.sub(mods["base"], 1, 4) == "1.1."
+	isV20 = string.sub(mods["base"], 1, 4) == "2.0."
 else
 	evironment = "local"
 	isFactorio = false
@@ -51,7 +54,10 @@ else
 	dofile(lualibPath.."util.lua")
 
 	isV1 = false
+	isV10 = false
+	isV10 = false
 	isV2 = true
+	isV20 = true
 
 	_G.mods = { --local mock
 		["base"] = "2.0.0",

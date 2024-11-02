@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.12.0
+  Features:
+    - add PlayerStorage (use KuxCoreLib.PlayerStorage)
+    - add @class PlayerData
+    - add Timer (use KuxCoreLib.Timer) [proof of concept]
+    - add @class TimerData
+    - add Flags.toDictionary :: converts a string[] to a dictionary
+---------------------------------------------------------------------------------------------------
 Version: 3.11.5
   Bugfixes:
     - Fix Factorissimo.isFactoryFloor

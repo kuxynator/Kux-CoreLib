@@ -3,3 +3,5 @@
 /*.zip
 /Kux-*
 /.vscode/factorio
+src/lib/storage/PlayerStorage.~1
+src/lib/storage/PlayerStorage.~2

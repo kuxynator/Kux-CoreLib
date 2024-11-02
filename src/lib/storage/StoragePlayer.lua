@@ -4,6 +4,7 @@ if(KuxCoreLib.__modules.StoragePlayer) then return KuxCoreLib.__modules.StorageP
 ---Provides managed access to the Factorio `storage` table (formerly `global`).
 ---@class KuxCoreLib.StoragePlayer
 ---@field frames {string:LuaGuiElement}
+---@deprecated use KuxCoreLib.PlayerStorage
 local StoragePlayer = {
 	__class  = "StoragePlayer",
 	__guid   = "2eab6777-b887-4cf0-922c-41458b63dd2b",

@@ -23,9 +23,8 @@ else
 	--log("Init KuxCoreLib, first time, required by \n"..debug.traceback(2))
 end
 
----Provides access to Kux-CoreLib modules
----Usage: `require(KuxCoreLib.MODULENAME)`
----@class KuxCoreLib
+
+---@class KuxCoreLib.__modules
 ---@field Array KuxCoreLib.Array
 ---@field ColorConverter KuxCoreLib.ColorConverter
 ---@field Colors KuxCoreLib.Colors
@@ -66,7 +65,7 @@ end
 ---@field Inserter KuxCoreLib.Inserter
 ---@field Storage KuxCoreLib.Storage
 ---@field StoragePlayer KuxCoreLib.StoragePlayer
----@field StoragePlayers KuxCoreLib.StoragePlayers
+---@field StoragePlayers KuxCoreLib.StoragePlayers @deprecated
 ---@field GuiBuilder KuxCoreLib.GuiBuilder
 ---@field PickerDollies KuxCoreLib.PickerDollies
 ---@field Factorissimo KuxCoreLib.Factorissimo
@@ -75,7 +74,12 @@ end
 ---@field DataGrid KuxCoreLib.DataGrid
 ---@field GuiHelper KuxCoreLib.GuiHelper
 ---@field GuiElementCache KuxCoreLib.GuiElementCache
+---@field Timer KuxCoreLib.Timer
+---@field PlayerStorage KuxCoreLib.PlayerStorage
 
+---Provides access to Kux-CoreLib modules
+---Usage: `require(KuxCoreLib.MODULENAME)`
+---@class KuxCoreLib : KuxCoreLib.__modules
 KuxCoreLib = {
 	__class  = "KuxCoreLib",
 	__guid   = "7c4df965-a929-4f58-92e6-4cfa6a60f4b8",
@@ -84,12 +88,24 @@ KuxCoreLib = {
 	---stores loaded modules
 	__modules = {}
 }
+
+do -- deprecated
+
+	---@deprecated use KuxCoreLib.PlayerStorage
+	---@see KuxCoreLib.PlayerStorage
+	KuxCoreLib.StoragePlayers = nil
+
+	---@deprecated use KuxCoreLib.PlayerStorage
+	---@see KuxCoreLib.PlayerStorage
+	KuxCoreLib.StoragePlayer = nil
+
+end
+
 ---------------------------------------------------------------------------------------------------
 --NOTE: We must not 'require' lib modules! circular reference!
--- e.g. local Debug=require(KuxCoreLibPath.."lib/Debug")
+-- e.g. local Debug = require(KuxCoreLibPath.."lib/Debug")
 
 --require(KuxCoreLibPath.."modules/require-override")
-
 
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/InitGlobals")
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/Factorio20Migrations")
@@ -125,6 +141,7 @@ local require_map = { --RUN (F5) to AUTOGENERATE
 		PickerDollies = "",
 		DataGrid = "",
 		ErrorHandler = "",
+		Timer = "",
 
 		CollisionMaskData = "data",
         DataRaw = "data",
@@ -141,6 +158,7 @@ local require_map = { --RUN (F5) to AUTOGENERATE
         Storage = "storage",
         StoragePlayer = "storage",
         StoragePlayers = "storage",
+		PlayerStorage = "storage",
 
         GuiBuilder = "gui",
 		ElementBuilder = "gui",
