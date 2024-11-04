@@ -130,13 +130,15 @@ local function build()
             end
         end
 
-        for _, ingredient in ipairs(data.unit.ingredients or {}) do
-            if((ingredient[2] or 0)>0) then
-                local list = TechnologyIndex.ingredients[ingredient[1] ] or {}
-                if(#list==0) then TechnologyIndex.ingredients[ingredient[1] ] = list end
-                table.insert(list, tech.name)
-            end
-        end
+		if(data.unit) then
+			for _, ingredient in ipairs(data.unit.ingredients or {}) do
+				if((ingredient[2] or 0)>0) then
+					local list = TechnologyIndex.ingredients[ingredient[1] ] or {}
+					if(#list==0) then TechnologyIndex.ingredients[ingredient[1] ] = list end
+					table.insert(list, tech.name)
+				end
+			end
+		end
 
         for _, prerequisite in ipairs(data.prerequisites or {}) do
             local list = TechnologyIndex.prerequisites[prerequisite] or {}

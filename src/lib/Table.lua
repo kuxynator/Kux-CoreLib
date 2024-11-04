@@ -284,7 +284,7 @@ function Table.size(t) error("Size() is not unique in function.") end
 ---@return boolean # True if the values has been removed; else false
 function Table.remove(t, value)
 	--print("Table.remove")
-	if(not table or value==nil) then return false end
+	if(not t or value==nil) then return false end
     for key, v in pairs(t) do
         if v == value then
 			--print("  remove '"..value.."'")

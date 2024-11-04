@@ -33,15 +33,23 @@ end
 ---@param surface LuaSurface|string Surface or surface name
 ---@return boolean
 function Factorissimo.isFactoryFloor(surface)
-	if not Factorissimo.isAvailable() then return false end
+	local trace = print; trace = function() end
+	if not Factorissimo.isAvailable() then trace("isFactoryFloor", surface, "=> Factorissimo not availabe") return false end
+	trace("isFactoryFloor", surface)
 
 	local surface_name =
 		type(surface) == "string" and surface or
 		type(surface) == "table" and surface.name or
 		type(surface) == "userdata" and surface.name or -- Factorio 2.0
 		error("Invalid surface type: " .. type(surface))
+	trace("  surface_name: "..surface_name)
 
-	return surface_name:match("Factory floor %d+") or surface_name:match("factory%-floor%-%d+")
+	local result =
+		surface_name:match("Factory floor %d+") or
+		surface_name:match("factory%-floor%-%d+") or
+		surface_name:match("%-factory%-floor%$") -- Factorissimo >= 3.x ?
+	trace("  result: "..tostring(result))
+	return result ~= nil
 end
 
 function Factorissimo.isFactoryEntity(entity)
@@ -223,6 +231,14 @@ function Factorissimo.getToplevelFactory(arg)
 		factory = Factorissimo.api.find_surrounding_factory(entity.surface, entity.position)
 		if(not factory) then return nil end
 	end
+end
+
+---Gets a value indicating wether the player is in a factory
+---@param player LuaPlayer
+---@return boolean
+function Factorissimo.isPlayerInFactory(player)
+	return Factorissimo.isAvailable and
+		Factorissimo.api.find_surrounding_factory(player.surface, player.position)~=nil
 end
 
 ---@deprecated use Factorissimo.getToplevelSurface

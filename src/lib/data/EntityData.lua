@@ -12,11 +12,15 @@ KuxCoreLib.__modules.EntityData = EntityData
 local Table= KuxCoreLib.Table
 local DataRaw = KuxCoreLib.DataRaw
 
-
+---Clone an entity prototype
+---@param type string
+---@param name string
+---@param newName string
+---@return data.EntityPrototype
  function EntityData.clone(type, name, newName)
 	local base = data.raw[type][name]
 	if(not base) then error("Prototype not found: "..name.." (type: "..type..")") end
-	local entity = table.deepcopy(base) or {}
+	local entity = table.deepcopy(base) or {} --[[@as data.EntityPrototype]]
 	entity.name = newName
 	if(entity.minable) then
 		if entity.minable.results then
@@ -25,7 +29,10 @@ local DataRaw = KuxCoreLib.DataRaw
 			if(entity.minable.result == name) then entity.minable.result = newName end
 		end
 	end
-	entity.base=base
+
+	---@diagnostic disable-next-line: assign-type-mismatch, inject-field
+	entity.base = base
+
 	return entity
 end
 
