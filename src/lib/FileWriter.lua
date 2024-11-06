@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.FileWriter) then return KuxCoreLib.__modules.FileWriter end
 
 --from Kux-ModExport
 --usage:
@@ -17,7 +16,7 @@ local FileWriter = {
 	__guid   = "{D54DB186-3D06-47CC-ABF7-8C25BCAE1B44}",
 	__origin = "Kux-CoreLib/lib/FileWriter.lua",
 }
-KuxCoreLib.__modules.FileWriter = FileWriter
+if KuxCoreLib.__classUtils.cache(FileWriter) then return KuxCoreLib.__classUtils.cached end
 
 ---------------------------------------------------------------------------------------------------
 
@@ -80,6 +79,6 @@ end
 
 ---Provides FileWriter in the global namespace
 ---@return KuxCoreLib.FileWriter
-function FileWriter.asGlobal() return KuxCoreLib.utils.asGlobal(FileWriter) end
+function FileWriter.asGlobal() return KuxCoreLib.__classUtils.asGlobal(FileWriter) end
 
 return FileWriter

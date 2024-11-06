@@ -1,28 +1,13 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.GuiElementCache) then return KuxCoreLib.__modules.GuiElementCache end
 
 ---Provides GUI helper functions
----@class KuxCoreLib.GuiElementCache
+---@class KuxCoreLib.GuiElementCache : KuxCoreLib.Class
 local GuiElementCache = {
 	__class  = "GuiElementCache",
 	__guid   = "db23b85a-9298-46f3-9653-d2a6f058ff5b",
 	__origin = "Kux-CoreLib/lib/gui/GuiElementCache.lua",
-
-	__isInitialized = false,
-	__on_initialized = {}
 }
-KuxCoreLib.__modules.GuiElementCache = GuiElementCache
----------------------------------------------------------------------------------------------------
----Provides GuiElementCache in the global namespace
----@return KuxCoreLib.GuiElementCache
-function GuiElementCache.asGlobal() return KuxCoreLib.utils.asGlobal(GuiElementCache) end
-
----@return KuxCoreLib.GuiElementCache
-local function finalize()
-	GuiElementCache.__isInitialized = true
-	for _, fnc in ipairs(GuiElementCache.__on_initialized) do fnc() end
-	return GuiElementCache
-end
+if KuxCoreLib.__classUtils.cache(GuiElementCache) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 
 local GuiHelper = KuxCoreLib.GuiHelper
@@ -36,7 +21,7 @@ local GuiHelper = KuxCoreLib.GuiHelper
 ---@return KuxCoreLib.GuiElementCache.Instance
 function GuiElementCache.new(root)
 	assert(root, "Invalid Argument. 'root' must not be nil.")
-	assert(type(root)=="table" and root.object_name=="LuaGuiElement", "Invalid Argument. 'root' must be a LuaGuiElement. but is "..trace.getIdentifier(root))
+	assert(is_obj(root, "LuaGuiElement"), "Invalid Argument. 'root' must be a LuaGuiElement. but is "..trace.getIdentifier(root))
 	--[[TRACE]]trace("GuiElementCache.new")
 
 	local cache = {__root = root, __count = 0, __missing = {}} --[[@as KuxCoreLib.GuiElementCache.Instance ]]
@@ -104,4 +89,5 @@ function GuiElementCache.getElementByName(player, elementName, cache, prefix)
 	return element
 end
 ---------------------------------------------------------------------------------------------------
-return finalize()
+KuxCoreLib.__classUtils.finalize(GuiElementCache)
+return GuiElementCache

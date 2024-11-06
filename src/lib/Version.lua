@@ -1,14 +1,14 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.Version) then return KuxCoreLib.__modules.Version end
 
 ---Provides version functions
----@class KuxCoreLib.Version
+---@class KuxCoreLib.Version : KuxCoreLib.Class
+---@field asGlobal KuxCoreLib.Version Provides Version in the global namespace
 Version = {
     __class  = "Version",
 	__guid   = "{3F3C2EDA-5537-4643-8A33-6B00A0F42C25}",
 	__origin = "Kux-CoreLib/lib/Version.lua",
 }
-KuxCoreLib.__modules.Version = Version
+if KuxCoreLib.__classUtils.cache(Version) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 -- to avoid circular references, the class MUST be defined before require other modules
 local String = KuxCoreLib.String
@@ -81,11 +81,5 @@ function Version:parse(s)
 end
 
 ---------------------------------------------------------------------------------------------------
-
----Provides Version in the global namespace
----@return KuxCoreLib.Version
-function Version.asGlobal() return KuxCoreLib.utils.asGlobal(Version) end
-
-KuxCoreLib.__modules.Version = Version
-
+KuxCoreLib.__classUtils.finalize(Version)
 return Version

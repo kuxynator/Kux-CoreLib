@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.Dictionary) then return KuxCoreLib.__modules.Dictionary end
 
 ---DRAFT Provides Dictionary functions
 ---@class KuxCoreLib.Dictionary
@@ -11,7 +10,7 @@ local Dictionary = {
     ---@type integer The number of entries in the list
     count = 0
 }
-KuxCoreLib.__modules.Dictionary = Dictionary
+if KuxCoreLib.__classUtils.cache(Dictionary) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 -- to avoid circular references, the class is defined before require other modules
 local Table = KuxCoreLib.Table
@@ -48,6 +47,6 @@ end
 
 ---Provides Dictionary in the global namespace
 ---@return KuxCoreLib.Dictionary
-function Dictionary.asGlobal() return KuxCoreLib.utils.asGlobal(Dictionary) end
+function Dictionary.asGlobal() return KuxCoreLib.__classUtils.asGlobal(Dictionary) end
 
 return Dictionary

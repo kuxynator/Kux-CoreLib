@@ -1,17 +1,16 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.Modules) then return KuxCoreLib.__modules.Modules end
 
 ---@diagnostic disable: deprecated
 
 --- Modules class
----@class KuxCoreLib.Modules
+---@class KuxCoreLib.Modules : KuxCoreLib.Class
 ---@deprecated use EventDistributor
 local Modules = {
 	__class  = "Modules",
 	__guid   = "{7DB9693F-91FE-406A-9090-0797F785D8F5}",
 	__origin = "Kux-CoreLib/lib/Modules.lua",
 }
-KuxCoreLib.__modules.Modules = Modules
+if KuxCoreLib.__classUtils.cache(Modules) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 ---Calls a mthod in each module
 ---@param method string Name of the method to call.
@@ -57,8 +56,8 @@ end
 
 ---Provides Modules in the global namespace
 ---@return KuxCoreLib.Modules
-function Modules.asGlobal() return KuxCoreLib.utils.asGlobal(Modules) end
+function Modules.asGlobal() return KuxCoreLib.__classUtils.asGlobal(Modules) end
 
-KuxCoreLib.utils.asGlobal(Modules)
+KuxCoreLib.__classUtils.asGlobal(Modules)
 return Modules
 

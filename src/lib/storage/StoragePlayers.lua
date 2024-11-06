@@ -1,10 +1,8 @@
 -- TODO revise usage of KuxCoreLib.StoragePlayers, Who uses this?
-
+do return {} end
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.StoragePlayers) then return KuxCoreLib.__modules.StoragePlayers end
 
-
----@class KuxCoreLib.StoragePlayers
+---@class KuxCoreLib.StoragePlayers : KuxCoreLib.Class
 ---@deprecated use KuxCoreLib.PlayerStorage
 ---@see use KuxCoreLib.PlayerStorage
 local StoragePlayers = {
@@ -12,7 +10,7 @@ local StoragePlayers = {
 	__guid   = "eeb5d79b-3522-4296-919a-40d8c430eb5d",
 	__origin = "Kux-CoreLib/lib/storage/StoragePlayers.lua",
 }
-KuxCoreLib.__modules.StoragePlayers = StoragePlayers
+if KuxCoreLib.__classUtils.cache(StoragePlayers) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 local Storage = KuxCoreLib.Storage
 local StoragePlayer = KuxCoreLib.StoragePlayer
@@ -64,7 +62,7 @@ function mt.__newindex(self,key,value)
 	error("StoragePlayers is protected.")
 end
 
-function StoragePlayers.asGlobal() return KuxCoreLib.utils.asGlobal(StoragePlayers) end
+function StoragePlayers.asGlobal() return KuxCoreLib.__classUtils.asGlobal(StoragePlayers) end
 
 setmetatable(StoragePlayers,mt)
 return StoragePlayers

@@ -1,7 +1,6 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.List) then return KuxCoreLib.__modules.List end
 
----Provides a true List 
+---Provides a true List
 ---@class KuxCoreLib.List
 ---@field length integer Gets the number if items in this List (including nil)
 local List = {
@@ -12,7 +11,7 @@ local List = {
     ---@type integer The number of entries in the list
     count = 0
 }
-KuxCoreLib.__modules.List = List
+if KuxCoreLib.__classUtils.cache(List) then return KuxCoreLib.__classUtils.cached end
 
 -- to avoid circular references, the class MUST be definied before require other modules
 
@@ -219,6 +218,6 @@ function List.isNilOrEmpty(t) return not t or #t==0 end
 
 ---Provides List in the global namespace
 ---@return KuxCoreLib.List
-function List.asGlobal() return KuxCoreLib.utils.asGlobal(List) end
+function List.asGlobal() return KuxCoreLib.__classUtils.asGlobal(List) end
 
 return List

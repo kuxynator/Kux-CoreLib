@@ -1,14 +1,14 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.Utils) then return KuxCoreLib.__modules.Utils end
 
 ---Provides utils
----@class KuxCoreLib.Utils
+---@class KuxCoreLib.Utils : KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.Utils Provides Utils in the global namespace
 local Utils = {
 	__class  = "Utils",
 	__guid   = "5c1d7b38-4452-4339-902e-b82d93286121",
 	__origin = "Kux-CoreLib/lib/Utils.lua",
 }
-KuxCoreLib.__modules.Utils = Utils
+if KuxCoreLib.__classUtils.cache(Utils) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 
 function Utils.skipIntro()
@@ -20,3 +20,6 @@ end
 -- script.on_init( function()
 -- 	Utils.skipIntro()
 -- end )
+---------------------------------------------------------------------------------------------------
+KuxCoreLib.__classUtils.finalize(Version)
+return Utils

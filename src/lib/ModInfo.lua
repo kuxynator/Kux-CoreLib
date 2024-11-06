@@ -140,7 +140,7 @@ end
 
 ---Provides ModInfo in the global namespace
 ---@return KuxCoreLib.ModInfo
-function ModInfo.asGlobal() return KuxCoreLib.utils.asGlobal(ModInfo) end
+function ModInfo.asGlobal() KuxCoreLib.__classUtils.asGlobal(ModInfo) return ModInfo end
 
 ModInfo.update()
 

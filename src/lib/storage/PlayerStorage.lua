@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.PlayerStorage) then return KuxCoreLib.__modules.PlayerStorage end
 
 ---@class KuxCoreLib.Internal.PlayerData
 ---@field player_index integer
@@ -10,10 +9,10 @@ if(KuxCoreLib.__modules.PlayerStorage) then return KuxCoreLib.__modules.PlayerSt
 ---@class KuxCoreLib.PlayerData
 ---@field player_index uint                           The player_index of the player. will be filled automatically.
 ---@field player LuaPlayer                            The player object. will be filled automatically.
----@field __KuxCoreLib KuxCoreLib.Internal.PlayerData Data used internally by Kux-CoreLib. DON'T CHANGE
+---@field __KuxCoreLib__ KuxCoreLib.Internal.PlayerData Data used internally by Kux-CoreLib. DON'T CHANGE
 
 
----@class KuxCoreLib.PlayerStorageBase
+---@class KuxCoreLib.PlayerStorageBase : KuxCoreLib.Class
 ---@field getIds fun():string[]
 ---@field on_get fun(pdata:KuxCoreLib.PlayerData)
 ---@field on_new fun(pdata:KuxCoreLib.PlayerData):table?
@@ -22,7 +21,7 @@ if(KuxCoreLib.__modules.PlayerStorage) then return KuxCoreLib.__modules.PlayerSt
 
 --- Persistent store per player. <br>
 --- The data will be stored in `storage.__KuxCoreLib__.players[player_index]`
----@class KuxCoreLib.PlayerStorage : KuxCoreLib.PlayerStorageBase, {[uint]: KuxCoreLib.PlayerData}
+---@class KuxCoreLib.PlayerStorage : KuxCoreLib.PlayerStorageBase, {[uint]: KuxCoreLib.PlayerData}, KuxCoreLib.Class
 ---@field raw KuxCoreLib.PlayerData[] direct access to the `storage.__KuxCoreLib__.players`
 
 --[[ USAGE in calling mod
@@ -43,13 +42,19 @@ local PlayerStorage = {
 	__guid   = "cb7e6ed5-e48c-4ef8-841c-b3782ab36b72",
 	__origin = "Kux-CoreLib/lib/storage/PlayerStorage.lua"
 }
-KuxCoreLib.__modules.PlayerStorage = PlayerStorage
+if KuxCoreLib.__classUtils.cache(PlayerStorage) then return KuxCoreLib.__classUtils.cached end
 
 ---------------------------------------------------------------------------------------------------
-if(not script) then return PlayerStorage end -- only initialized if in control stage
+if(not script) then
+	KuxCoreLib.__classUtils.finalize(PlayerStorage)
+	return PlayerStorage
+end -- only initialized if in control stage]]
 
 local Events = KuxCoreLib.Events
 local Flags = KuxCoreLib.Flags
+local Storage = KuxCoreLib.Storage
+
+Storage.register("storage.__KuxCoreLib__.players", "KuxCoreLib.PlayerStorage")
 
 local mt_PlayerData = {
 	__index = function(self, key)
@@ -61,7 +66,7 @@ local mt_PlayerData = {
 }
 script.register_metatable("02c290f1-6b6d-4d29-8e79-42f7ec31c909", mt_PlayerData)
 
-local attributes = Flags.toDictionary{"on_new", "on_get", "raw"}
+local attributes = Flags.toDictionary{"on_new", "on_get", "raw", "__setGlobals"}
 
 function PlayerStorage.getIds()
 	local ids = {}
@@ -129,36 +134,34 @@ local mt_PlayerStorage = {
 	__ipairs = function()
 		error("ipairs is not supported on PlayerStorage. Use pairs instead.")
 	end,
-	__metatable = false
+	__metatable = "protected"
 }
-setmetatable(PlayerStorage,mt_PlayerStorage)
 
--------------------------------------------------------------------------------
-
-if not KuxCoreLib.Events.__isInitialized then error("KuxCoreLibb.Events not initialized") end
-
-Events.on_init(function()
-	storage.__KuxCoreLib__ = {}
-	storage.__KuxCoreLib__.players = {}
-end)
-
-Events.on_load(function()
-	if storage.__KuxCoreLib__ then
-		if storage.__KuxCoreLib__.players then
-			PlayerStorage.raw = storage.__KuxCoreLib__.players
+local function register_events()
+	Events.on_load(function()
+		if storage.__KuxCoreLib__ then
+			if storage.__KuxCoreLib__.players then
+				PlayerStorage.raw = storage.__KuxCoreLib__.players
+			end
 		end
+	end)
+
+	local function init_storage(e)
+		if not storage.__KuxCoreLib__ then storage.__KuxCoreLib__ = {} end
+		if not storage.__KuxCoreLib__.players then storage.__KuxCoreLib__.players = {} end
+
+		PlayerStorage.raw = storage.__KuxCoreLib__.players
 	end
-end)
 
-local function on_configuration_changed(e)
-	if not storage.__KuxCoreLib__ then storage.__KuxCoreLib__ = {} end
-	if not storage.__KuxCoreLib__.players then storage.__KuxCoreLib__.players = {} end
-
-	PlayerStorage.raw = storage.__KuxCoreLib__.players
+	Events.on_init(init_storage)
+	Events.on_configuration_changed(init_storage)
+	Events.on_loaded(init_storage)-- only for development
 end
 
-Events.on_configuration_changed(on_configuration_changed)
-Events.on_loaded(on_configuration_changed)-- only for development
+if KuxCoreLib.Events.__isInitialized then register_events()
+else KuxCoreLib.Events.__on_initialized(register_events) end
 
-
+---------------------------------------------------------------------------------------------------
+setmetatable(PlayerStorage, mt_PlayerStorage)
+KuxCoreLib.__classUtils.finalize(PlayerStorage)
 return PlayerStorage

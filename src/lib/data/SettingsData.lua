@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.SettingsData) then return KuxCoreLib.__modules.SettingsData end
 
 ---@class KuxCoreLib.SettingsData
 local SettingsData = {
@@ -7,7 +6,7 @@ local SettingsData = {
 	__guid   = "{6B1DC373-2A83-4C81-94BD-92E772340FDE}",
 	__origin = "Kux-CoreLib/lib/data/SettingsData.lua",
 }
-KuxCoreLib.__modules.SettingsData = SettingsData
+if KuxCoreLib.__classUtils.cache(SettingsData) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 
 SettingsData.startup = {}
@@ -187,6 +186,6 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
-function SettingsData.asGlobal() return KuxCoreLib.utils.asGlobal(SettingsData) end
+function SettingsData.asGlobal() return KuxCoreLib.__classUtils.asGlobal(SettingsData) end
 
 return SettingsData

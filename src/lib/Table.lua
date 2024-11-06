@@ -1,19 +1,14 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.Table) then return KuxCoreLib.__modules.Table end
 
 ---Provides table functions
----@class KuxCoreLib.Table
+---@class KuxCoreLib.Table : KuxCoreLib.Class
 local Table = {
 	__class  = "Table",
 	__guid   = "{0a7a6b17-1d2a-4001-a105-2897c4d7f4e6}",
 	__origin = "Kux-CoreLib/lib/Table.lua",
-
-	__isInitialized = false,
-	__on_initialized = {}
 }
-KuxCoreLib.__modules.Table = Table
+if KuxCoreLib.__classUtils.cache(Table) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
--- to avoid circular references, the class MUST be defined before require other modules
 local That = KuxCoreLib.That
 local String = KuxCoreLib.String
 
@@ -492,7 +487,6 @@ local function table_size_mock (t, max)
 	end
 	return c
 end
-table_size = table_size or table_size_mock
 
 ---Cast all elements to strings.
 ---@param t table
@@ -830,13 +824,10 @@ function Table.toFlagsDictionary(t)
 	return flags
 end
 
+function Table.__setGlobals()
+	table_size = table_size or table_size_mock
+end
+
 ---------------------------------------------------------------------------------------------------
-
----Provides Table in the global namespace
----@return KuxCoreLib.Table
-function Table.asGlobal() return KuxCoreLib.utils.asGlobal(Table) end
-
-Table.__isInitialized = true
-for _, fnc in ipairs(Table.__on_initialized) do fnc() end
-
+KuxCoreLib.__classUtils.finalize(Table)
 return Table

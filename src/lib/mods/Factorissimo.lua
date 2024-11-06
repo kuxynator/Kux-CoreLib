@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.Factorissimo) then return KuxCoreLib.__modules.Factorissimo end
 
 ---Provides array functions
 ---@class KuxCoreLib.Factorissimo
@@ -8,11 +7,11 @@ local Factorissimo = {
 	__guid   = "b5a1824b-c824-474c-a87a-25e7288d7423",
 	__origin = "Kux-CoreLib/lib/mods/Factorissimo.lua",
 }
-KuxCoreLib.__modules.Factorissimo = Factorissimo
+if KuxCoreLib.__classUtils.cache(Factorissimo) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 ---Provides Factorissimo in the global namespace
 ---@return KuxCoreLib.Factorissimo
-function Factorissimo.asGlobal() return KuxCoreLib.utils.asGlobal(Factorissimo) end
+function Factorissimo.asGlobal() return KuxCoreLib.__classUtils.asGlobal(Factorissimo) end
 ---------------------------------------------------------------------------------------------------
 
 local entity_names = {
@@ -39,8 +38,7 @@ function Factorissimo.isFactoryFloor(surface)
 
 	local surface_name =
 		type(surface) == "string" and surface or
-		type(surface) == "table" and surface.name or
-		type(surface) == "userdata" and surface.name or -- Factorio 2.0
+		is_obj(surface) and surface.name or
 		error("Invalid surface type: " .. type(surface))
 	trace("  surface_name: "..surface_name)
 

@@ -1,8 +1,8 @@
+do return {} end
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.StoragePlayer) then return KuxCoreLib.__modules.StoragePlayer end
 
 ---Provides managed access to the Factorio `storage` table (formerly `global`).
----@class KuxCoreLib.StoragePlayer
+---@class KuxCoreLib.StoragePlayer : KuxCoreLib.Class
 ---@field frames {string:LuaGuiElement}
 ---@deprecated use KuxCoreLib.PlayerStorage
 local StoragePlayer = {
@@ -10,8 +10,10 @@ local StoragePlayer = {
 	__guid   = "2eab6777-b887-4cf0-922c-41458b63dd2b",
 	__origin = "Kux-CoreLib/lib/storage/StoragePlayer.lua",
 }
-KuxCoreLib.__modules.StoragePlayer = StoragePlayer
+if KuxCoreLib.__classUtils.cache(StoragePlayer) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
+
+--storage.players[].frames
 
 local mt = {}
 
@@ -47,6 +49,6 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
-function StoragePlayer.asGlobal() return KuxCoreLib.utils.asGlobal(StoragePlayer) end
+function StoragePlayer.asGlobal() return KuxCoreLib.__classUtils.asGlobal(StoragePlayer) end
 
 return StoragePlayer

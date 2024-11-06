@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.Flags) then return KuxCoreLib.__modules.Flags end
 
 ---@class KuxCoreLib.Flags : { [string]: boolean }
 local Flags = {
@@ -7,7 +6,7 @@ local Flags = {
 	__guid   = "6b3edfc1-861b-4e38-86c3-1272706f1c59",
 	__origin = "Kux-CoreLib/lib/Flags.lua",
 }
-KuxCoreLib.__modules.Flags = Flags
+if KuxCoreLib.__classUtils.cache(Flags) then return KuxCoreLib.__classUtils.cached end
 
 ---------------------------------------------------------------------------------------------------
 
@@ -67,6 +66,6 @@ end
 
 ---Provides Flags in the global namespace
 ---@return KuxCoreLib.Flags
-function Flags.asGlobal() return KuxCoreLib.utils.asGlobal(Flags) end
+function Flags.asGlobal() return KuxCoreLib.__classUtils.asGlobal(Flags) end
 
 return Flags

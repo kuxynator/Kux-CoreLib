@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.StringBuilder) then return KuxCoreLib.__modules.StringBuilder end
 
 ---DRAFT Provides StringBuilder functions
 ---@class KuxCoreLib.StringBuilder
@@ -8,7 +7,7 @@ local StringBuilder = {
 	__guid   = "d5b31800-b937-41d3-9ea4-f92de667806a",
 	__origin = "Kux-CoreLib/lib/StringBuilder.lua",
 }
-KuxCoreLib.__modules.StringBuilder = StringBuilder
+if KuxCoreLib.__classUtils.cache(StringBuilder) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 
 ---Create a new StringBuilder
@@ -44,6 +43,6 @@ end
 
 ---Provides StringBuilder in the global namespace
 ---@return KuxCoreLib.StringBuilder
-function StringBuilder.asGlobal() return KuxCoreLib.utils.asGlobal(StringBuilder) end
+function StringBuilder.asGlobal() return KuxCoreLib.__classUtils.asGlobal(StringBuilder) end
 
 return StringBuilder

@@ -1,18 +1,15 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.PickerDollies) then return KuxCoreLib.__modules.PickerDollies end
 
----@class KuxCoreLib.PickerDollies
+---@class KuxCoreLib.PickerDollies : KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.PickerDollies
 local PickerDollies = {
 	__class  = "PickerDollies",
 	__guid   = "b4f4811e-d7e6-4fdd-ac5d-97042bce5a7c",
-	__origin = "Kux-CoreLib/lib/PickerDollies.lua",
+	__origin = "Kux-CoreLib/lib/mods/PickerDollies.lua",
 }
-KuxCoreLib.__modules.PickerDollies = PickerDollies
+if KuxCoreLib.__classUtils.cache(PickerDollies) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
----Provides PickerDollies in the global namespace
----@return KuxCoreLib.PickerDollies
-function PickerDollies.asGlobal() return KuxCoreLib.utils.asGlobal(PickerDollies) end
----------------------------------------------------------------------------------------------------
+
 local ModInfo = KuxCoreLib.ModInfo
 
 local _eventDistributor_callback
@@ -55,6 +52,5 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
-
-
+KuxCoreLib.__classUtils.finalize(PickerDollies)
 return PickerDollies

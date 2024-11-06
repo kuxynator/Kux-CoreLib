@@ -1,8 +1,7 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.Array) then return KuxCoreLib.__modules.Array end
 
 ---Provides array functions
----@class KuxCoreLib.Array
+---@class KuxCoreLib.Array : KuxCoreLib.Class
 local Array = {
 	__class  = "Array",
 	__guid   = "{57811545-A9BF-42D3-9AD5-DDEF82BB9C40}",
@@ -11,7 +10,7 @@ local Array = {
     ---@type integer The length of the array
     length = 0
 }
-KuxCoreLib.__modules.Array = Array
+if KuxCoreLib.__classUtils.cache(Array) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 -- to avoid circular references, the class is defined before require other modules
 local Table= KuxCoreLib.Table
@@ -57,6 +56,6 @@ end
 
 ---Provides Array in the global namespace
 ---@return KuxCoreLib.Array
-function Array.asGlobal() return KuxCoreLib.utils.asGlobal(Array) end
+function Array.asGlobal() return KuxCoreLib.__classUtils.asGlobal(Array) end
 
 return Array

@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.13.0
+  Features:
+    - add is_obj(any,object_name)
+  Changes:
+    - force to overwrite global vars in each (sub-)stage, this fixes an issue that other mod overwrites my global vars
+    - protect my classes from accidental changes
+---------------------------------------------------------------------------------------------------
+Version: 3.12.2
+  Bugfixes:
+    - FlyingText.create() Fix Factorio 2.0 compatibility
+---------------------------------------------------------------------------------------------------
 Version: 3.12.1
 ---------------------------------------------------------------------------------------------------
 Version: 3.12.0

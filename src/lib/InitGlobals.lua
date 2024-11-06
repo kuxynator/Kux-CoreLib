@@ -65,4 +65,20 @@ else
 	}
 end
 
+if(script)then
+	
+	---Gets a value indicating wether `value` is a table or userdata
+	---@param value any
+	---@param object_name string? The object_name to check for
+	---@return boolean
+	---@overload fun(value:any):boolean
+	---@overload fun(value:any, object_name:string):boolean
+	function _G.is_obj(value, object_name)
+		local t = type(value)
+		local isO = t == "table" or t == "userdata"
+		if object_name then return isO and value.object_name == object_name
+		else return isO end
+	end
+end
+
 

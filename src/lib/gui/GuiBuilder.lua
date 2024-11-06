@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.GuiBuilder) then return KuxCoreLib.__modules.GuiBuilder end
 
 ---@class KuxCoreLib.GuiBuilder
 local GuiBuilder = {
@@ -7,7 +6,7 @@ local GuiBuilder = {
 	__guid   = "5aa42fc3-2d53-47ab-9834-18170d832b9c",
 	__origin = "Kux-CoreLib/lib/gui/GuiBuilder.lua",
 }
-KuxCoreLib.__modules.GuiBuilder = GuiBuilder
+if KuxCoreLib.__classUtils.cache(GuiBuilder) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 local Table= KuxCoreLib.Table
 local Debug= KuxCoreLib.Debug
@@ -95,6 +94,6 @@ GuiBuilder.ElementBuilder = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib
 
 ---------------------------------------------------------------------------------------------------
 
-function GuiBuilder.asGlobal() return KuxCoreLib.utils.asGlobal(GuiBuilder) end
+function GuiBuilder.asGlobal() return KuxCoreLib.__classUtils.asGlobal(GuiBuilder) end
 
 return GuiBuilder

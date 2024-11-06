@@ -76,6 +76,6 @@ end
 
 ---Provides Math in the global namespace
 ---@return KuxCoreLib.Math
-function Math.asGlobal() return KuxCoreLib.utils.asGlobal(Math) end
+function Math.asGlobal() return KuxCoreLib.__classUtils.asGlobal(Math) end
 
 return Math

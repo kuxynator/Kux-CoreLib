@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/") .. "init")
-if(KuxCoreLib.__modules.Debug) then return KuxCoreLib.__modules.Debug end
 
 local function isEnabled()
 	-- return game.get_player(1).mod_settings["Kux-CoreLib_Debug"].value
@@ -12,10 +11,10 @@ local Debug = {
 	__guid   = "{62243C3D-5389-42F7-B7C2-D87967E2D9AF}",
 	__origin = "Kux-CoreLib/lib/Debug.lua"
 }
-KuxCoreLib.__modules.Debug = Debug
+if KuxCoreLib.__classUtils.cache(Debug) then return KuxCoreLib.__classUtils.cached end
 
 ---------------------------------------------------------------------------------------------------
-Debug.util = require((KuxCoreLibPath or "__Kux-CoreLib__/").."modules/debug_util") --[[@as debug_util]]
+Debug.util = require((KuxCoreLibPath or "__Kux-CoreLib__/").."modules/debug_util") --[[@as KuxCoreLib.debug_util]]
 local Path = KuxCoreLib.Path
 
 function Debug.onSettingsChanged()
@@ -59,6 +58,7 @@ function Debug.error(...)
 end
 
 --TODO: remove Path dependency
+---@diagnostic disable-next-line: inject-field
 function Debug.util.extractLineInfo(inputString)
 	local fileName, lineNumber = inputString:match("%s*(.-):(%d+)")
 	if (string.match(fileName, "^%.%.%.")) then
@@ -82,6 +82,6 @@ Debug.getCallingMod = Debug.util.getExecutingMod
 
 ---Provides Debug in the global namespace
 ---@return KuxCoreLib.Debug
-function Debug.asGlobal(mode) return KuxCoreLib.utils.asGlobal(Debug, mode) end
+function Debug.asGlobal(mode) return KuxCoreLib.__classUtils.asGlobal(Debug, mode) end
 
 return Debug

@@ -1,5 +1,13 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.FlyingText) then return KuxCoreLib.__modules.FlyingText end
+
+---flying-text
+---@class KuxCoreLib.FlyingText
+local FlyingText = {
+	__class  ="FlyingText",
+	__guid   = "{8BFF3C82-2A4F-41F8-A7B3-C2969A741749}",
+	__origin = "Kux-CoreLib/lib/FlyingText.lua",
+}
+if KuxCoreLib.__classUtils.cache(FlyingText) then return KuxCoreLib.__classUtils.cached end
 
 local function posOffset( pos, offset )
 	return { x=pos.x + offset.x, y=pos.y + offset.y }
@@ -24,13 +32,7 @@ local function localiseString(text)
 	return flattenedTable
 end
 
----flying-text
----@class KuxCoreLib.FlyingText
-local FlyingText = {
-	__class  ="FlyingText",
-	__guid   = "{8BFF3C82-2A4F-41F8-A7B3-C2969A741749}",
-	__origin = "Kux-CoreLib/lib/FlyingText.lua",	
-}
+
 
 ---@class KuxCoreLib.FlyingTextOptions
 ---@field player uint|LuaPlayer
@@ -42,7 +44,7 @@ local FlyingText = {
 ---@field time_to_live uint|nil
 
 ---Creates a flying text entity
-function FlyingText.create(player, text, color)
+function FlyingText.create_V1(player, text, color)
 	--trace.append(serpent.block(player))
 	local args
 	if(type(player)=="table" and not text and not color) then
@@ -66,12 +68,35 @@ function FlyingText.create(player, text, color)
 	player.surface.create_entity(args)
 end
 
-KuxCoreLib.__modules.FlyingText = FlyingText
+function FlyingText.create(player, text, color)
+	if isV1 then return FlyingText.create_V1(player, text, color) end
+
+	--trace.append(serpent.block(player))
+	local args
+	if(type(player)=="table" and not text and not color) then
+		args = player ---@cast args LuaPlayer.create_local_flying_text_param
+		player = args.player or args[1]
+		args.text = args.text or args[2]
+		args.color = args.color or args[3]
+		args["__class"] = "LuaPlayer.create_local_flying_text_param"
+		assert(player, "Invalid Argument: 'player' must not be nil.")
+		assert(args.text, "Invalid Argument: 'text' must not be nil.")
+	else
+		args = {
+			text = text,
+			color = color
+		}
+		---@cast args LuaPlayer.create_local_flying_text_param
+	end
+	args.position = args.position or posOffset(player.position,{x=-0.5, y=0.2})
+	args.color = args.color or {0.8,0.8,0.8}
+	player.create_local_flying_text(args)
+end
 
 ---------------------------------------------------------------------------------------------------
 
 ---Provides FlyingText in the global namespace
 ---@return KuxCoreLib.FlyingText
-function FlyingText.asGlobal() return KuxCoreLib.utils.asGlobal(FlyingText) end
+function FlyingText.asGlobal() return KuxCoreLib.__classUtils.asGlobal(FlyingText) end
 
 return FlyingText

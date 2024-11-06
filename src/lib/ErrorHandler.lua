@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.ErrorHandler) then return KuxCoreLib.__modules.ErrorHandler end
 
 ---DRAFT Provides ErrorHandler functions
 ---@class KuxCoreLib.ErrorHandler
@@ -11,7 +10,7 @@ local ErrorHandler = {
 	__isInitialized = false,
 	__on_initialized = {}
 }
-KuxCoreLib.__modules.ErrorHandler = ErrorHandler
+if KuxCoreLib.__classUtils.cache(ErrorHandler) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 local Events = KuxCoreLib.Events
 local EventDistributor = KuxCoreLib.EventDistributor
@@ -161,7 +160,7 @@ end
 
 ---Provides ErrorHandler in the global namespace
 ---@return KuxCoreLib.ErrorHandler
-function ErrorHandler.asGlobal() return KuxCoreLib.utils.asGlobal(ErrorHandler) end
+function ErrorHandler.asGlobal() return KuxCoreLib.__classUtils.asGlobal(ErrorHandler) end
 
 ErrorHandler.__isInitialized = true
 for _, fnc in ipairs(ErrorHandler.__on_initialized) do fnc() end

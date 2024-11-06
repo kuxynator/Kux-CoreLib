@@ -35,7 +35,8 @@
 		"jit",
 		"os",
 		"io",
-		"__DebugAdapter"
+		"__DebugAdapter",
+		"mod"
 	],
 
     "Lua.diagnostics.libraryFiles": "Opened",
@@ -110,5 +111,5 @@
         "fortran": "cd $dir && gfortran $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
         "sml": "cd $dir && sml $fileName"
     },
-    "editor.insertSpaces": false
+	"editor.insertSpaces": false,
 }

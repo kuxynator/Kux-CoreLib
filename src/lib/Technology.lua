@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.Technology) then return KuxCoreLib.__modules.Technology end
 
 ---@class KuxCoreLib.Technology
 Technology = {
@@ -7,7 +6,7 @@ Technology = {
 	__guid   = "eb2242d4-9547-45d1-b0a2-0e2528a43c70",
 	__origin = "Kux-CoreLib/lib/Technology.lua",
 }
-KuxCoreLib.__modules.Technology = Technology
+if KuxCoreLib.__classUtils.cache(Technology) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 
 ---comment
@@ -19,7 +18,7 @@ local function getForce(maybeForceOrPlayerOrPlayerIndex)
 		force = game.players[maybeForceOrPlayerOrPlayerIndex].force
 	elseif(type(maybeForceOrPlayerOrPlayerIndex)=="table" and not maybeForceOrPlayerOrPlayerIndex.set_cease_fire) then
 		force = maybeForceOrPlayerOrPlayerIndex.force -- assume LuaPlayer
-	else 
+	else
 		force = maybeForceOrPlayerOrPlayerIndex -- assume force
 	end
 	return force --[[@as LuaForce]]
@@ -41,6 +40,6 @@ end
 
 ---Provides Technology in the global namespace
 ---@return KuxCoreLib.Technology
-function Technology.asGlobal() return KuxCoreLib.utils.asGlobal(Technology) end
+function Technology.asGlobal() return KuxCoreLib.__classUtils.asGlobal(Technology) end
 
 return Technology

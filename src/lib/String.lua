@@ -1,17 +1,14 @@
+log("Loading KuxCoreLib.String.lua")
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.String) then return KuxCoreLib.__modules.String end
 
 ---Provides string functions
----@class KuxCoreLib.String
+---@class KuxCoreLib.String : KuxCoreLib.Class
 local String = {
 	__class  = "String",
 	__guid   = "{0E8BBFAF-73EF-4209-9774-B2CD6A13A296}",
 	__origin = "Kux-CoreLib/lib/String.lua",
-
-	__isInitialized = false,
-	__on_initialized = {}
 }
-KuxCoreLib.__modules.String = String
+if KuxCoreLib.__classUtils.cache(String) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 local Table = KuxCoreLib.Table
 
@@ -325,16 +322,6 @@ function String.pretty(v, options)
 	return prettystr_core(v,0,options)
 end
 
----Returns a string representing the value for display purposes (nil=>"")
----@diagnostic disable-next-line: lowercase-global
-prettystr = String.pretty -- make globally available
-
-if str~=nil and not __G_str then error("str() already defined!") end
----Returns a string representing the value for debug purposes (nil=>!NIL, "string in quotes")
----@diagnostic disable-next-line: lowercase-global
-function str(v) return prettystr_core(v,0,{showNil=true, useQuotes=true, cycleDetectTable={}, printTableRefs=false, recursive=false, maxLevel=0}) end
-__G_str=true
-
 ---Return an array with each char from string
 ---@param s string
 ---@return string[]
@@ -417,11 +404,17 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
----Provides String in the global namespace
----@return KuxCoreLib.String
-function String.asGlobal() return KuxCoreLib.utils.asGlobal(String) end
+function String.__setGlobals()
+	---Returns a string representing the value for display purposes (nil=>"")
+	---@diagnostic disable-next-line: lowercase-global
+	prettystr = String.pretty -- make globally available
 
-String.__isInitialized = true
-for _, fnc in ipairs(String.__on_initialized) do fnc() end
+	---Returns a string representing the value for debug purposes (nil=>!NIL, "string in quotes")
+	---@diagnostic disable-next-line: lowercase-global
+	function str(v) return prettystr_core(v,0,{showNil=true, useQuotes=true, cycleDetectTable={}, printTableRefs=false, recursive=false, maxLevel=0}) end
+end
+
+
+KuxCoreLib.__classUtils.finalize(String)
 
 return String

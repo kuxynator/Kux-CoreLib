@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.Inserter) then return KuxCoreLib.__modules.Inserter end
 
 ---@class KuxCoreLib.Inserter
 Inserter = {
@@ -7,12 +6,14 @@ Inserter = {
 	__guid   = "bbd1b177-9f09-426f-8b36-0d40a9f02503",
 	__origin = "Kux-CoreLib/lib/entities/Inserter.lua",
 }
-KuxCoreLib.__modules.Inserter = Inserter
+if KuxCoreLib.__classUtils.cache(Inserter) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 local Math = KuxCoreLib.Math
 
 local this = {}
 setmetatable(this,{__index=Inserter})
+
+local bobmods = _G["bobmods"]
 
 local round = bobmods.math.round
 local offset = bobmods.math.offset
@@ -651,6 +652,6 @@ this.positions = {
 
 ---------------------------------------------------------------------------------------------------
 
-function Inserter.asGlobal() return KuxCoreLib.utils.asGlobal(Inserter) end
+function Inserter.asGlobal() return KuxCoreLib.__classUtils.asGlobal(Inserter) end
 
 return Inserter

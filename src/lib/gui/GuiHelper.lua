@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.GuiHelper) then return KuxCoreLib.__modules.GuiHelper end
 
 ---Provides GUI helper functions
 ---@class KuxCoreLib.GuiHelper
@@ -7,22 +6,13 @@ local GuiHelper = {
 	__class  = "GuiHelper",
 	__guid   = "490ea051-dc17-465b-9234-ccf654eb3e10",
 	__origin = "Kux-CoreLib/lib/gui/GuiHelper.lua",
-
-	__isInitialized = false,
-	__on_initialized = {}
 }
-KuxCoreLib.__modules.GuiHelper = GuiHelper
+if KuxCoreLib.__classUtils.cache(GuiHelper) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 ---Provides GuiHelper in the global namespace
 ---@return KuxCoreLib.GuiHelper
-function GuiHelper.asGlobal() return KuxCoreLib.utils.asGlobal(GuiHelper) end
+function GuiHelper.asGlobal() return KuxCoreLib.__classUtils.asGlobal(GuiHelper) end
 
----@return KuxCoreLib.GuiHelper
-local function finalize()
-	GuiHelper.__isInitialized = true
-	for _, fnc in ipairs(GuiHelper.__on_initialized) do fnc() end
-	return GuiHelper
-end
 ---------------------------------------------------------------------------------------------------
 
 ---
@@ -32,7 +22,7 @@ end
 ---@return LuaGuiElement?
 function GuiHelper.findElementRecursive(parent, name, prefix)
 	assert(parent, "Invalid Argument. 'parent' must not be nil.")
-	--assert(type(parent)=="table" and parent.object_name=="LuaGuiElement", "Invalid Argument. 'parent' must be a LuaGuiElement. object_name: "..tostring(parent.object_name))
+	--assert(is_obj(parent,"LuaGuiElement"), "Invalid Argument. 'parent' must be a LuaGuiElement. object_name: "..tostring(parent.object_name))
 	assert(name, "Invalid Argument. 'name' must not be nil.")
 	--[[TRACE]]trace("GuiHelper.findElementRecursive "..tostring(parent.object_name=="LuaGui" and "LuaGui" or parent.name).." "..name)
 	local full_name = name
@@ -62,4 +52,4 @@ end
 
 
 ---------------------------------------------------------------------------------------------------
-return finalize()
+return KuxCoreLib.__classUtils.finalize(GuiHelper)

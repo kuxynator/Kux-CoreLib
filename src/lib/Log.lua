@@ -1,14 +1,13 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.Log) then return KuxCoreLib.__modules.Log end
 
 --- Log module
----@class KuxCoreLib.Log
+---@class KuxCoreLib.Log : KuxCoreLib.Class
 local Log = {
 	__class  = "Log",
 	__guid   = "{93D539EB-D2F8-41C8-9BAB-44CFDFE67F00}",
 	__origin = "Kux-CoreLib/lib/Log.lua"
 }
-KuxCoreLib.__modules.Log = Log
+if KuxCoreLib.__classUtils.cache(Log) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 
 -- to avoid circular references, the class MUST be defined before require other modules
@@ -16,8 +15,6 @@ local Modules = KuxCoreLib.Modules
 local Table= KuxCoreLib.Table
 
 if log == nil then log = function (s) --[[dummy]] end end -- fallback if not running in Factorio
-
-local this = nil
 
 local getIsLogEnabled = function ()
 	local entry = settings.global[script.mod_name.."_EnableLog"]
@@ -74,17 +71,17 @@ function Log.on_configuration_changed()
 	storage.moduleData.Log = data
 end
 
+function Log.onSettingsChanged()
+	update(data)
+end
+
 function Log.on_runtime_mod_setting_changed(e)
 	--log("Kux-Corelib.Log.on_runtime_mod_setting_changed")
 	storage.moduleData = storage.moduleData or {}
 	data = Table.migrate(storage.moduleData.Log or {}, data_prototype)
 	update(data)
 	storage.moduleData.Log = data
-	this.onSettingsChanged(e)
-end
-
-function Log.onSettingsChanged()
-	update(data)
+	Log.onSettingsChanged(e)
 end
 
 function Log.joinArgs(...)
@@ -205,11 +202,8 @@ end
 
 ---Provides Log in the global namespace
 ---@return KuxCoreLib.Log
-function Log.asGlobal(mode) return KuxCoreLib.utils.asGlobal(Log, mode) end
-
-this = Log --init local this
-Modules.Log = Log -- add to modules
-return Log
+function Log.asGlobal(mode) return KuxCoreLib.__classUtils.asGlobal(Log, mode) end
+return KuxCoreLib.__classUtils.finalize(Log)
 
 -- if Log then
 --     if Log.__guid == "{93D539EB-D2F8-41C8-9BAB-44CFDFE67F00}" then return Log end

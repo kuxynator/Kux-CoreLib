@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.TechnologyData) then return KuxCoreLib.__modules.TechnologyData end
 
 ---@class KuxCoreLib.TechnologyData
 local TechnologyData = {
@@ -7,7 +6,7 @@ local TechnologyData = {
 	__guid   = "69c904c0-8169-454a-a807-d9d5232e9986",
 	__origin = "Kux-CoreLib/lib/data/TechnologyData.lua",
 }
-KuxCoreLib.__modules.TechnologyData = TechnologyData
+if KuxCoreLib.__classUtils.cache(TechnologyData) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 local Table = KuxCoreLib.Table
 
@@ -97,6 +96,6 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
-function TechnologyData.asGlobal() return KuxCoreLib.utils.asGlobal(TechnologyData) end
+function TechnologyData.asGlobal() return KuxCoreLib.__classUtils.asGlobal(TechnologyData) end
 
 return TechnologyData

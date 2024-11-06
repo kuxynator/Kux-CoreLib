@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.DataRaw) then return KuxCoreLib.__modules.DataRaw end
 
 ---@class KuxCoreLib.DataRaw
 local DataRaw ={
@@ -7,7 +6,7 @@ local DataRaw ={
 	__guid   = "92023dde-c5de-476e-8ca5-85270e130774",
 	__origin = "Kux-CoreLib/lib/data/DataRaw.lua",
 }
-KuxCoreLib.__modules.DataRaw = DataRaw
+if KuxCoreLib.__classUtils.cache(DataRaw) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 -- TODO FACTORIO 2.0
 
@@ -116,7 +115,7 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
-function DataRaw.asGlobal() return KuxCoreLib.utils.asGlobal(DataRaw) end
+function DataRaw.asGlobal() return KuxCoreLib.__classUtils.asGlobal(DataRaw) end
 
 return DataRaw
 

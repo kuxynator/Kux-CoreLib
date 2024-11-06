@@ -1,7 +1,6 @@
 --because Table is already used we call it DataGrid
 
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.DataGrid) then return KuxCoreLib.__modules.DataGrid end
 
 ---DRAFT Provides DataGrid functions
 ---@class KuxCoreLib.DataGrid
@@ -13,11 +12,11 @@ local DataGrid = {
     ---@type integer The number of entries in the list
     count = 0
 }
-KuxCoreLib.__modules.DataGrid = DataGrid
+if KuxCoreLib.__classUtils.cache(DataGrid) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 ---Provides DataGrid in the global namespace
 ---@return KuxCoreLib.DataGrid
-function DataGrid.asGlobal() return KuxCoreLib.utils.asGlobal(DataGrid) end
+function DataGrid.asGlobal() return KuxCoreLib.__classUtils.asGlobal(DataGrid) end
 ---------------------------------------------------------------------------------------------------
 
 local function array_getRowIndex(array, index, columns)

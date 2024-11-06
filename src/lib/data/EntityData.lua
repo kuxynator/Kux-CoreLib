@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.EntityData) then return KuxCoreLib.__modules.EntityData end
 
 ---@class KuxCoreLib.EntityData
 local EntityData = {
@@ -7,7 +6,7 @@ local EntityData = {
 	__guid   = "{990068A3-AA60-4453-A786-A4F2C7E7CA7F}",
 	__origin = "Kux-CoreLib/lib/data/EntityData.lua",
 }
-KuxCoreLib.__modules.EntityData = EntityData
+if KuxCoreLib.__classUtils.cache(EntityData) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 local Table= KuxCoreLib.Table
 local DataRaw = KuxCoreLib.DataRaw
@@ -85,6 +84,6 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
-function EntityData.asGlobal() return KuxCoreLib.utils.asGlobal(EntityData) end
+function EntityData.asGlobal() return KuxCoreLib.__classUtils.asGlobal(EntityData) end
 
 return EntityData

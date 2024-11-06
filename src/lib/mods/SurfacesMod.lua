@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.SurfacesMod) then return KuxCoreLib.__modules.SurfacesMod end
 
 ---Provides array functions
 ---@class KuxCoreLib.SurfacesMod
@@ -8,11 +7,11 @@ local SurfacesMod = {
 	__guid   = "e71cea3a-405c-4bd4-bb24-74b5a216b16e",
 	__origin = "Kux-CoreLib/lib/mods/SurfacesMod.lua",
 }
-KuxCoreLib.__modules.SurfacesMod = SurfacesMod
+if KuxCoreLib.__classUtils.cache(SurfacesMod) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 ---Provides SurfacesMod in the global namespace
 ---@return KuxCoreLib.SurfacesMod
-function SurfacesMod.asGlobal() return KuxCoreLib.utils.asGlobal(SurfacesMod) end
+function SurfacesMod.asGlobal() return KuxCoreLib.__classUtils.asGlobal(SurfacesMod) end
 ---------------------------------------------------------------------------------------------------
 
 ---@class KuxCoreLib.SurfacesMod.API

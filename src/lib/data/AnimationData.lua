@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.AnimationData) then return KuxCoreLib.__modules.AnimationData end
 
 ---@class KuxCoreLib.AnimationData
 local AnimationData = {
@@ -7,7 +6,7 @@ local AnimationData = {
 	__guid   = "44b86734-4323-4071-8d0e-6e181c27c577",
 	__origin = "Kux-CoreLib/lib/data/AnimationData.lua",
 }
-KuxCoreLib.__modules.AnimationData = AnimationData
+if KuxCoreLib.__classUtils.cache(AnimationData) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 
 function AnimationData.createHrVersion(data)
@@ -60,5 +59,5 @@ function AnimationData.addOverlay(animation_template, overlay_template, add_hr_v
 end
 
 ---------------------------------------------------------------------------------------------------
-function AnimationData.asGlobal() return KuxCoreLib.utils.asGlobal(AnimationData) end
+function AnimationData.asGlobal() return KuxCoreLib.__classUtils.asGlobal(AnimationData) end
 return AnimationData

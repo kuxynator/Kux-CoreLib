@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.That) then return KuxCoreLib.__modules.That end
 
 ---@class KuxCoreLib.That Provides messages for assert
 ---Usage: assert(That...) <br>
@@ -31,7 +30,7 @@ local That = {
     Disctionary = {},
     ---@class That.String
 }
-KuxCoreLib.__modules.That = That
+if KuxCoreLib.__classUtils.cache(That) then return KuxCoreLib.__classUtils.cached end
 
 -- to avoid circular references, the class MUST be defined before require other modules
 local Table = KuxCoreLib.Table
@@ -219,7 +218,7 @@ function That.Table.Not.Contains(t, value)
 end
 --#endregion That.Table
 -------------------------------------------------------------------------------
---#region That.String 
+--#region That.String
 
 ---String IsEqual
 ---@param s string
@@ -440,7 +439,7 @@ function Contraint_metatable.__index(self, key)
 		self.next.prev=self
 		return self.next
 	else -- we accept each key as constraint with one argument, but we have to exclude real members: prev, args, etc...
-		-- drawback, if we forget  that, we get an error >> attempt to index field 'args' (a function value) 
+		-- drawback, if we forget  that, we get an error >> attempt to index field 'args' (a function value)
 		self.next = Constraint:new(key)
 		self.next.prev=self
 		return self.next.set
@@ -513,7 +512,7 @@ local function That_fnc(_, what, constraint)
 			error("Function not found! Name:'"..fnc_path.."'")
 		end --IsEqual|IsNotEqual
 
-		
+
 		result, message = fnc(what,table.unpack(c.args or {}))
 		fNot=false
 		fnc=That
@@ -583,7 +582,7 @@ Throws
 ThrowsNothing
 True
 UniqueItems
-XmlSerializable	
+XmlSerializable
 ]]
 
 setmetatable(That, {
@@ -599,8 +598,8 @@ That.Is=Is
 ---Provides That in the global namespace
 ---@return KuxCoreLib.That
 function That.asGlobal()
-	KuxCoreLib.utils.asGlobal(Is)
-	return KuxCoreLib.utils.asGlobal(That)
+	KuxCoreLib.__classUtils.asGlobal(Is)
+	return KuxCoreLib.__classUtils.asGlobal(That)
 end
 main()
 That.__isInitialized=true

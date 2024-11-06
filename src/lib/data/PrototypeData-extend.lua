@@ -59,13 +59,19 @@ local function merge(common, data, final_fixes)
 	return merged
 end
 
+---@class extend.CustomInputPrototype : data.CustomInputPrototype
+---@field name string?
+---@field key_sequence string?
+---@field [1] string name
+---@field [2] string key_sequence
+
 ---Adds a custom-input
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaCustomInputPrototype.html)
----@param t data.CustomInputPrototype|table CustomInputPrototype | {name, key_sequence}
+---@param t extend.CustomInputPrototype CustomInputPrototype | {name, key_sequence}
 function extend:custom_input(t)
 	local d = merge(self.common, t, {
 		type          = "custom-input",
-		name          =  getName(self, t.name or t[1]),
+		name          = getName(self, t.name or t[1]),
 		key_sequence  = t.key_sequence or t[2] or "",
 		consuming     = t.consuming or "none",
 		-- forced_value -- Only loaded if hidden = true

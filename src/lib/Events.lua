@@ -1,38 +1,27 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.Events) then return KuxCoreLib.__modules.Events end
 
----@class KuxCoreLib.Events
+---@class KuxCoreLib.Events : KuxCoreLib.Class
 local Events = {
 	__class  = "Events",
 	__guid   = "92a52084-19c4-4577-a8c7-714efb79644f",
 	__origin = "Kux-CoreLib/lib/Events.lua",
-
-	__isInitialized = false,
-	__on_initialized = {}
+	__writableMembers={"getDisplayName","registerName"}
 }
-KuxCoreLib.__modules.Events = Events
+if KuxCoreLib.__classUtils.cache(Events) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
-local function initilized()
-	Events.__isInitialized = true
-	for _, fnc in ipairs(Events.__on_initialized) do fnc() end
-end
-
----Provides Events in the global namespace
----@return KuxCoreLib.Events
-function Events.asGlobal() return KuxCoreLib.utils.asGlobal(Events) end
+if(not script) -- events are only available in control stage
+	then KuxCoreLib.__classUtils.finalize(Events) return Events end
 ---------------------------------------------------------------------------------------------------
-
-if(KuxCoreLib.ModInfo.current_stage ~= "control") then
-	initilized()
-	return Events
-end -- events are only available in control stage
-
 --- control stage only ----------------------------------------------------------------------------
 
 local EventDistributor = KuxCoreLib.EventDistributor
 
-Events.getDisplayName = EventDistributor.getDisplayName or error("Invalid state.")
-Events.registerName = EventDistributor.registerName or error("Invalid state.")
+local function register_names()
+	Events.getDisplayName = EventDistributor.getDisplayName or error("Invalid state.")
+	Events.registerName   = EventDistributor.registerName or error("Invalid state.")
+end
+EventDistributor.__on_initialized(register_names)
+
 
 ---@param fnc function
 ---@return boolean
@@ -50,6 +39,10 @@ function Events.on_init(fnc) return EventDistributor.register("on_init", fnc) en
 ---@param fnc fun(e: ConfigurationChangedData)
 ---@return boolean
 function Events.on_configuration_changed(fnc) return EventDistributor.register("on_configuration_changed", fnc) end
+
+---@param fnc fun(e: EventData.on_runtime_mod_setting_changed)
+---@return boolean
+function Events.on_runtime_mod_setting_changed(fnc) return EventDistributor.register("on_runtime_mod_setting_changed", fnc) end
 
 ---@param event integer|string|defines.events event
 ---@param fnc function
@@ -107,5 +100,5 @@ function Events.on_entity_moved(fnc, filters) return EventDistributor.register("
 function Events.on_custom_input(input_name, fnc) return EventDistributor.register(input_name, fnc) end
 
 ---------------------------------------------------------------------------------------------------
-initilized()
+KuxCoreLib.__classUtils.finalize(Events)
 return Events

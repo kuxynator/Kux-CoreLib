@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.TechnologyIndex) then return KuxCoreLib.__modules.TechnologyIndex end
 
 -- https://wiki.factorio.com/Prototype/Technology (obsolete)
 -- https://lua-api.factorio.com/latest/prototypes/TechnologyPrototype.html
@@ -12,7 +11,7 @@ TechnologyIndex = {
 	__guid   = "331e212d-14ba-4de5-b69a-c6f50dd30da6",
 	__origin = "Kux-CoreLib/lib/data/TechnologyIndex.lua",
 }
-KuxCoreLib.__modules.TechnologyIndex = TechnologyIndex
+if KuxCoreLib.__classUtils.cache(TechnologyIndex) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 TechnologyIndex.normal={
 	effectsUnlockRecipe = {},
@@ -160,7 +159,7 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
-function TechnologyIndex.asGlobal() return KuxCoreLib.utils.asGlobal(TechnologyIndex) end
+function TechnologyIndex.asGlobal() return KuxCoreLib.__classUtils.asGlobal(TechnologyIndex) end
 
 TechnologyIndex.build()
 

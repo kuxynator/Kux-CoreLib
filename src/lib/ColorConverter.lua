@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.ColorConverter) then return KuxCoreLib.__modules.ColorConverter end
 
 --'Color' is already used by Factorio as Color Concept
 
@@ -10,7 +9,7 @@ local ColorConverter = {
 	__guid      = "{C29DBDDA-9A65-424D-98F2-45CDBAD8D2A1}",
 	__origin    = "Kux-CoreLib/lib/ColorConverter.lua"
 }
-KuxCoreLib.__modules.ColorConverter = ColorConverter
+if KuxCoreLib.__classUtils.cache(ColorConverter) then return KuxCoreLib.__classUtils.cached end
 
 -- to avoid circular references, the class is defined before require other modules
 -- require(KuxCoreLibPath.."Math")
@@ -108,7 +107,7 @@ end
  ---@param   a?  integer      The alpha
  ---@return  number h         The Hue
  ---@return  number s         The saturation
- ---@return  number v         The value 
+ ---@return  number v         The value
  ---@return  number a         The alpha
 function ColorConverter.rgbToHsv(r, g, b, a)
     r, g, b, a = r / 255, g / 255, b / 255, (a or 255) / 255
@@ -174,6 +173,6 @@ end
 
 ---Provides ColorConverter in the global namespace
 ---@return KuxCoreLib.ColorConverter
-function ColorConverter.asGlobal() return KuxCoreLib.utils.asGlobal(ColorConverter) end
+function ColorConverter.asGlobal() return KuxCoreLib.__classUtils.asGlobal(ColorConverter) end
 
 return ColorConverter

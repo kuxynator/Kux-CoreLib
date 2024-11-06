@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.PrototypeData) then return KuxCoreLib.__modules.PrototypeData end
 
 ---@class KuxCoreLib.PrototypeData
 local PrototypeData = {
@@ -7,7 +6,7 @@ local PrototypeData = {
 	__guid   = "{29042CED-24D6-446E-8265-151D08B0A991}",
 	__origin = "Kux-CoreLib/lib/data/PrototypeData.lua",
 }
-KuxCoreLib.__modules.PrototypeData = PrototypeData
+if KuxCoreLib.__classUtils.cache(PrototypeData) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 function PrototypeData.setIconTint(item, tint)
 	if(item.icons) then
@@ -62,6 +61,6 @@ PrototypeData.extend = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/data
 
 ---------------------------------------------------------------------------------------------------
 
-function PrototypeData.asGlobal() return KuxCoreLib.utils.asGlobal(PrototypeData) end
+function PrototypeData.asGlobal() return KuxCoreLib.__classUtils.asGlobal(PrototypeData) end
 
 return PrototypeData

@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.ItemData) then return KuxCoreLib.__modules.ItemData end
 
 ---@class KuxCoreLib.ItemData
 local ItemData = {
@@ -7,7 +6,7 @@ local ItemData = {
 	__guid   = "{AD869786-5B06-420C-9866-E83F3AB736C0}",
 	__origin = "Kux-CoreLib/lib/data/ItemData.lua",
 }
-KuxCoreLib.__modules.ItemData = ItemData
+if KuxCoreLib.__classUtils.cache(ItemData) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 local DataRaw = KuxCoreLib.DataRaw
 
@@ -38,6 +37,6 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
-function ItemData.asGlobal() return KuxCoreLib.utils.asGlobal(ItemData) end
+function ItemData.asGlobal() return KuxCoreLib.__classUtils.asGlobal(ItemData) end
 
 return ItemData

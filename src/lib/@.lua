@@ -33,9 +33,10 @@ KuxCoreLib.Player          .asGlobal()
 -- KuxCoreLib.Inserter        .asGlobal()
 
 -- storage --
-Storage         = KuxCoreLib.Storage          .asGlobal()
-StoragePlayer   = KuxCoreLib.StoragePlayer    .asGlobal()
-StoragePlayers  = KuxCoreLib.StoragePlayers   .asGlobal()
+--TODO DISABELD Storage         = KuxCoreLib.Storage          .asGlobal()
+--TODO DISABELD PlayerStorage   = KuxCoreLib.PlayerStorage    .asGlobal()
+--TODO DISABELD StoragePlayer   = KuxCoreLib.StoragePlayer    .asGlobal()
+--TODO DISABELD StoragePlayers  = KuxCoreLib.StoragePlayers   .asGlobal()
 
 -- gui --
 GuiBuilder      = KuxCoreLib.GuiBuilder       .asGlobal()

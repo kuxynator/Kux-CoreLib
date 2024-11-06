@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.BigData) then return KuxCoreLib.__modules.BigData end
 
 ---@class KuxCoreLib.BigData
 local BigData ={
@@ -7,7 +6,7 @@ local BigData ={
 	__guid   = "3180d12b-7961-4a00-b425-6baaecb27180",
 	__origin = "Kux-CoreLib/lib/data/BigData.lua",
 }
-KuxCoreLib.__modules.BigData = BigData
+if KuxCoreLib.__classUtils.cache(BigData) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 
 
@@ -98,5 +97,5 @@ end
 
 
 ---------------------------------------------------------------------------------------------------
-function BigData.asGlobal() return KuxCoreLib.utils.asGlobal(BigData) end
+function BigData.asGlobal() return KuxCoreLib.__classUtils.asGlobal(BigData) end
 return BigData

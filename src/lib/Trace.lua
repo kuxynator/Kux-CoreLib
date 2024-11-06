@@ -1,12 +1,12 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.Trace) then return KuxCoreLib.__modules.Trace end
 
 ---Provides trace functions
----@class KuxCoreLib.Trace
+---@class KuxCoreLib.Trace : KuxCoreLib.Class
 ---@field public prefix_sign string
 ---@field public sign_color Color
 ---@field public text_color Color
 ---@field public background_color Color
+---@field asGlobal fun():KuxCoreLib.Trace Provides Trace in the global namespace
 --- ---
 --- **Usage:**
 --- `Trace.write(...)` or short `Trace(...)`
@@ -15,9 +15,6 @@ local Trace = {
 	__class  = "Trace",
 	__guid   = "d37816ef-cba2-46af-8c46-56be0fd02322",
 	__origin = "Kux-CoreLib/lib/Trace.lua",
-
-	__isInitialized = false,
-	__on_initialized = {},
 
 	prefix_sign = "○",
 	sign_color = {192,192,192},--lightgray
@@ -155,32 +152,32 @@ local Trace = {
 		"☏",
 		"☐",
 		"☑",
-	}
-
+	},
 }
-KuxCoreLib.__modules.Trace = Trace
+if KuxCoreLib.__classUtils.cache(Trace) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
-local function end_init()
-	---Provides Trace in the global namespace
-	---@return KuxCoreLib.Trace
-	function Trace.asGlobal()
-		---@type KuxCoreLib.Trace
-		_G.trace = Trace
-		_G.__trace = Trace
-		return KuxCoreLib.utils.asGlobal(Trace)
-	end
+local Table = KuxCoreLib.Table
 
+function Trace.__setGlobals()
+	_G.trace = Trace
+	_G.__trace = Trace
+end
+
+local function setMetatable()
 	setmetatable(Trace, {
 		__call = function(_, ...) return Trace.write(...) end,
-		__index = function(_, key) error("Invalid Operation. '"..(key or "<nil>").."' is not a member of 'Trace'") end,
-		__newindex = function(_, key, value) error("Invalid Operation. 'Trace' is protected.") end,
+		__index = function(self, key)
+			if KuxCoreLib.__classUtils.isReadable(self, key) then return nil end
+			error("Invalid Operation. '"..(key or "<nil>").."' is not a member of 'Trace'")
+			end,
+		__newindex = function(self, key, value)
+			if KuxCoreLib.__classUtils.isWritable(self, key) then rawset(Trace, key, value) return end
+			error("Invalid Operation. 'Trace' is protected. Member: "..tostring(key).." does not exist.")
+			end,
+		__metatable = "protected"
 	})
-
-	Trace.__isInitialized = true
-	for _, fnc in ipairs(Trace.__on_initialized) do fnc() end
-
-	return Trace
 end
+
 ---------------------------------------------------------------------------------------------------
 
 _G._trace_isEnabled = true --TODO: set default from settings
@@ -314,7 +311,7 @@ end
 ---@param options? table
 ---@return string
 function Trace.block(value, options)
-	if(type(value)=="table" and value.object_name) then
+	if(is_obj(value) and value.object_name) then
 		value = {
 			object_name = value.object_name,
 			type = ({pcall(function() return value.type end)})[2],
@@ -329,7 +326,7 @@ end
 ---@param options table?
 ---@return string
 function Trace.line(value, options)
-	if(type(value)=="table" and value.object_name) then
+	if(is_obj(value) and value.object_name) then
 		value = {
 			object_name = value.object_name,
 			type = ({pcall(function() return value.type end)})[2],
@@ -339,7 +336,11 @@ function Trace.line(value, options)
 	return serpent.line(value,options)
 end
 
-if(KuxCoreLib.ModInfo.current_stage~="control") then return end_init() end
+if(KuxCoreLib.ModInfo.current_stage~="control") then
+	setMetatable()
+	KuxCoreLib.__classUtils.finalize(Trace)
+	return Trace
+end
 
 ---[control stage only]----------------------------------------------------------------------------
 
@@ -486,10 +487,12 @@ if(Events.__isInitialized) then on_events_initialized()
 else table.insert(Events.__on_initialized, on_events_initialized)
 end
 ---------------------------------------------------------------------------------------------------
-end_init()
+
+setMetatable()
+KuxCoreLib.__classUtils.finalize(Trace)
 return Trace
 
----@class KuxCoreLib.Trace.Colors : Color[]
+---@class KuxCoreLib.Trace.Colors : {[string]:Color}
 ---@field black Color
 ---@field red Color
 ---@field green Color

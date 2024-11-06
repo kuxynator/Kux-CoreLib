@@ -1,5 +1,5 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.EventDistributor) then return KuxCoreLib.__modules.EventDistributor end
+
 --[[
 	Usage:
 	[control.lua]
@@ -11,25 +11,24 @@ if(KuxCoreLib.__modules.EventDistributor) then return KuxCoreLib.__modules.Event
 	EventDistributor.register(80, handler)
 	EventDistributor.register("on_init", handler)
 ]]
----@class KuxCoreLib.EventDistributor
+---@class KuxCoreLib.EventDistributor : KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.EventDistributor Provides EventDistributor in the global namespace
 local EventDistributor = {
 	__class  = "EventDistributor",
 	__guid   = "{ADD81DB1-53B9-4D61-9279-401AD277DBEE}",
 	__origin = "Kux-CoreLib/lib/EventDistributor.lua",
-
-	__isInitialized = false,
-	__on_initialized = {}
 }
+if KuxCoreLib.__classUtils.cache(EventDistributor) then return KuxCoreLib.__classUtils.cached end
 setmetatable(EventDistributor,{
 	---dummy method to use with `require.KuxCoreLib.EventDistributor()
 	__call = function (t, ...) end
 })
-KuxCoreLib.__modules.EventDistributor = EventDistributor
+
 local util = {}
 ---------------------------------------------------------------------------------------------------
 
-if(KuxCoreLib.ModInfo.current_stage~="control") then
-	function EventDistributor.asGlobal() return KuxCoreLib.utils.asGlobal(EventDistributor) end
+if(KuxCoreLib.ModInfo.current_stage ~= "control") then
+	KuxCoreLib.__classUtils.finalize(EventDistributor)
 	return EventDistributor
 end -- events are only available in control stage
 
@@ -286,7 +285,8 @@ function EventDistributor.unregister(eventIdentifier, fnc)
 		EventDistributor.unregister(defines.events.on_entity_died,           on_destroy)
 		EventDistributor.unregister(defines.events.script_raised_destroy,    on_destroy)
 	elseif(eventName=="on_entity_moved") then
-		PickerDollies.unregister()
+		error("Not implemented")
+		--TODO PickerDollies.unregister()
 	else
 		unregister(key)
 	end
@@ -498,12 +498,5 @@ EventDistributor.register("on_loaded", internal_on_loaded)
 EventDistributor.register("on_configuration_changed", internal_on_configuration_changed)
 
 ---------------------------------------------------------------------------------------------------
-
----Provides EventDistributor in the global namespace
----@return KuxCoreLib.EventDistributor
-function EventDistributor.asGlobal() return KuxCoreLib.utils.asGlobal(EventDistributor) end
-
-EventDistributor.__isInitialized = true
-for _, fnc in ipairs(EventDistributor.__on_initialized) do fnc() end
-
+KuxCoreLib.__classUtils.finalize(EventDistributor)
 return EventDistributor

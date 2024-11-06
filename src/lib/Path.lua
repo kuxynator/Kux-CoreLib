@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.Path) then return KuxCoreLib.__modules.Path end
 
 ---@class KuxCoreLib.Path
 local Path = {
@@ -7,7 +6,7 @@ local Path = {
 	__guid   = "{6C02BAA4-AA92-4760-95C9-F62C7EF1E373}",
 	__origin = "Kux-CoreLib/lib/Path.lua",
 }
-KuxCoreLib.__modules.Path = Path
+if KuxCoreLib.__classUtils.cache(Path) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 local String = KuxCoreLib.String
 local Table = KuxCoreLib.Table
@@ -95,6 +94,8 @@ end
 
 function Path.exist(path)
     local cmd
+
+    ---@diagnostic disable-next-line: undefined-field
     if package.config:sub(1,1) == "\\" then
         cmd = "dir " .. path
     else
@@ -171,6 +172,6 @@ end
 
 ---Provides Path in the global namespace
 ---@return KuxCoreLib.Path
-function Path.asGlobal() return KuxCoreLib.utils.asGlobal(Path) end
+function Path.asGlobal() return KuxCoreLib.__classUtils.asGlobal(Path) end
 
 return Path

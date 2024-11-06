@@ -12,6 +12,19 @@ _G.KuxCoreLib is a global variaböe that provides access to all modules.
 -- @__Kux-CoreLib__/lib/init.lua
 KuxCoreLibPath = KuxCoreLibPath or "__Kux-CoreLib__/"
 
+---@class KuxCoreLib.Class
+---@field __class string The name of the class.
+---@field __guid string The unique identifier of the class.
+---@field __origin string The path of the class file.
+---@field __isInitialized boolean? Indicates whether the class is initialized.
+---@field __on_initialized fun(callback:function) List of callback functions to call when the class is initialized.
+---@field __setGlobals function? Sets global variables for the class.
+---@field __writableMembers string[]? List of members that can be written.
+---@field __optionalMembers string[]? List of optional members.
+---@field __isGlobal boolean? Indicates whether the class is global. (if asGlobal() was used)
+---@field asGlobal fun():KuxCoreLib.Class Makes the class global.
+
+
 if KuxCoreLib then
     if KuxCoreLib.__guid == "7c4df965-a929-4f58-92e6-4cfa6a60f4b8" then
 		--log("Init KuxCoreLib, repeated, initialized:"..tostring(KuxCoreLib.__isInitialized)..", required by \n"..debug.traceback(2))
@@ -77,17 +90,31 @@ end
 ---@field Timer KuxCoreLib.Timer
 ---@field PlayerStorage KuxCoreLib.PlayerStorage
 
----Provides access to Kux-CoreLib modules
----Usage: `require(KuxCoreLib.MODULENAME)`
----@class KuxCoreLib : KuxCoreLib.__modules
+---Provides access to Kux-CoreLib modules<br>
+---Usage: `local moduleName = KuxCoreLib.MODULENAME`<br>
+---NOTE The syntax `require KuxCoreLib.MODULENAME` is no longer valid <br>
+---The local use is suggested to avoid conflicts with other libraries,
+---but you can also use the global access. (use `KuxCoreLib.MODULENAME.asGlobal()`)
+---to force a class to be global, and override existing classes. (use with caution)
+---@class KuxCoreLib : KuxCoreLib.__modules, KuxCoreLib.Class
+---@field __modules KuxCoreLib.__modules
+---@field __classUtils KuxCoreLib.__classUtils
+---@field requireAll function
+---@field Data table
+
+---@type KuxCoreLib
+---@diagnostic disable-next-line: missing-fields
 KuxCoreLib = {
 	__class  = "KuxCoreLib",
 	__guid   = "7c4df965-a929-4f58-92e6-4cfa6a60f4b8",
 	__origin = "Kux-CoreLib/init.lua",
 
-	---stores loaded modules
-	__modules = {}
+	--[[@diagnostic disable-next-line: missing-fields]]
+	__modules = {},
+	__classUtils=nil
 }
+
+require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/__classUtils")
 
 do -- deprecated
 
@@ -138,7 +165,6 @@ local require_map = { --RUN (F5) to AUTOGENERATE
         TestRunner = "",
         That = "",
         Version = "",
-		PickerDollies = "",
 		DataGrid = "",
 		ErrorHandler = "",
 		Timer = "",
@@ -165,6 +191,7 @@ local require_map = { --RUN (F5) to AUTOGENERATE
 		GuiHelper = "gui",
 		GuiElementCache = "gui",
 
+		PickerDollies = "mods",
 		Factorissimo = "mods",
 		SurfacesMod = "mods",
 }
@@ -172,8 +199,7 @@ local require_map = { --RUN (F5) to AUTOGENERATE
 local KuxCoreLib_metatable = {}
 function KuxCoreLib_metatable.__index(self, key)
 	local rootpath = (KuxCoreLibPath or "__Kux-CoreLib__/").."lib/"
-	if(require_map[key] and require_map[key] ~="") then rootpath = rootpath .. require_map[key] .."/"
-	end
+	if(require_map[key] and require_map[key] ~="") then rootpath = rootpath .. require_map[key] .."/" end
 	local path = rootpath..key
 	--print("KuxCoreLib require "..path)
 	local result = require(path)
@@ -182,61 +208,6 @@ function KuxCoreLib_metatable.__index(self, key)
 end
 function KuxCoreLib_metatable.__newindex()
 	error("KuxCoreLib is protected.")
-end
-
-KuxCoreLib.utils = {}
-
----Makes a local class global. With verification.
----@param t table The class to make public
----@param mode nil|"override"|"integrate"|"error" Resolving mode (default: error)
----@return table
-function KuxCoreLib.utils.asGlobal(t, mode)
-	local function getClassFileName(class)
-		--local classTable = getmetatable(class)
-
-		for key, value in pairs(class) do
-		  if type(value) == "function" then
-			local info = debug.getinfo(value, "S")
-			if info.source and info.source ~= "=[C]" then
-			  return info.source:gsub("@", "")
-			end
-		  end
-		end
-		return nil
-	end
-
-	local name = t.__class
-	--mode = mode or "error"
-	mode = "override" -- always override
-	if(not name) then error("Invalid class specified! missing '__class'") end
-	if(not t.__guid) then error("Invalid class specified! missing '__guid'") end
-	local gt = _G[name]
-	if gt then
-		if gt.__guid == t.__guid then return gt end
-		local lines = {}
-		for n, v in pairs(gt) do
-			if(type(v)=="function") then table.insert(lines,"  "..n.." ("..type(v).." @ "..getClassFileName(gt) or "?"..")")
-			elseif(type(v)=="table") then table.insert(lines,"  "..n.." ("..type(v)..")")
-			elseif(type(v)=="string") then table.insert(lines,"  "..n.." = \""..v.."\"")
-			else table.insert(lines,"  "..n.." = "..tostring(v).."")
-			end
-		end
-		log("A global class '"..name.."' already exists! dump: \n{\n"..table.concat(lines,"\n").."\n}\nResolving mode: "..mode)
-		if(mode=="override") then
-			--
-		elseif(mode=="integrate") then
-			print("integrate")
-			-- TODO: handle metatables
-			-- for k, v in pairs(t) do gt[k] = v end -- integrate in there class
-			for k, v in pairs(gt) do t[k]=v end -- integrate in our class
-		elseif(mode=="error") then
-			error("A global class '"..name.."' already exist.")
-		else
-			error("Argument out of range. Name: 'mode', Value: '"..mode.."'")
-		end
-	end
-	_G[name] = t
-	return t
 end
 
 ---Requires all modules as global
@@ -249,6 +220,7 @@ function KuxCoreLib.requireAll()
 	return KuxCoreLib
 end
 
+--TODO this is actually reduntant, because all modules can also be accessedby KuxCoreLib.<MODULENAME>
 KuxCoreLib.Data = {}
 setmetatable(KuxCoreLib.Data,{
 	__index = function (self, key)

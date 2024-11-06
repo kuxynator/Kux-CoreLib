@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.RecipeData) then return KuxCoreLib.__modules.RecipeData end
 
 ---@class KuxCoreLib.RecipeData
 local RecipeData= {
@@ -7,7 +6,7 @@ local RecipeData= {
 	__guid   = "{6B1DC373-2A83-4C81-94BD-92E772340FDE}",
 	__origin = "Kux-CoreLib/lib/data/RecipeData.lua",
 }
-KuxCoreLib.__modules.RecipeData = RecipeData
+if KuxCoreLib.__classUtils.cache(RecipeData) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 
 RecipeData.clone = function(name, item)
@@ -61,6 +60,6 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
-function RecipeData.asGlobal() return KuxCoreLib.utils.asGlobal(RecipeData) end
+function RecipeData.asGlobal() return KuxCoreLib.__classUtils.asGlobal(RecipeData) end
 
 return RecipeData

@@ -36,6 +36,6 @@ KuxCoreLib.__modules.Colors = Colors
 
 ---Provides Colors in the global namespace
 ---@return KuxCoreLib.Colors
-function Colors.asGlobal() return KuxCoreLib.utils.asGlobal(Colors) end
+function Colors.asGlobal() return KuxCoreLib.__classUtils.asGlobal(Colors) end
 
 return Colors

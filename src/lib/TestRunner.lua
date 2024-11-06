@@ -1,5 +1,4 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.TestRunner) then return KuxCoreLib.__modules.TestRunner end
 
 -- if TestRunner then
 --     if TestRunner.__guid == "{68FAAD34-FF3D-40A2-9844-BF1F9400E5A8}" then return TestRunner end
@@ -8,16 +7,16 @@ if(KuxCoreLib.__modules.TestRunner) then return KuxCoreLib.__modules.TestRunner 
 -- end
 
 ---@class KuxCoreLib.TestRunner
----Example:  
----local tests = {name="Lua"}  
----function tests.myTest() ..[your test code].. end  
+---Example:
+---local tests = {name="Lua"}
+---function tests.myTest() ..[your test code].. end
 ---TestRunner.run(tests)
 local TestRunner = {
 	__class  = "TestRunner",
 	__guid   = "{68FAAD34-FF3D-40A2-9844-BF1F9400E5A8}",
 	__origin = "Kux-CoreLib/lib/TestRunner.lua",
 }
-KuxCoreLib.__modules.TestRunner = TestRunner
+if KuxCoreLib.__classUtils.cache(TestRunner) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 local Debug = KuxCoreLib.Debug
 local Path = KuxCoreLib.Path
@@ -133,6 +132,6 @@ end
 
 ---Provides TestRunner in the global namespace
 ---@return KuxCoreLib.TestRunner
-function TestRunner.asGlobal() return KuxCoreLib.utils.asGlobal(TestRunner) end
+function TestRunner.asGlobal() return KuxCoreLib.__classUtils.asGlobal(TestRunner) end
 
 return TestRunner

@@ -2,17 +2,20 @@
 
 
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
-if(KuxCoreLib.__modules.Timer) then return KuxCoreLib.__modules.Timer end
 
----@class KuxCoreLib.Timer
+---@class KuxCoreLib.Timer : KuxCoreLib.Class
+---@field asGloaböl fun():KuxCoreLib.Timer Provides Timer in the global namespace
 local Timer = {
 	__class  = "Timer",
 	__guid   = "fba8b087-083d-43d9-b4d6-4fa1743b1562",
 	__origin = "Kux-CoreLib/lib/Timer.lua",
 }
-KuxCoreLib.__modules.Timer = Timer
+if KuxCoreLib.__classUtils.cache(Timer) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
-if(not script) then return Timer end -- only initialized if in control stage
+if(not script) then
+	KuxCoreLib.__classUtils.finalize(Timer)
+	return Timer
+end -- only initialized if in control stage
 
 local PlayerStorage = KuxCoreLib.PlayerStorage
 local Events = KuxCoreLib.Events
@@ -77,5 +80,6 @@ Events.on_tick(function(e)
 		check(e, player_index, pdata.__KuxCoreLib__.timers)
 	end
 end)
-
+---------------------------------------------------------------------------------------------------
+KuxCoreLib.__classUtils.finalize(Timer)
 return Timer
