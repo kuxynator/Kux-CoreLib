@@ -133,7 +133,7 @@ function ModInfo.update()
 		ModInfo.version = script and script.active_mods[mod_name] or mods[mod_name]
 	end
 
-	log("ModInfo.update(): stage="..ModInfo.current_stage.." mod="..ModInfo.name.." "..ModInfo.version)
+	--log("ModInfo.update(): stage="..ModInfo.current_stage.." mod="..ModInfo.name.." "..ModInfo.version)
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ end
 ---@overload fun(): KuxCoreLib.ModInfo
 ---@overload fun(additinalMembers: table): KuxCoreLib.ModInfo
 function ModInfo.new(additinalMembers)
-	log("ModInfo.new()")
+	--log("ModInfo.new()")
 	local instance = {}
 	if additinalMembers then for key, value in pairs(additinalMembers) do instance[key] = value end end
 	local mod = setmetatable(instance, {
@@ -167,7 +167,7 @@ function ModInfo.new(additinalMembers)
 	})
 	ModInfo.update()
 	ModInfo.prefix = mod.name..mod.separator
-	log("ModInfo.new() done: prefix="..ModInfo.prefix)
+	--log("ModInfo.new() done: prefix="..ModInfo.prefix)
 	return mod
 end
 

@@ -13,14 +13,23 @@ if KuxCoreLib.__classUtils.cache(Player) then return KuxCoreLib.__classUtils.cac
 ---@param arg integer|LuaPlayer
 ---@return LuaPlayer
 function Player.toLuaPlayer(arg)
-	local t = is_obj(arg) and arg or nil
-	if is_obj(t, "LuaPlayer") then return arg --[[@as LuaPlayer]] end
-	if(type(arg)=="number") then return game.players[arg] end
-	error("Invalid argument.")
+	if is_obj(arg, "LuaPlayer") then return arg --[[@as LuaPlayer]] end
+	if type(arg)=="number" then return game.players[arg] end
+	error("Invalid argument. "..tostring(arg))
 end
 
 --- @see Player.toLuaPlayer
 Player.getPlayer = Player.toLuaPlayer
+
+function Player.character_personal_logistic_requests_enabled(player)
+	player = Player.toLuaPlayer(player); if not player then return false end
+	---@diagnostic disable-next-line: undefined-field
+	if isV1 then return player.character_personal_logistic_requests_enabled end
+
+	local c = player.character; if not c then return false end
+	local rp = player.character.get_requester_point(); if not rp then return false end
+	return rp.enabled
+end
 
 ---------------------------------------------------------------------------------------------------
 

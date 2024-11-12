@@ -1,6 +1,7 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
 ---@class KuxCoreLib.Events : KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.Events
 local Events = {
 	__class  = "Events",
 	__guid   = "92a52084-19c4-4577-a8c7-714efb79644f",

@@ -40,11 +40,9 @@ __classUtils.isOptional = isOptional
 
 ---Makes a local class global. With verification.
 ---@param t table The class to make public
----@param mode nil|"override"|"integrate"|"error" Resolving mode (default: error)
 ---@return KuxCoreLib.Class
 ---@overload fun(t:table):KuxCoreLib.Class
----@overload fun(t:table, mode:"override"|"integrate"|"error"):KuxCoreLib.Class
-function __classUtils.asGlobal(t, mode)
+function __classUtils.asGlobal(t)
 	local function getClassFileName(class)
 		--local classTable = getmetatable(class)
 
@@ -61,12 +59,13 @@ function __classUtils.asGlobal(t, mode)
 
 	local name = t.__class
 	--mode = mode or "error"
-	mode = "override" -- always override
+
 	if(not name) then error("Invalid class specified! missing '__class'") end
 	if(not t.__guid) then error("Invalid class specified! missing '__guid'") end
 	local gt = _G[name]
 	if gt then
 		if gt.__guid == t.__guid then return gt end
+		--[[
 		local lines = {}
 		for n, v in pairs(gt) do
 			    if(type(v)=="function") then table.insert(lines,"  "..n.." ("..type(v).." @ "..getClassFileName(gt) or "?"..")")
@@ -76,18 +75,7 @@ function __classUtils.asGlobal(t, mode)
 			end
 		end
 		log("A global class '"..name.."' already exists! dump: \n{\n"..table.concat(lines,"\n").."\n}\nResolving mode: "..mode)
-		if(mode=="override") then
-			--
-		elseif(mode=="integrate") then
-			print("integrate")
-			-- TODO: handle metatables
-			-- for k, v in pairs(t) do gt[k] = v end -- integrate in there class
-			for k, v in pairs(gt) do t[k]=v end -- integrate in our class
-		elseif(mode=="error") then
-			error("A global class '"..name.."' already exist.")
-		else
-			error("Argument out of range. Name: 'mode', Value: '"..mode.."'")
-		end
+		]]
 	end
 	_G[name] = t
 	t.__isGlobal = true;
@@ -152,8 +140,8 @@ local function protect(obj)
 	setmetatable(obj,{
 		__index = function(self, key)
 			if isReadable(self, key) then return nil end
-			print(obj.__writableMembers[1])
-			print(obj.__optionalMembers[1])
+			--print(obj.__writableMembers[1])
+			--print(obj.__optionalMembers[1])
 			error("Member not exists. "..obj.__class .."."..key)
 			end,
 		__newindex = function(self, key, value)

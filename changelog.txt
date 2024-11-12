@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.13.1
+  Features:
+    - add KuxCoreLib.Freeplay (wrapper for 'freeplay' remote interface)
+  Bugfixes:
+    - Fix Factorissimo.isFactoryFloor
+    - Fix Inserter class
+---------------------------------------------------------------------------------------------------
 Version: 3.13.0
   Features:
     - add is_obj(any,object_name)

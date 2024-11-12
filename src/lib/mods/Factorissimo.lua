@@ -45,7 +45,7 @@ function Factorissimo.isFactoryFloor(surface)
 	local result =
 		surface_name:match("Factory floor %d+") or
 		surface_name:match("factory%-floor%-%d+") or
-		surface_name:match("%-factory%-floor%$") -- Factorissimo >= 3.x ?
+		surface_name:match("%-factory%-floor$") -- Factorissimo >= 3.x ?
 	trace("  result: "..tostring(result))
 	return result ~= nil
 end

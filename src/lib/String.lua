@@ -10,8 +10,16 @@ local String = {
 }
 if KuxCoreLib.__classUtils.cache(String) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
-local Table = KuxCoreLib.Table
-
+local Table = {} -- we do not load lib/Table here, to avoid circular reference
+function Table.append(t, value)
+	table.insert(t, value)
+end
+function Table.appendRange(t, list)
+	for _, value in ipairs(list) do
+		table.insert(t, value)
+	end
+end
+---------------------------------------------------------------------------------------------------
 ---Create a string.
 ---@param s string The base string.
 ---@param count integer The number of repetitions
@@ -407,13 +415,12 @@ end
 function String.__setGlobals()
 	---Returns a string representing the value for display purposes (nil=>"")
 	---@diagnostic disable-next-line: lowercase-global
-	prettystr = String.pretty -- make globally available
+	_G.prettystr = String.pretty -- make globally available
 
 	---Returns a string representing the value for debug purposes (nil=>!NIL, "string in quotes")
 	---@diagnostic disable-next-line: lowercase-global
-	function str(v) return prettystr_core(v,0,{showNil=true, useQuotes=true, cycleDetectTable={}, printTableRefs=false, recursive=false, maxLevel=0}) end
+	function _G.str(v) return prettystr_core(v,0,{showNil=true, useQuotes=true, cycleDetectTable={}, printTableRefs=false, recursive=false, maxLevel=0}) end
 end
-
 
 KuxCoreLib.__classUtils.finalize(String)
 

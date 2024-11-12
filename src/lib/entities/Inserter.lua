@@ -14,16 +14,55 @@ local this = {}
 setmetatable(this,{__index=Inserter})
 
 local bobmods = _G["bobmods"]
+if not bobmods then bobmods = {} end
+if not bobmods.logistics then bobmods.logistics = {} end
+if not bobmods.logistics.inserters then bobmods.logistics.inserters = {} end
+if not bobmods.math then bobmods.math = {} end
+
+function bobmods.math.mod(number, div)
+  if number < 0 then
+    local newnumber = 0 - number
+    local mod = newnumber % div
+    return 0 - mod
+  else
+    return number % div
+  end
+end
+
+function bobmods.math.floor(number)
+  local num
+  if number < 0 then num = number - 0.1
+  else num = number + 0.1 end
+  return math.floor (num - bobmods.math.mod(num, 1))
+end
+
+function bobmods.math.round(number)
+  local num
+  if number < 0 then num = number - 0.5
+  else num = number + 0.5 end
+  return math.floor (num - bobmods.math.mod(num, 1))
+end
+
+function bobmods.math.offset(number)
+  local num = bobmods.math.mod(number, 1)
+  if num < 0 then
+    if num > -0.5 then return num
+	else return num + 1 end
+  else
+    if num < 0.5 then return num
+	else return num - 1 end
+  end
+end
 
 local round = bobmods.math.round
 local offset = bobmods.math.offset
 local abs=math.abs
 local sgn=Math.sgn
-local near_technology = bobmods.inserters.near_technology
-local more2_technology = bobmods.inserters.more2_technology
-local more_technology = bobmods.inserters.more_technology
-local long_technology = bobmods.inserters.long_technology
-local long2_technology = bobmods.inserters.long2_technology
+--local near_technology = bobmods.inserters.near_technology
+--local more2_technology = bobmods.inserters.more2_technology
+--local more_technology = bobmods.inserters.more_technology
+--local long_technology = bobmods.inserters.long_technology
+--local long2_technology = bobmods.inserters.long2_technology
 local fine_offset = 0.2 -- bobmods.inserters.offset
 
 this.changed_position_event = script.generate_event_name()
@@ -90,11 +129,22 @@ function Inserter.split_drop_position(full_drop_position)
 	return drop_position, drop_offset
 end
 
+
+---@param entity LuaEntity
+---@return table
+---@return table
 function Inserter.get_split_drop_position(entity)
-	local full_drop_position = this.get_drop_position(entity)
-	local drop_position = { x = round(full_drop_position.x), y = round(full_drop_position.y) }
-	local drop_offset = { x = offset(full_drop_position.x), y = offset(full_drop_position.y) }
-	return drop_position, drop_offset
+	local full_position = this.get_drop_position(entity)
+	local p = { x = round(full_position.x), y = round(full_position.y) }
+	local o = { x = offset(full_position.x), y = offset(full_position.y) }
+	return p, o
+end
+
+function Inserter.get_split_pickup_position(entity)
+	local full_position = this.get_pickup_position(entity)
+	local p = { x = round(full_position.x), y = round(full_position.y) }
+	local o = { x = offset(full_position.x), y = offset(full_position.y) }
+	return p, o
 end
 
 function Inserter.get_drop_tile_position(entity)
@@ -107,8 +157,16 @@ function Inserter.get_drop_offset_position(entity)
 	return { x = offset(full_drop_position.x), y = offset(full_drop_position.y) }
 end
 
+---@deprecated use combine_position
 function Inserter.combine_drop_position(drop_position, drop_offset)
 	return { x = drop_position.x + drop_offset.x, y = drop_position.y + drop_offset.y }
+end
+
+function Inserter.combine_position(position, offset)
+	return {
+		x = (position.x or position[1]) + (offset.x or offset[1]),
+		y = (position.y or position[2]) + (offset.y or offset[2])
+	}
 end
 
 function Inserter.set_pickup_position(entity, newpos)

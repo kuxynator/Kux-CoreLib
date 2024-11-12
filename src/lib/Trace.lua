@@ -449,7 +449,7 @@ end
 
 function Trace.getIdentifier(o)
 	local t = type(o)
-	if(t~="table") then return t end
+	if(t~="table" and t~="userdata") then return t end
 	local p = {}
 	if(o.object_name) then
 		pcall(function() p.type = o.type end)
