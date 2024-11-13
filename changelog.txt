@@ -1,4 +1,8 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.14.0
+  Features:
+    - include stdlib for internal use
+---------------------------------------------------------------------------------------------------
 Version: 3.13.1
   Features:
     - add KuxCoreLib.Freeplay (wrapper for 'freeplay' remote interface)
