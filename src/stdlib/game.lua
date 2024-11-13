@@ -1,10 +1,10 @@
 --- The game module.
 -- @module Game
--- @usage local Game = require('__kry_stdlib__/stdlib/game')
+-- @usage local Game = require('__Kux-CoreLib__/stdlib/game')
 
 local Game = {
     __class = 'Game',
-    __index = require('__kry_stdlib__/stdlib/core')
+    __index = require('__Kux-CoreLib__/stdlib/core')
 }
 setmetatable(Game, Game)
 local inspect = _ENV.inspect

@@ -4,23 +4,23 @@
 -- <p>This modules can register the following events: `on_force_created`, and `on_forces_merging`.
 -- @module Event.Force
 -- @usage
--- local Force = require('__kry_stdlib__/stdlib/event/force').register_events()
+-- local Force = require('__Kux-CoreLib__/stdlib/event/force').register_events()
 -- -- inside your Init event Force.init() -- to properly handle any existing forces
 
-local Event = require('__kry_stdlib__/stdlib/event/event')
+local Event = require('__Kux-CoreLib__/stdlib/event/event')
 
 local Force = {
     __class = 'Force',
-    __index = require('__kry_stdlib__/stdlib/core'),
+    __index = require('__Kux-CoreLib__/stdlib/core'),
     _new_force_data = {}
 }
 setmetatable(Force, Force)
 
 local inspect = _ENV.inspect
 
-local Game = require('__kry_stdlib__/stdlib/game')
-local table = require('__kry_stdlib__/stdlib/utils/table')
-local merge_additional_data = require('__kry_stdlib__/stdlib/event/modules/merge_data')
+local Game = require('__Kux-CoreLib__/stdlib/game')
+local table = require('__Kux-CoreLib__/stdlib/utils/table')
+local merge_additional_data = require('__Kux-CoreLib__/stdlib/event/modules/merge_data')
 local assert, type = assert, type
 
 -- return new default force object
@@ -49,7 +49,7 @@ end
 -- @treturn LuaForce the force instance
 -- @treturn table the force's storage data
 -- @usage
--- local Force = require('__kry_stdlib__/stdlib/event/force')
+-- local Force = require('__Kux-CoreLib__/stdlib/event/force')
 -- local force_name, force_data = Force.get("player")
 -- local force_name, force_data = Force.get(game.forces["player"])
 -- -- Returns data for the force named "player" from either a string or LuaForce object

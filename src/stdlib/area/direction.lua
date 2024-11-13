@@ -1,11 +1,11 @@
 --- Functions for working with directions and orientations.
 -- @module Area.Direction
--- @usage local Direction = require('__kry_stdlib__/stdlib/area/direction')
+-- @usage local Direction = require('__Kux-CoreLib__/stdlib/area/direction')
 -- @see defines.direction
 
 local Direction = {
     __class = 'Direction',
-    __index = require('__kry_stdlib__/stdlib/core')
+    __index = require('__Kux-CoreLib__/stdlib/core')
 }
 setmetatable(Direction, Direction)
 
@@ -88,7 +88,7 @@ end
 
 -- Deprecated
 do
-    local Orientation = require('__kry_stdlib__/stdlib/area/orientation')
+    local Orientation = require('__Kux-CoreLib__/stdlib/area/orientation')
     Direction.opposite_direction = Direction.opposite
     Direction.direction_to_orientation = Direction.to_orientation
 

@@ -1,12 +1,12 @@
 --- Makes monolithic Factorio GUI events more manageable.
 -- @module Event.Gui
--- @usage local Gui = require('__kry_stdlib__/stdlib/event/gui')
+-- @usage local Gui = require('__Kux-CoreLib__/stdlib/event/gui')
 
-local Event = require('__kry_stdlib__/stdlib/event/event')
+local Event = require('__Kux-CoreLib__/stdlib/event/event')
 
 local Gui = {
    __class = 'Gui',
-   __index = require('__kry_stdlib__/stdlib/core')
+   __index = require('__Kux-CoreLib__/stdlib/core')
 }
 setmetatable(Gui, Gui)
 

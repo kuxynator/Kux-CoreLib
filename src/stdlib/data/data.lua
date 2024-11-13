@@ -1,21 +1,21 @@
 --- Data
 -- @classmod Data
 
-require('__kry_stdlib__/stdlib/core') -- Calling core up here to setup any required global stuffs
+require('__Kux-CoreLib__/stdlib/core') -- Calling core up here to setup any required global stuffs
 
 if _G.remote and _G.script then
     error('Data Modules can only be required in the data stage', 2)
 end
 
-local Table = require('__kry_stdlib__/stdlib/utils/table')
-local groups = require('__kry_stdlib__/stdlib/data/modules/groups')
+local Table = require('__Kux-CoreLib__/stdlib/utils/table')
+local groups = require('__Kux-CoreLib__/stdlib/data/modules/groups')
 
 local Data = {
     __class = 'Data',
-    __index = require('__kry_stdlib__/stdlib/core'),
-    Sprites = require('__kry_stdlib__/stdlib/data/modules/sprites'),
-    Pipes = require('__kry_stdlib__/stdlib/data/modules/pipes'),
-    Util = require('__kry_stdlib__/stdlib/data/modules/util'),
+    __index = require('__Kux-CoreLib__/stdlib/core'),
+    Sprites = require('__Kux-CoreLib__/stdlib/data/modules/sprites'),
+    Pipes = require('__Kux-CoreLib__/stdlib/data/modules/pipes'),
+    Util = require('__Kux-CoreLib__/stdlib/data/modules/util'),
     _default_options = {
         ['silent'] = false, -- Don't log if not present
         ['fail'] = false, -- Error instead of logging
@@ -176,7 +176,7 @@ function Data:copy(new_name, result, opts)
             copy.placeable_by.item = result
         end
 
-        -- For recipes, we ignore results with 
+        -- For recipes, we ignore results with
         if copy.type == 'recipe' then
 			if #copy.results == 1 then -- handles vast majority of cases
 				copy.results[1].name = new_name

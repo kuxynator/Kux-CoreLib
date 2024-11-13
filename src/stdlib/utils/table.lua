@@ -1,7 +1,7 @@
 --- Extends Lua 5.2 table.
 -- @module Utils.table
 -- @see table
--- @usage local table = require('__kry_stdlib__/stdlib/utils/table')
+-- @usage local table = require('__Kux-CoreLib__/stdlib/utils/table')
 local Table = {}
 
 Table.remove = table.remove

@@ -1,4 +1,4 @@
-local table = require('__kry_stdlib__/stdlib/utils/table')
+local table = require('__Kux-CoreLib__/stdlib/utils/table')
 
 local function merge_additional_data(additional_data_array, data)
     for _, new_data in pairs(additional_data_array) do

@@ -5,18 +5,18 @@
 -- @usage
 -- -- For use with STDLIB Events
 -- if DEBUG then
---   require('__kry_stdlib__/stdlib/scripts/quickstart').register_events()
+--   require('__Kux-CoreLib__/stdlib/scripts/quickstart').register_events()
 -- end
 -- @usage
 -- --If not using stdlibs event system
--- local quickstart = require('__kry_stdlib__/stdlib/scripts/quickstart')
+-- local quickstart = require('__Kux-CoreLib__/stdlib/scripts/quickstart')
 -- script.on_event(defines.events.on_player_created, function()
 --  quickstart.on_player_created() -- can be wrapped in an if DEBUG type check
 -- end)
 
-local Event = require('__kry_stdlib__/stdlib/event/event')
-local Area = require('__kry_stdlib__/stdlib/area/area')
-local QS = require('__kry_stdlib__/stdlib/misc/config').new(_ENV.prequire('config-quickstart') or {})
+local Event = require('__Kux-CoreLib__/stdlib/event/event')
+local Area = require('__Kux-CoreLib__/stdlib/area/area')
+local QS = require('__Kux-CoreLib__/stdlib/misc/config').new(_ENV.prequire('config-quickstart') or {})
 
 if not remote.interfaces['quickstart_script'] then
     local qs_interface = {}

@@ -3,11 +3,11 @@
 
 _ENV = _ENV or _G
 
-local config = require('__kry_stdlib__/stdlib/config')
+local config = require('__Kux-CoreLib__/stdlib/config')
 
-local Table = require('__kry_stdlib__/stdlib/utils/table')
-local Math = require('__kry_stdlib__/stdlib/utils/math')
-local String = require('__kry_stdlib__/stdlib/utils/string')
+local Table = require('__Kux-CoreLib__/stdlib/utils/table')
+local Math = require('__Kux-CoreLib__/stdlib/utils/math')
+local String = require('__Kux-CoreLib__/stdlib/utils/string')
 
 local STDLIB = {
     Math = Math,
@@ -36,7 +36,7 @@ local data_traceback = type(debug) == 'table' and debug.getinfo and function()
         if trace then
             level = level + 1
             if (trace.what == 'Lua' or trace.what == 'main') and not ignored[trace.name] then
-                local cur = trace.source:gsub('.*__kry_stdlib__', '__kry_stdlib__'):gsub('.*/Factorio%-Stdlib', '__kry_stdlib__')
+                local cur = trace.source:gsub('.*__Kux-CoreLib__', '__Kux-CoreLib__'):gsub('.*/Factorio%-Stdlib', '__Kux-CoreLib__')
                 cur = cur .. ':' .. (trace.currentline or '0') .. ' in ' .. (trace.name or '???')
                 str[#str + 1] = cur
             end
@@ -53,14 +53,14 @@ end or function()
 end
 rawset(_ENV, 'data_traceback', data_traceback)
 
-local inspect = require('__kry_stdlib__/stdlib/vendor/inspect')
+local inspect = require('__Kux-CoreLib__/stdlib/vendor/inspect')
 rawset(_ENV, 'inspect', inspect)
 
 -- Defines Mutates
-require('__kry_stdlib__/stdlib/utils/defines/color')
-require('__kry_stdlib__/stdlib/utils/defines/anticolor')
-require('__kry_stdlib__/stdlib/utils/defines/lightcolor')
-require('__kry_stdlib__/stdlib/utils/defines/time')
+require('__Kux-CoreLib__/stdlib/utils/defines/color')
+require('__Kux-CoreLib__/stdlib/utils/defines/anticolor')
+require('__Kux-CoreLib__/stdlib/utils/defines/lightcolor')
+require('__Kux-CoreLib__/stdlib/utils/defines/time')
 
 --- Require a file that may not exist
 -- @tparam string module path to the module
@@ -176,7 +176,7 @@ function STDLIB.create_stdlib_globals(files)
             MATH = 'stdlib/utils/math'
         }
     for glob, path in pairs(files) do
-        rawset(_ENV, glob, require('__kry_stdlib__/' .. (path:gsub('%.', '/')))) -- extra () required to emulate select(1)
+        rawset(_ENV, glob, require('__Kux-CoreLib__/' .. (path:gsub('%.', '/')))) -- extra () required to emulate select(1)
     end
 end
 

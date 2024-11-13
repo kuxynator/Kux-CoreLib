@@ -1,9 +1,9 @@
 --- For logging debug information to files.
 -- @module Misc.Logger
 -- @usage
--- local Logger = require('__kry_stdlib__/stdlib/misc/logger')
+-- local Logger = require('__Kux-CoreLib__/stdlib/misc/logger')
 -- -- or to create a new logger directly:
--- local Log = require('__kry_stdlib__/stdlib/misc/logger').new()
+-- local Log = require('__Kux-CoreLib__/stdlib/misc/logger').new()
 -- -- log files are saved to script-output/modname/log.log by default
 
 local Logger = {
@@ -12,11 +12,11 @@ local Logger = {
     __call = function(self, ...)
         return self.get(...)
     end,
-    __index = require('__kry_stdlib__/stdlib/core')
+    __index = require('__Kux-CoreLib__/stdlib/core')
 }
 setmetatable(Logger, Logger)
 
-local table = require('__kry_stdlib__/stdlib/utils/table')
+local table = require('__Kux-CoreLib__/stdlib/utils/table')
 
 -- Set on the individual log object, either logs a message or writes immediatly if nil.
 local _Log_mt = {

@@ -1,19 +1,19 @@
 --[[
     A basic interface script, with generic functions
     usage:
-    local interface = require(__kry_stdlib__/stdlib/scripts/interface)
+    local interface = require(__Kux-CoreLib__/stdlib/scripts/interface)
     interface.myfunc = function() end
     remote.add_interface(script.mod_name, interface)
     interface.myfunc2 = function() end -- Can even add new functions afterwards!
 ]] --
 local interface = {}
-local Table = require('__kry_stdlib__/stdlib/utils/table')
+local Table = require('__Kux-CoreLib__/stdlib/utils/table')
 
-local Event = require('__kry_stdlib__/stdlib/event/event')
-local Game = require('__kry_stdlib__/stdlib/game')
-local Changes = require('__kry_stdlib__/stdlib/event/changes')
-local Player = require('__kry_stdlib__/stdlib/event/player')
-local Force = require('__kry_stdlib__/stdlib/event/force')
+local Event = require('__Kux-CoreLib__/stdlib/event/event')
+local Game = require('__Kux-CoreLib__/stdlib/game')
+local Changes = require('__Kux-CoreLib__/stdlib/event/changes')
+local Player = require('__Kux-CoreLib__/stdlib/event/player')
+local Force = require('__Kux-CoreLib__/stdlib/event/force')
 
 local ignore_defines = Table.invert { 'anticolor', 'lightcolor', 'color', 'time' }
 

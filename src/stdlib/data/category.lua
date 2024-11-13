@@ -3,8 +3,8 @@
 
 local Category = {
     __class = 'Category',
-    __index = require('__kry_stdlib__/stdlib/data/data'),
-    __call = require('__kry_stdlib__/stdlib/data/data').__call
+    __index = require('__Kux-CoreLib__/stdlib/data/data'),
+    __call = require('__Kux-CoreLib__/stdlib/data/data').__call
 }
 setmetatable(Category, Category)
 

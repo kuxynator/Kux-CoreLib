@@ -1,17 +1,17 @@
 --- For working with surfaces.
 -- Surfaces are the "domain" of the world.
 -- @module Area.Surface
--- @usage local Surface = require('__kry_stdlib__/stdlib/area/surface')
+-- @usage local Surface = require('__Kux-CoreLib__/stdlib/area/surface')
 -- @see LuaSurface
 
 local Surface = {
     __class = 'Surface',
-    __index = require('__kry_stdlib__/stdlib/core')
+    __index = require('__Kux-CoreLib__/stdlib/core')
 }
 setmetatable(Surface, Surface)
 
-local Is = require('__kry_stdlib__/stdlib/utils/is')
-local Area = require('__kry_stdlib__/stdlib/area/area')
+local Is = require('__Kux-CoreLib__/stdlib/utils/is')
+local Area = require('__Kux-CoreLib__/stdlib/area/area')
 
 --- Flexible and safe lookup function for surfaces.
 -- <ul>

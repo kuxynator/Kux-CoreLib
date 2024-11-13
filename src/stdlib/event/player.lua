@@ -2,20 +2,20 @@
 -- This module adds player helper functions, it does not automatically register events unless Player.register_events() is called
 -- @module Event.Player
 -- @usage
--- local Player = require('__kry_stdlib__/stdlib/event/player').register_events()
+-- local Player = require('__Kux-CoreLib__/stdlib/event/player').register_events()
 -- -- The fist time this is required it will register player creation events
-local Event = require('__kry_stdlib__/stdlib/event/event')
+local Event = require('__Kux-CoreLib__/stdlib/event/event')
 
 local Player = {
     __class = 'Player',
-    __index = require('__kry_stdlib__/stdlib/core'),
+    __index = require('__Kux-CoreLib__/stdlib/core'),
     _new_player_data = {}
 }
 setmetatable(Player, Player)
 
-local Game = require('__kry_stdlib__/stdlib/game')
-local table = require('__kry_stdlib__/stdlib/utils/table')
-local merge_additional_data = require('__kry_stdlib__/stdlib/event/modules/merge_data')
+local Game = require('__Kux-CoreLib__/stdlib/game')
+local table = require('__Kux-CoreLib__/stdlib/utils/table')
+local merge_additional_data = require('__Kux-CoreLib__/stdlib/event/modules/merge_data')
 local assert, type = assert, type
 local inspect = _ENV.inspect
 
@@ -45,7 +45,7 @@ end
 -- @treturn LuaPlayer the player instance
 -- @treturn table the player's storage data
 -- @usage
--- local Player = require('__kry_stdlib__/stdlib/event/player')
+-- local Player = require('__Kux-CoreLib__/stdlib/event/player')
 -- local player, player_data = Player.get(event.player_index)
 function Player.get(player)
     player = Game.get_player(player)

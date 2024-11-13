@@ -1,18 +1,18 @@
 --- Resource utilities.
 -- @module Entity.Resource
--- @usage local Resource = require('__kry_stdlib__/stdlib/entity/resource')
+-- @usage local Resource = require('__Kux-CoreLib__/stdlib/entity/resource')
 
 local Resource = { __class = 'Resource',
-    __index = require('__kry_stdlib__/stdlib/core') }
+    __index = require('__Kux-CoreLib__/stdlib/core') }
 setmetatable(Resource, Resource)
 
-local Is = require('__kry_stdlib__/stdlib/utils/is')
+local Is = require('__Kux-CoreLib__/stdlib/utils/is')
 
-local Surface = require('__kry_stdlib__/stdlib/area/surface')
-local Area = require('__kry_stdlib__/stdlib/area/area')
-local Tile = require('__kry_stdlib__/stdlib/area/tile')
-local Queue = require('__kry_stdlib__/stdlib/misc/queue')
-local table = require('__kry_stdlib__/stdlib/utils/table')
+local Surface = require('__Kux-CoreLib__/stdlib/area/surface')
+local Area = require('__Kux-CoreLib__/stdlib/area/area')
+local Tile = require('__Kux-CoreLib__/stdlib/area/tile')
+local Queue = require('__Kux-CoreLib__/stdlib/misc/queue')
+local table = require('__Kux-CoreLib__/stdlib/utils/table')
 
 --- Gets all resource entities at the specified position and surface.
 -- Adapted from *YARM/resmon.lua &rarr; find\_resource\_at*

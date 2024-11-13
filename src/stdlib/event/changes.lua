@@ -2,7 +2,7 @@
 -- This module registers events
 -- @module Event.Changes
 -- @usage
--- local Changes = require('__kry_stdlib__/stdlib/event/changes')
+-- local Changes = require('__Kux-CoreLib__/stdlib/event/changes')
 -- Changes.register('mod_versions', 'path_to_version_file')
 -- @usage
 -- -- version files should return a dictionary of functions indexed by version number.
@@ -13,7 +13,7 @@
 -- Changes.register('any-first', 'path_to_file_1')
 -- Changes.register('any-first', 'path_to_file_2')
 
-local Event = require('__kry_stdlib__/stdlib/event/event')
+local Event = require('__Kux-CoreLib__/stdlib/event/event')
 
 ---@class Changes
 ---@field map_first table
@@ -26,7 +26,7 @@ local Event = require('__kry_stdlib__/stdlib/event/event')
 ---@field get_file_path function
 local Changes = {
     __class = 'Changes',
-    __index = require('__kry_stdlib__/stdlib/core'),
+    __index = require('__Kux-CoreLib__/stdlib/core'),
     registered_for_events = false
 }
 setmetatable(Changes, Changes)
@@ -44,7 +44,7 @@ local inspect = _ENV.inspect
     old_version :: string: Old version of the mod. May be nil if the mod wasn't previously present (i.e. it was just added).
     new_version :: string: New version of the mod. May be nil if the mod is no longer present (i.e. it was just removed).
 --]]
-local table = require('__kry_stdlib__/stdlib/utils/table')
+local table = require('__Kux-CoreLib__/stdlib/utils/table')
 
 local map_changes = {
     ['map_first'] = true,

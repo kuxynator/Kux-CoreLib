@@ -1,24 +1,24 @@
 --- For playing with colors.
 -- @module Utils.Color
--- @usage local Color = require('__kry_stdlib__/stdlib/utils/color')
+-- @usage local Color = require('__Kux-CoreLib__/stdlib/utils/color')
 
 local Color = {
     __class = 'Color',
-    __index = require('__kry_stdlib__/stdlib/core')
+    __index = require('__Kux-CoreLib__/stdlib/core')
 }
 setmetatable(Color, Color)
 local metatable
 
-local table = require('__kry_stdlib__/stdlib/utils/table')
-local math = require('__kry_stdlib__/stdlib/utils/math')
-local color_list = require('__kry_stdlib__/stdlib/utils/defines/color_list')
+local table = require('__Kux-CoreLib__/stdlib/utils/table')
+local math = require('__Kux-CoreLib__/stdlib/utils/math')
+local color_list = require('__Kux-CoreLib__/stdlib/utils/defines/color_list')
 
 --- @table color @{defines.color}
-Color.color = require('__kry_stdlib__/stdlib/utils/defines/color')
+Color.color = require('__Kux-CoreLib__/stdlib/utils/defines/color')
 --- @table anticolor @{defines.anticolor}
-Color.anticolor = require('__kry_stdlib__/stdlib/utils/defines/anticolor')
+Color.anticolor = require('__Kux-CoreLib__/stdlib/utils/defines/anticolor')
 --- @table lightcolor @{defines.lightcolor}
-Color.lightcolor = require('__kry_stdlib__/stdlib/utils/defines/lightcolor')
+Color.lightcolor = require('__Kux-CoreLib__/stdlib/utils/defines/lightcolor')
 
 --- Color Constructors
 -- @section Color Constructors

@@ -6,14 +6,14 @@
 
 local Trains = {
     __class = 'Trains',
-    __index = require('__kry_stdlib__/stdlib/core')
+    __index = require('__Kux-CoreLib__/stdlib/core')
 }
 setmetatable(Trains, Trains)
 
-local Event = require('__kry_stdlib__/stdlib/event/event')
-local Surface = require('__kry_stdlib__/stdlib/area/surface')
-local Entity = require('__kry_stdlib__/stdlib/entity/entity')
-local table = require('__kry_stdlib__/stdlib/utils/table')
+local Event = require('__Kux-CoreLib__/stdlib/event/event')
+local Surface = require('__Kux-CoreLib__/stdlib/area/surface')
+local Entity = require('__Kux-CoreLib__/stdlib/entity/entity')
+local table = require('__Kux-CoreLib__/stdlib/utils/table')
 
 --- This event fires when a train's ID changes.
 -- <p>The train ID is a property of the main locomotive,

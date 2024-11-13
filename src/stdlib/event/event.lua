@@ -11,9 +11,9 @@
 -- <br>Due to this, great care should be taken when registering events conditionally.
 -- </blockquote>
 -- @module Event.Event
--- @usage local Event = require('__kry_stdlib__/stdlib/event/event')
+-- @usage local Event = require('__Kux-CoreLib__/stdlib/event/event')
 
-local config = require('__kry_stdlib__/stdlib/config')
+local config = require('__Kux-CoreLib__/stdlib/config')
 config.control = true
 
 local Event = {
@@ -21,8 +21,8 @@ local Event = {
     registry = {}, -- Holds registered events
     custom_events = {}, -- Holds custom event ids
     stop_processing = {}, -- just has to be unique
-    Filters = require('__kry_stdlib__/stdlib/event/modules/event_filters'),
-    __index = require('__kry_stdlib__/stdlib/core')
+    Filters = require('__Kux-CoreLib__/stdlib/event/modules/event_filters'),
+    __index = require('__Kux-CoreLib__/stdlib/core')
 }
 setmetatable(Event, Event)
 
@@ -54,8 +54,8 @@ Event.script = {
     get_event_handler = script.get_event_handler
 }
 
-local Type = require('__kry_stdlib__/stdlib/utils/type')
-local table = require('__kry_stdlib__/stdlib/utils/table')
+local Type = require('__Kux-CoreLib__/stdlib/utils/type')
+local table = require('__Kux-CoreLib__/stdlib/utils/table')
 
 local assert, type, tonumber = assert, type, tonumber
 local event_names = table.invert(defines.events)
@@ -448,17 +448,17 @@ function Event.dispatch(event)
 end
 
 function Event.register_player(bool)
-    require('__kry_stdlib__/stdlib/event/player').register_events(bool)
+    require('__Kux-CoreLib__/stdlib/event/player').register_events(bool)
     return Event
 end
 
 function Event.register_force(bool)
-    require('__kry_stdlib__/stdlib/event/force').register_events(bool)
+    require('__Kux-CoreLib__/stdlib/event/force').register_events(bool)
     return Event
 end
 
 function Event.register_surface(bool)
-    require('__kry_stdlib__/stdlib/event/surface').register_events(bool)
+    require('__Kux-CoreLib__/stdlib/event/surface').register_events(bool)
     return Event
 end
 
@@ -524,6 +524,6 @@ function Event.set_option(option, bool)
     return Event
 end
 
-Event.dump_data = require('__kry_stdlib__/stdlib/event/modules/dump_event_data')(Event, valid_event_id, id_to_name)
+Event.dump_data = require('__Kux-CoreLib__/stdlib/event/modules/dump_event_data')(Event, valid_event_id, id_to_name)
 
 return Event

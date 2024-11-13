@@ -1,6 +1,6 @@
 --- A defines module for retrieving colors by name.
 -- Extends the Factorio defines table.
--- @usage require('__kry_stdlib__/stdlib/utils/defines/color')
+-- @usage require('__Kux-CoreLib__/stdlib/utils/defines/color')
 -- @module defines.color
 -- @see Concepts.Color
 
@@ -29,7 +29,7 @@
 -- @tfield Concepts.Color purple
 -- @tfield Concepts.Color brown
 local color = {}
-local colors = require('__kry_stdlib__/stdlib/utils/defines/color_list')
+local colors = require('__Kux-CoreLib__/stdlib/utils/defines/color_list')
 
 local _mt = {
     __index = function(_, c)

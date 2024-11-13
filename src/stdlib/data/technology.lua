@@ -1,7 +1,7 @@
 --- Technology
 -- @classmod Data.Technology
 
-local Data = require('__kry_stdlib__/stdlib/data/data')
+local Data = require('__Kux-CoreLib__/stdlib/data/data')
 
 local Technology = {
     __class = 'Technology',
@@ -27,7 +27,7 @@ function Technology:add_effect(effect, unlock_type)
     end
 
     if self:is_valid('technology') then
-        local Recipe = require('__kry_stdlib__/stdlib/data/recipe')
+        local Recipe = require('__Kux-CoreLib__/stdlib/data/recipe')
         unlock_type = (not unlock_type and 'unlock-recipe') or unlock_type
         local r_name = type(effect) == 'table' and effect.name or effect
         if unlock_type == 'unlock-recipe' or not unlock_type then
@@ -80,7 +80,7 @@ end
 
 function Technology:add_pack(new_pack, count)
     if self:is_valid('technology') then
-        local Item = require('__kry_stdlib__/stdlib/data/item')
+        local Item = require('__Kux-CoreLib__/stdlib/data/item')
         if type(new_pack) == 'table' then
             count = new_pack[2] or 1
             new_pack = new_pack[1]
@@ -173,7 +173,7 @@ function Technology:multiply_cost(mult)
 end
 
 function Technology:remove_unlock(recipe)
-    local Recipe = require('__kry_stdlib__/stdlib/data/recipe')
+    local Recipe = require('__Kux-CoreLib__/stdlib/data/recipe')
 	local recipe = Recipe(recipe)
 	if self:is_valid('technology') and recipe:is_valid() then
 		for index, effect in pairs(self.effects) do

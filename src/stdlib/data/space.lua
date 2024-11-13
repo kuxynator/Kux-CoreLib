@@ -1,8 +1,8 @@
 --- Space, the final frontier. Intended for planet, space-connection, and space-location
 -- @classmod Data.Space
 
-local Data = require('__kry_stdlib__/stdlib/data/data')
-local Table = require('__kry_stdlib__/stdlib/utils/table')
+local Data = require('__Kux-CoreLib__/stdlib/data/data')
+local Table = require('__Kux-CoreLib__/stdlib/utils/table')
 
 local Space = {
     __class = 'Space',

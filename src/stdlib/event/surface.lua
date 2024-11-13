@@ -4,18 +4,18 @@
 -- <p>This modules can register the following events:
 -- @module Event.Surface
 -- @usage
--- local surface = require('__kry_stdlib__/stdlib/event/surface').register_events()
+-- local surface = require('__Kux-CoreLib__/stdlib/event/surface').register_events()
 
-local Event = require('__kry_stdlib__/stdlib/event/event')
+local Event = require('__Kux-CoreLib__/stdlib/event/event')
 
 local Surface = {
     __class = 'Surface',
     _new_surface_data = {}
 }
-setmetatable(Surface, require('__kry_stdlib__/stdlib/core'))
+setmetatable(Surface, require('__Kux-CoreLib__/stdlib/core'))
 local inspect = _ENV.inspect
 
-local merge_additional_data = require('__kry_stdlib__/stdlib/event/modules/merge_data')
+local merge_additional_data = require('__Kux-CoreLib__/stdlib/event/modules/merge_data')
 
 local function new(index)
     local surface = game.surfaces[index]

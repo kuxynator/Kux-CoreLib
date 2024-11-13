@@ -1,9 +1,9 @@
 --- A double-linked list implementation
 -- @classmod LinkedList
 
-local Core = require('__kry_stdlib__/stdlib/core')
-local table = require('__kry_stdlib__/stdlib/utils/table')
-local Is = require('__kry_stdlib__/stdlib/utils/is')
+local Core = require('__Kux-CoreLib__/stdlib/core')
+local table = require('__Kux-CoreLib__/stdlib/utils/table')
+local Is = require('__Kux-CoreLib__/stdlib/utils/is')
 
 -- dumb shallow copy suitable for cloning instance metatables in subclasses
 local _mtcopy = function(self)

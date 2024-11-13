@@ -1,16 +1,16 @@
 --- Tools for working with bounding boxes.
 -- @module Area.Area
--- @usage local Area = require('__kry_stdlib__/stdlib/area/area')
+-- @usage local Area = require('__Kux-CoreLib__/stdlib/area/area')
 -- @see Area.Position
 -- @see Concepts.BoundingBox
 -- @see Concepts.Position
-local Area = { __class = 'Area', __index = require('__kry_stdlib__/stdlib/core') }
+local Area = { __class = 'Area', __index = require('__Kux-CoreLib__/stdlib/core') }
 setmetatable(Area, Area)
 
-local Position = require('__kry_stdlib__/stdlib/area/position')
+local Position = require('__Kux-CoreLib__/stdlib/area/position')
 
-local math = require('__kry_stdlib__/stdlib/utils/math')
-local string = require('__kry_stdlib__/stdlib/utils/string')
+local math = require('__Kux-CoreLib__/stdlib/utils/math')
+local string = require('__Kux-CoreLib__/stdlib/utils/string')
 local abs, floor, max = math.abs, math.floor, math.max
 
 local metatable

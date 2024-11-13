@@ -1,4 +1,4 @@
-local table = require('__kry_stdlib__/stdlib/utils/table')
+local table = require('__Kux-CoreLib__/stdlib/utils/table')
 local groups = {}
 
 groups.category = {

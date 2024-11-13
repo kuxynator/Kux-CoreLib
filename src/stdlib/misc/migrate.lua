@@ -3,11 +3,11 @@
 
 local Migrate = {
     __class = 'Migrate',
-    __index = require('__kry_stdlib__/stdlib/core')
+    __index = require('__Kux-CoreLib__/stdlib/core')
 }
 setmetatable(Migrate, Migrate)
 
-local Is = require('__kry_stdlib__/stdlib/utils/is')
+local Is = require('__Kux-CoreLib__/stdlib/utils/is')
 
 --- Migrate a dictionary of recipe -> tech names
 -- @tparam dictionary dictionary

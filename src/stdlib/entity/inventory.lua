@@ -1,10 +1,10 @@
 --- For working with inventories.
 -- @module Entity.Inventory
--- @usage local Inventory = require('__kry_stdlib__/stdlib/entity/inventory')
+-- @usage local Inventory = require('__Kux-CoreLib__/stdlib/entity/inventory')
 
 local Inventory = {
     __class = 'Inventory',
-    __index = require('__kry_stdlib__/stdlib/core')
+    __index = require('__Kux-CoreLib__/stdlib/core')
 }
 setmetatable(Inventory, Inventory)
 

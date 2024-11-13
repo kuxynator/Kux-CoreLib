@@ -1,10 +1,10 @@
 --- Tools for working with entities.
 -- @module Entity.Entity
--- @usage local Entity = require('__kry_stdlib__/stdlib/entity/entity')
+-- @usage local Entity = require('__Kux-CoreLib__/stdlib/entity/entity')
 
 local Entity = {
     __class = 'Entity',
-    __index = require('__kry_stdlib__/stdlib/core')
+    __index = require('__Kux-CoreLib__/stdlib/core')
 }
 setmetatable(Entity, Entity)
 

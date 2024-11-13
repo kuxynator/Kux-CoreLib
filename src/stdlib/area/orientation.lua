@@ -1,10 +1,10 @@
 --- Functions for working with orientations.
 -- @module Area.Orientation
--- @usage local Orientation = require('__kry_stdlib__/stdlib/area/orientation')
+-- @usage local Orientation = require('__Kux-CoreLib__/stdlib/area/orientation')
 
 local Orientation = {
     __class = 'Orientation',
-    __index = require('__kry_stdlib__/stdlib/core'),
+    __index = require('__Kux-CoreLib__/stdlib/core'),
 }
 setmetatable(Orientation, Orientation)
 

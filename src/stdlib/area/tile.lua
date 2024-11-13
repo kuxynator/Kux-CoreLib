@@ -1,18 +1,18 @@
 --- Tools for working with tiles.
 -- A tile represents a 1 unit<sup>2</sup> on a surface in Factorio.
 -- @module Area.Tile
--- @usage local Tile = require('__kry_stdlib__/stdlib/area/tile')
+-- @usage local Tile = require('__Kux-CoreLib__/stdlib/area/tile')
 -- @see LuaTile
 
 local Tile = {
     __class = 'Tile',
-    __index = require('__kry_stdlib__/stdlib/core')
+    __index = require('__Kux-CoreLib__/stdlib/core')
 }
 setmetatable(Tile, Tile)
 
-local Is = require('__kry_stdlib__/stdlib/utils/is')
-local Game = require('__kry_stdlib__/stdlib/game')
-local Position = require('__kry_stdlib__/stdlib/area/position')
+local Is = require('__Kux-CoreLib__/stdlib/utils/is')
+local Game = require('__Kux-CoreLib__/stdlib/game')
+local Position = require('__Kux-CoreLib__/stdlib/area/position')
 
 Tile.__call = Position.__call
 

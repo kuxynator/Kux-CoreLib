@@ -1,8 +1,8 @@
 --- Recipe class
 -- @classmod Data.Recipe
 
-local Data = require('__kry_stdlib__/stdlib/data/data')
-local Table = require('__kry_stdlib__/stdlib/utils/table')
+local Data = require('__Kux-CoreLib__/stdlib/data/data')
+local Table = require('__Kux-CoreLib__/stdlib/utils/table')
 
 local Recipe = {
     __class = 'Recipe',
@@ -83,7 +83,7 @@ function Recipe:add_ingredient(ingredient, count)
 		if type(ingredient)=="string" then
 			local count = count or 1
 			if type(count)=="boolean" then -- error handling for outdated mods
-				count = 1 
+				count = 1
 			end
 			ingredient = {type="item",name=ingredient,amount=count}
 		end
@@ -197,7 +197,7 @@ end
 -- @treturn self
 function Recipe:change_category(category_name)
     if self:is_valid() then
-        local Category = require('__kry_stdlib__/stdlib/data/category')
+        local Category = require('__Kux-CoreLib__/stdlib/data/category')
         self.category = Category(category_name, 'recipe-category'):is_valid() and category_name or self.category
     end
     return self
@@ -209,7 +209,7 @@ Recipe.set_category = Recipe.change_category
 -- @treturn self
 function Recipe:add_unlock(tech_name)
     if self:is_valid() then
-        local Tech = require('__kry_stdlib__/stdlib/data/technology')
+        local Tech = require('__Kux-CoreLib__/stdlib/data/technology')
         Tech.add_effect(self, tech_name) --self is passed as a valid recipe
     end
     return self
@@ -220,7 +220,7 @@ end
 -- @treturn self
 function Recipe:remove_unlock(tech_name)
     if self:is_valid('recipe') then
-        local Tech = require('__kry_stdlib__/stdlib/data/technology')
+        local Tech = require('__Kux-CoreLib__/stdlib/data/technology')
         Tech.remove_effect(self, tech_name, 'unlock-recipe')
     end
     return self
@@ -229,7 +229,7 @@ end
 -- Locate the first technology that unlocks recipe, and adds this recipe to that technology
 function Recipe:copy_unlock(recipe)
 	if self:is_valid() then
-        local Tech = require('__kry_stdlib__/stdlib/data/technology')
+        local Tech = require('__Kux-CoreLib__/stdlib/data/technology')
 		local originalTech = ""
 		-- Locate the originalTech for recipe
 		for _, tech in pairs(data.raw.technology) do
@@ -266,7 +266,7 @@ end
 -- @treturn self
 function Recipe:set_main_product(main_product)
     if self:is_valid('recipe') then
-		local Item = require('__kry_stdlib__/stdlib/data/item')
+		local Item = require('__Kux-CoreLib__/stdlib/data/item')
 		if Item(main_product):is_valid() then
 			self.main_product = main_product
 		end

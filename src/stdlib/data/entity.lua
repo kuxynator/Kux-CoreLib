@@ -1,8 +1,8 @@
 --- Entity class
 -- @classmod Data.Entity
 
-local Data = require('__kry_stdlib__/stdlib/data/data')
-local Item = require('__kry_stdlib__/stdlib/data/item')
+local Data = require('__Kux-CoreLib__/stdlib/data/data')
+local Item = require('__Kux-CoreLib__/stdlib/data/item')
 
 local Entity = {
     __class = 'Entity',
@@ -12,7 +12,7 @@ local Entity = {
 setmetatable(Entity, Entity)
 
 function Entity:get_minable_item()
-    local Item = require('__kry_stdlib__/stdlib/data/item')
+    local Item = require('__Kux-CoreLib__/stdlib/data/item')
     if self:is_valid() then
         local m = self.minable
         return Item(m and (m.result or (m.results and (m.results[1] or m.results.name))), nil, self.options)

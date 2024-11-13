@@ -1,9 +1,9 @@
 --- Planet (currently just a placeholder for Space, because it looks better for planets)
 -- @classmod Data.Planet
 
-local Data = require('__kry_stdlib__/stdlib/data/data')
-local Space = require('__kry_stdlib__/stdlib/data/space')
-local Table = require('__kry_stdlib__/stdlib/utils/table')
+local Data = require('__Kux-CoreLib__/stdlib/data/data')
+local Space = require('__Kux-CoreLib__/stdlib/data/space')
+local Table = require('__Kux-CoreLib__/stdlib/utils/table')
 
 local Planet = {
     __class = 'Planet',
