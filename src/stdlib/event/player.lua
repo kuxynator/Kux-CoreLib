@@ -1,11 +1,11 @@
---- Player storage creation.
--- This module adds player helper functions, it does not automatically register events unless Player.register_events() is called
--- @module Event.Player
--- @usage
--- local Player = require('__Kux-CoreLib__/stdlib/event/player').register_events()
--- -- The fist time this is required it will register player creation events
 local Event = require('__Kux-CoreLib__/stdlib/event/event')
 
+--- Player storage creation.
+-- This module adds player helper functions, it does not automatically register events unless Player.register_events() is called
+--- @class StdLib.Event.Player
+--- @usage
+--- local Player = require('__Kux-CoreLib__/stdlib/event/player').register_events()
+--- -- The fist time this is required it will register player creation events
 local Player = {
     __class = 'Player',
     __index = require('__Kux-CoreLib__/stdlib/core'),
@@ -14,7 +14,7 @@ local Player = {
 setmetatable(Player, Player)
 
 local Game = require('__Kux-CoreLib__/stdlib/game')
-local table = require('__Kux-CoreLib__/stdlib/utils/table')
+local table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
 local merge_additional_data = require('__Kux-CoreLib__/stdlib/event/modules/merge_data')
 local assert, type = assert, type
 local inspect = _ENV.inspect
@@ -41,9 +41,9 @@ function Player.additional_data(...)
 end
 
 --- Get `game.players[index]` & `storage.players[index]`, or create `storage.players[index]` if it doesn't exist.
--- @tparam number|string|LuaPlayer player the player index to get data for
--- @treturn LuaPlayer the player instance
--- @treturn table the player's storage data
+--- @param player number|string|LuaPlayer the player index to get data for
+--- @return LuaPlayer #the player instance
+--- @return table #the player's storage data
 -- @usage
 -- local Player = require('__Kux-CoreLib__/stdlib/event/player')
 -- local player, player_data = Player.get(event.player_index)
@@ -53,14 +53,14 @@ function Player.get(player)
 end
 
 --- Get the players saved data table. Creates it if it doesn't exsist.
--- @tparam number index The player index to get data for
--- @treturn table the player's storage data
+--- @param index number The player index to get data for
+--- @return table #the player's storage data
 function Player.pdata(index)
     return storage.players and storage.players[index] or Player.init(index)
 end
 
 --- Merge a copy of the passed data to all players in `storage.players`.
--- @tparam table data a table containing variables to merge
+--- @param data table a table containing variables to merge
 -- @usage local data = {a = 'abc', b = 'def'}
 -- Player.add_data_all(data)
 function Player.add_data_all(data)
@@ -74,15 +74,15 @@ function Player.add_data_all(data)
 end
 
 --- Remove data for a player when they are deleted.
--- @tparam table event event table containing the `player_index`
+--- @param event table event table containing the `player_index`
 function Player.remove(event)
     storage.players[event.player_index] = nil
 end
 
 --- Init or re-init a player or players.
 -- Passing a `nil` event will iterate all existing players.
--- @tparam[opt] number|table|string|LuaPlayer event
--- @tparam[opt=false] boolean overwrite the player data
+--- @param event number|table|string|LuaPlayer [opt]
+--- @param overwrite boolean the player data [opt=false]
 function Player.init(event, overwrite)
     -- Create the storage.players table if it doesn't exisit
     storage.players = storage.players or {}

@@ -1,10 +1,9 @@
---- Planet (currently just a placeholder for Space, because it looks better for planets)
--- @classmod Data.Planet
-
 local Data = require('__Kux-CoreLib__/stdlib/data/data')
 local Space = require('__Kux-CoreLib__/stdlib/data/space')
-local Table = require('__Kux-CoreLib__/stdlib/utils/table')
+local Table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
 
+--- Planet (currently just a placeholder for Space, because it looks better for planets)
+--- @class StdLib.Data.Planet : StdLib.Data
 local Planet = {
     __class = 'Planet',
 }

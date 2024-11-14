@@ -87,7 +87,7 @@ mt_version = {
       -- The implementation does not support pre-release and/or build metadata,
       -- only the major, minor, and patch levels are compared.
       -- @function ver:semver
-      -- @param v Version (string or `version` object) as served by the provider
+      -- @param Version v (string or `version` object) as served by the provider
       -- @return `true` or `false` whether the version matches, or `nil+err`
       -- @usage local consumer = "1.2"     -- consumer requested version
       -- local provider = "1.5.2"   -- provider served version
@@ -154,7 +154,7 @@ local mt_range = {
   __index = {
       --- Matches a version on a range.
       -- @function range:matches
-      -- @param v Version (string or `version` object) to match
+      -- @param Version v (string or `version` object) to match
       -- @return `true` or `false` whether the version matches the range, or `nil+err`
       matches = function(self, v)
         if getmetatable(v) ~= mt_version then
@@ -180,8 +180,8 @@ local mt_set = {
   __index = {
       --- Adds an ALLOWED range to the set.
       -- @function set:allowed
-      -- @param v1 Version or range, if version, the FROM version in either string or `version` object format
-      -- @param v2 Version (optional), TO version in either string or `version` object format
+      -- @param Version v1 or range, if version, the FROM version in either string or `version` object format
+      -- @param Version v2 (optional), TO version in either string or `version` object format
       -- @return The `set` object, to easy chain multiple allowed/disallowed ranges, or `nil+err`
       allowed = function(self, v1, v2)
         if getmetatable(v1) == mt_range then
@@ -196,8 +196,8 @@ local mt_set = {
       end,
       --- Adds a DISALLOWED range to the set.
       -- @function set:disallowed
-      -- @param v1 Version or range, if version, the FROM version in either string or `version` object format
-      -- @param v2 Version (optional), TO version in either string or `version` object format
+      -- @param Version v1 or range, if version, the FROM version in either string or `version` object format
+      -- @param Version v2 (optional), TO version in either string or `version` object format
       -- @return The `set` object, to easy chain multiple allowed/disallowed ranges, or `nil+err`
       disallowed = function(self,v1, v2)
         if getmetatable(v1) == mt_range then
@@ -216,7 +216,7 @@ local mt_set = {
       -- NOTE: `disallowed` has a higher precedence, so a version that matches the `allowed` set,
       -- but also the `disallowed` set, will return `false`.
       -- @function set:matches
-      -- @param v1 Version to match (either string or `version` object).
+      -- @param Version v1 to match (either string or `version` object).
       -- @return `true` or `false` whether the version matches the set, or `nil+err`
       matches = function(self, v)
         if getmetatable(v) ~= mt_version then
@@ -338,7 +338,7 @@ local make_module = function(strict)
     -- will be assumed to be "0" on the least significant side of the version string.
     --
     -- Calling on the module table is a shortcut to `new`.
-    -- @param v String formatted as numbers separated by dots (no limit on number of elements).
+    -- @param String v formatted as numbers separated by dots (no limit on number of elements).
     -- @return `version` object, or `nil+err`
     -- @usage local v = version.new("0.1")
     -- -- is identical to
@@ -350,7 +350,7 @@ local make_module = function(strict)
     new = function(v) return _new(v, strict) end,
 
     --- Creates a version range.  A `range` object represents a range of versions.
-    -- @param v1 The FROM version of the range (string or `version` object). If `nil`, assumed to be 0.
+    -- @param The v1 FROM version of the range (string or `version` object). If `nil`, assumed to be 0.
     -- @param v2 (optional) The TO version of the range (string or `version` object). Defaults to `v1`.
     -- @return range object with `from` and `to` fields and `set:matches` method, or `nil+err`.
     -- @usage local r = version.range("0.1"," 2.4")
@@ -362,8 +362,8 @@ local make_module = function(strict)
 
     --- Creates a version set.
     -- A `set` is an object that contains a number of allowed and disallowed version `range` objects.
-    -- @param v1 initial version/range to allow, see `set:allowed` for parameter descriptions
-    -- @param v2 initial version/range to allow, see `set:allowed` for parameter descriptions
+    -- @param initial v1 version/range to allow, see `set:allowed` for parameter descriptions
+    -- @param initial v2 version/range to allow, see `set:allowed` for parameter descriptions
     -- @return a `set` object, with `ok` and `nok` lists and a `set:matches` method, or `nil+err`
     set = function(v1, v2) return _set(v1, v2, strict) end,
   }, {

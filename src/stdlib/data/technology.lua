@@ -1,8 +1,7 @@
---- Technology
--- @classmod Data.Technology
-
 local Data = require('__Kux-CoreLib__/stdlib/data/data')
 
+--- Technology
+--- @class StdLib.Data.Technology : StdLib.Data
 local Technology = {
     __class = 'Technology',
     __index = Data,

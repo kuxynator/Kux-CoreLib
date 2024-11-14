@@ -44,7 +44,7 @@ local inspect = _ENV.inspect
     old_version :: string: Old version of the mod. May be nil if the mod wasn't previously present (i.e. it was just added).
     new_version :: string: New version of the mod. May be nil if the mod is no longer present (i.e. it was just removed).
 --]]
-local table = require('__Kux-CoreLib__/stdlib/utils/table')
+local table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
 
 local map_changes = {
     ['map_first'] = true,

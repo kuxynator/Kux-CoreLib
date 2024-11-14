@@ -8,8 +8,8 @@ local M = {
 local metatable
 
 --- Does this array contain name.
--- @tparam string name The string to find.
--- @treturn boolean string is in array
+--- @param name string The string to find.
+--- @return boolean string is in array
 function M:has(name)
     local type = type(name)
     if type == 'table' then
@@ -31,8 +31,8 @@ function M:has(name)
 end
 
 --- Add a string to the array if it doesn't exist in the array.
--- @tparam string name
--- @treturn self
+--- @param name string
+--- @return self
 function M:add(name)
     local type = type(name)
     if type == 'table' then
@@ -53,8 +53,8 @@ function M:add(name)
 end
 
 --- Remove the string from the array if it exists.
--- @tparam string name
--- @treturn self
+--- @param name string
+--- @return self
 function M:remove(name)
     local type = type(name)
     if type == 'table' then
@@ -75,8 +75,8 @@ function M:remove(name)
 end
 
 --- Toggles the passed name in the array by adding it if not present or removing it if it is.
--- @tparam string name
--- @treturn self
+--- @param name string
+--- @return self
 function M:toggle(name)
     local type = type(name)
     if type == 'table' then
@@ -98,7 +98,7 @@ function M:toggle(name)
 end
 
 --- Clear the array returning an empty array object
--- @treturn self
+--- @return self
 function M:clear()
     for i = #self, 1, -1 do
         table.remove(self, i)
@@ -107,14 +107,14 @@ function M:clear()
 end
 
 --- Convert the array to a string
--- @treturn string
+--- @return string
 function M:tostring()
     return table.concat(self, ', ')
 end
 
 --- Concat string-arrays and strings together
--- @tparam string|string-array rhs
--- @treturn string-array
+--- @param string|string-array rhs
+--- @return string-array
 function M:concat(rhs)
     if getmetatable(self) == metatable then
         return self:add(rhs)

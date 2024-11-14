@@ -1,11 +1,10 @@
 --- For logging debug information to files.
--- @module Misc.Logger
--- @usage
--- local Logger = require('__Kux-CoreLib__/stdlib/misc/logger')
--- -- or to create a new logger directly:
--- local Log = require('__Kux-CoreLib__/stdlib/misc/logger').new()
--- -- log files are saved to script-output/modname/log.log by default
-
+--- @class StdLib.Misc.Logger : StdLib.Core
+--- @usage
+--- local Logger = require('__Kux-CoreLib__/stdlib/misc/logger')
+--- -- or to create a new logger directly:
+--- local Log = require('__Kux-CoreLib__/stdlib/misc/logger').new()
+--- -- log files are saved to script-output/modname/log.log by default
 local Logger = {
     __class = 'Logger',
     _loggers = {},
@@ -16,7 +15,7 @@ local Logger = {
 }
 setmetatable(Logger, Logger)
 
-local table = require('__Kux-CoreLib__/stdlib/utils/table')
+local table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
 
 -- Set on the individual log object, either logs a message or writes immediatly if nil.
 local _Log_mt = {
@@ -55,10 +54,10 @@ end
 --Log = Logger.new('cool_mod_name', 'test', true, { file_extension = data })
 --Log("this msg will be logged and written immediately in /script-output/YourModName/test.data!")
 --
--- @tparam[opt='log'] string log_name the name of the logger
--- @tparam[opt=false] boolean debug_mode toggles the debug state of logger
--- @tparam[opt={...}] options options a table with optional arguments
--- @return (<span class="types">@{Logger}</span>) the logger instance
+--- @param log_name string? [opt='log'] the name of the logger
+--- @param debug_mode boolean? [opt=false] toggles the debug state of logger
+--- @param options StdLib.Misc.Log.options [opt={...}] options a table with optional arguments
+--- @return StdLib.Misc.Log #the logger instance
 function Logger.new(log_name, debug_mode, options)
     local mod_name = script and script.mod_name or 'Data'
     log_name = log_name or 'log'
@@ -67,6 +66,7 @@ function Logger.new(log_name, debug_mode, options)
 
     options = options or {}
 
+	---@class StdLib.Misc.Log
     local Log = {
         __class = 'Log',
         mod_name = mod_name,
@@ -77,12 +77,11 @@ function Logger.new(log_name, debug_mode, options)
         ever_written = false,
     }
 
-    ---
-    -- Used in the @{new} function for logging game ticks, specifying logfile extension, or forcing the logs to append to the end of the logfile.
-    -- @tfield[opt=false] boolean log_ticks whether to include the game tick timestamp in the logs
-    -- @tfield[opt="log"] string file_extension a string that overrides the default logfile extension
-    -- @tfield[opt=false] boolean force_append if true, every new message appends to the current logfile instead of creating a new one
-    -- @table Log.options
+    --- @class StdLib.Misc.Log.options
+    --- Used in the @{new} function for logging game ticks, specifying logfile extension, or forcing the logs to append to the end of the logfile.
+    --- @field log_ticks boolean [opt=false]  whether to include the game tick timestamp in the logs
+    --- @field file_extension string [opt="log"] a string that overrides the default logfile extension
+    --- @field force_append boolean [opt=false] if true, every new message appends to the current logfile instead of creating a new one
     Log.options = {
         log_ticks = options.log_ticks or false,
         file_extension = options.file_extension or 'log',
@@ -93,7 +92,7 @@ function Logger.new(log_name, debug_mode, options)
     Log.ever_written = Log.options.force_append
 
     --- Logs a message.
-    -- @tparam string|table msg the message to log. @{table}s will be dumped using [serpent](https://github.com/pkulchenko/serpent)
+    --- @param msg string|table the message to log. @{table}s will be dumped using [serpent](https://github.com/pkulchenko/serpent)
     -- which is included in the official Factorio Lualib
     -- @return (<span class="types">@{Logger}</span>) the logger instance
     -- @see https://forums.factorio.com/viewtopic.php?f=25&t=23844 Debugging utilities built in to Factorio

@@ -1,7 +1,6 @@
 --- For working with inventories.
--- @module Entity.Inventory
--- @usage local Inventory = require('__Kux-CoreLib__/stdlib/entity/inventory')
-
+--- @class Entity.Inventory
+--- @usage local Inventory = require('__Kux-CoreLib__/stdlib/entity/inventory')
 local Inventory = {
     __class = 'Inventory',
     __index = require('__Kux-CoreLib__/stdlib/core')
@@ -13,10 +12,10 @@ local min = math.min
 --- Given a function, apply it to each slot in the given inventory.
 -- Passes the index of a slot as the second argument to the given function.
 -- <p>Iteration is aborted if the applied function returns true for any element during iteration.
--- @tparam LuaInventory inventory the inventory to iterate
--- @tparam function func the function to apply to values
--- @param[opt] ... additional arguments passed to the function
--- @treturn ?|nil|LuaItemStack the slot where the iteration was aborted **OR** nil if not aborted
+--- @param inventory LuaInventory the inventory to iterate
+--- @param func function the function to apply to values
+--- @param ... any [opt] additional arguments passed to the function
+--- @return LuaItemStack? #the slot where the iteration was aborted **OR** nil if not aborted
 function Inventory.each(inventory, func, ...)
     local index
     for i = 1, #inventory do
@@ -32,10 +31,10 @@ end
 -- Passes the index of a slot as the second argument to the given function.
 -- <p>Iteration is aborted if the applied function returns true for any element during iteration.
 -- <p>Iteration is performed from last to first in order to support dynamically sized inventories.
--- @tparam LuaInventory inventory the inventory to iterate
--- @tparam function func the function to apply to values
--- @param[opt] ... additional arguments passed to the function
--- @treturn ?|nil|LuaItemStack the slot where the iteration was aborted **OR** nil if not aborted
+--- @param inventory LuaInventory the inventory to iterate
+--- @param func function the function to apply to values
+--- @param ... any [opt] additional arguments passed to the function
+--- @return LuaItemStack? #the slot where the iteration was aborted **OR** nil if not aborted
 function Inventory.each_reverse(inventory, func, ...)
     local index
     for i = #inventory, 1, -1 do
@@ -47,11 +46,11 @@ function Inventory.each_reverse(inventory, func, ...)
     return index and inventory[index]
 end
 
---- Copies the contents of source inventory to destination inventory by using @{Concepts.SimpleItemStack}.
--- @tparam LuaInventory src the source inventory
--- @tparam LuaInventory dest the destination inventory
--- @tparam[opt=false] boolean clear clear the contents of the source inventory
--- @treturn {Concepts.SimpleItemStack,...} an array of left over items that could not be inserted into the destination
+--- Copies the contents of source inventory to destination inventory by using @{SimpleItemStack}.
+--- @param src LuaInventory the source inventory
+--- @param dest LuaInventory the destination inventory
+--- @param clear boolean [opt=false] clear the contents of the source inventory
+--- @return SimpleItemStack[] #an array of left over items that could not be inserted into the destination
 function Inventory.copy_as_simple_stacks(src, dest, clear)
     assert(src, 'missing source inventory')
     assert(dest, 'missing destination inventory')
@@ -83,10 +82,10 @@ function Inventory.copy_as_simple_stacks(src, dest, clear)
 end
 
 --- Return a blueprint stack from either stack or blueprint_book
--- @tparam LuaItemStack stack
--- @tparam[opt] bool is_bp_setup
--- @tparam[opt] bool no_book
--- @treturn LuaItemStack
+--- @param stack LuaItemStack
+--- @param is_bp_setup boolean? [opt]
+--- @param no_book boolean? [opt]
+--- @return LuaItemStack
 function Inventory.get_blueprint(stack, is_bp_setup, no_book)
     if stack and stack.valid and stack.valid_for_read then
         if stack.is_blueprint then
@@ -101,29 +100,29 @@ function Inventory.get_blueprint(stack, is_bp_setup, no_book)
 end
 
 --- Is the stack a blueprint with label?
--- @tparam LuaItemStack stack
--- @tparam string label
--- @treturn bool
+--- @param stack LuaItemStack
+--- @param label string
+--- @return boolean
 function Inventory.is_named_bp(stack, label)
     return stack and stack.valid_for_read and stack.is_blueprint and stack.label and stack.label:find('^' .. label)
 end
 
 --- Returns either the item at a position, or the filter at the position if there isn't an item there.
--- @tparam LuaInventory inventory
--- @tparam int idx
--- @tparam[opt] bool item_only
--- @tparam[opt] bool filter_only
--- @return the item or filter
+--- @param inventory LuaInventory
+--- @param idx int
+--- @param item_only boolean? [opt]
+--- @param filter_only boolean? [opt]
+--- @return any #the item or filter
 function Inventory.get_item_or_filter(inventory, idx, item_only, filter_only)
     local filter = not item_only and inventory.get_filter(idx)
     return filter or (not filter_only and inventory[idx].valid_for_read and inventory[idx].name) or nil
 end
 
 --- Transfer items from 1 inventory to another.
--- @tparam LuaInventory source
--- @tparam LuaInventory destination
--- @tparam[opt=nil] table source_filters the filters to use if the source is not filtered/filterable
--- @treturn nil|table the filters if the destination does not support filters
+--- @param source LuaInventory
+--- @param destination LuaInventory
+--- @param source_filters table [opt=nil] the filters to use if the source is not filtered/filterable
+--- @return table? #the filters if the destination does not support filters
 function Inventory.transfer_inventory(source, destination, source_filters)
     local filtered = source.is_filtered()
     local destination_filterable = destination.supports_filters()
@@ -146,8 +145,8 @@ function Inventory.transfer_inventory(source, destination, source_filters)
 end
 
 --- Swap items from 1 inventory to another.
--- @tparam LuaInventory source
--- @tparam LuaInventory destination
+--- @param source LuaInventory
+--- @param destination LuaInventory
 function Inventory.swap_inventory(source, destination)
     for i = 1, min(#destination, #source) do
         destination[i].swap_stack(source[1])

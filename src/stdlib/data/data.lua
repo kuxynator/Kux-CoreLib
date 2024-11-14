@@ -1,15 +1,14 @@
---- Data
--- @classmod Data
-
 require('__Kux-CoreLib__/stdlib/core') -- Calling core up here to setup any required global stuffs
 
 if _G.remote and _G.script then
     error('Data Modules can only be required in the data stage', 2)
 end
 
-local Table = require('__Kux-CoreLib__/stdlib/utils/table')
+local Table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
 local groups = require('__Kux-CoreLib__/stdlib/data/modules/groups')
 
+--- Data
+--- @class StdLib.Data : StdLib.Core
 local Data = {
     __class = 'Data',
     __index = require('__Kux-CoreLib__/stdlib/core'),
@@ -46,8 +45,8 @@ end
 --(( METHODS ))--
 
 --- Is this a valid object
--- @tparam[opt] string type if present is the object this type
--- @treturn self
+--- @param type string? [opt] if present is the object this type
+--- @return self
 function Data:is_valid(type)
     if type then
         return rawget(self, 'valid') == type or false
@@ -107,24 +106,24 @@ function Data:error(msg)
 end
 
 --- Changes the validity of the object.
--- @tparam boolean bool
--- @treturn self
+--- @param bool boolean
+--- @return self
 function Data:continue(bool)
     rawset(self, 'valid', (bool and rawget(self, '_raw') and self.type) or false)
     return self
 end
 
 --- Changes the validity of the object if the passed function is true.
--- @tparam function func the function to test, self is passed as the first paramater
--- @treturn self
-function Data:continue_if(fun, ...)
-    rawset(self, 'valid', (fun(self, ...) and rawget(self, '_raw') and self.type) or false)
+--- @param func function the function to test, self is passed as the first paramater
+--- @return self
+function Data:continue_if(func, ...)
+    rawset(self, 'valid', (func(self, ...) and rawget(self, '_raw') and self.type) or false)
     return self
 end
 
 --- Extend object into the data table
--- @tparam[opt] boolean force Extend even if it is already extended
--- @treturn self
+--- @param force boolean? [opt] Extend even if it is already extended
+--- @return self
 function Data:extend(force)
     if self.valid and (self.options.extend or force) then
         if not self.extended or force then
@@ -149,10 +148,10 @@ function Data:extend(force)
 end
 
 --- Copies a recipe to a new recipe.
--- @tparam string new_name The new name for the recipe.
--- @tparam string result
--- @tparam[opt] table opts
--- @treturn self
+--- @param new_name string The new name for the recipe.
+--- @param result string
+--- @param opts table? [opt]
+--- @return self
 function Data:copy(new_name, result, opts)
     assert(type(new_name) == 'string', 'new_name must be a string')
     if self:is_valid() then
@@ -224,8 +223,8 @@ end
 
 --- Run a function if the object is valid.
 -- The object and any additional paramaters are passed to the function.
--- @tparam function func then function to run.
--- @treturn self
+--- @param func function then function to run.
+--- @return self
 function Data:run_function(fun, ...)
     if self:is_valid() then
         fun(self, ...)
@@ -235,9 +234,9 @@ end
 Data.execute = Data.run_function
 
 --- Run a function on a valid object and return its results.
--- @tparam function func the function to run. self is passed as the first paramter
--- @treturn boolean if the object was valid
--- @treturn the results from the passed function
+--- @param func function the function to run. self is passed as the first paramter
+--- @return boolean if the object was valid
+--- @return the results from the passed function
 function Data:get_function_results(fun, ...)
     if self:is_valid() then
         return true, fun(self, ...)
@@ -245,8 +244,8 @@ function Data:get_function_results(fun, ...)
 end
 
 --- Set the unique array class to the field if the field is present
--- @tparam table tab
--- @treturn self
+--- @param tab table
+--- @return self
 function Data:set_unique_array(tab)
     if self:is_valid() and tab then
         self.Unique_Array(tab)
@@ -255,9 +254,9 @@ function Data:set_unique_array(tab)
 end
 
 --- Add or change a field.
--- @tparam string field the field to change.
--- @tparam mixed value the value to set on the field.
--- @treturn self
+--- @param field string the field to change.
+--- @param value mixed the value to set on the field.
+--- @return self
 function Data:set_field(field, value)
     self[field] = value
     return self
@@ -265,8 +264,8 @@ end
 Data.set = Data.set_field
 
 --- Iterate a dictionary table and set fields on the object. Existing fields are overwritten.
--- @tparam table tab dictionary table of fields to set.
--- @treturn self
+--- @param tab table dictionary table of fields to set.
+--- @return self
 function Data:set_fields(tab)
     if self:is_valid() then
         for field, value in pairs(tab) do
@@ -277,9 +276,9 @@ function Data:set_fields(tab)
 end
 
 --- Get a field.
--- @tparam string field
--- @tparam mixed default_value return this if the field doesn't exist
--- @treturn nil|mixed the value of the field
+--- @param field string
+--- @param default_value mixed return this if the field doesn't exist
+--- @return nil|mixed the value of the field
 function Data:get_field(field, default_value)
     if self:is_valid() then
         local has = self[field]
@@ -292,9 +291,9 @@ function Data:get_field(field, default_value)
 end
 
 --- Iterate an array of fields and return the values as paramaters
--- @tparam array arr
--- @tparam boolean as_dictionary Return the results as a dictionary table instead of parameters
--- @treturn mixed the parameters
+--- @param arr array
+--- @param as_dictionary boolean Return the results as a dictionary table instead of parameters
+--- @return anythe parameters
 -- @usage local icon, name = Data('stone-furnace', 'furnace'):get_fields({icon, name})
 function Data:get_fields(arr, as_dictionary)
     if self:is_valid() then
@@ -307,8 +306,8 @@ function Data:get_fields(arr, as_dictionary)
 end
 
 --- Remove an indiviual field from the the object
--- @tparam string field The field to remove
--- @treturn self
+--- @param field string The field to remove
+--- @return self
 function Data:remove_field(field)
     if self:is_valid() then
         self[field] = nil
@@ -317,8 +316,8 @@ function Data:remove_field(field)
 end
 
 --- Iterate a string array and set to nil.
--- @tparam table arr string array of fields to remove.
--- @treturn self
+--- @param arr table string array of fields to remove.
+--- @return self
 function Data:remove_fields(arr)
     if self:is_valid() then
         for _, field in pairs(arr) do
@@ -329,10 +328,10 @@ function Data:remove_fields(arr)
 end
 
 --- Change the item-subgroup and/or order.
--- @tparam[opt=nil] string subgroup, The subgroup to change to if valid.
--- @tparam[opt=nil] string order The order string to use
+--- @param subgroup string? [opt=nil] The subgroup to change to if valid.
+--- @param order string? [opt=nil]The order string to use
 -- note if subgroup is non nil and subgroub is not valid order wil not be changed.
--- @treturn self
+--- @return self
 function Data:subgroup_order(subgroup, order)
     if self:is_valid() then
         if subgroup then
@@ -350,8 +349,8 @@ function Data:subgroup_order(subgroup, order)
 end
 
 --- Replace an icon
--- @tparam string icon
--- @tparam int size
+--- @param icon string
+--- @param size int
 function Data:replace_icon(icon, size)
     if self:is_valid() then
         if type(icon) == 'table' then
@@ -369,8 +368,8 @@ function Data:replace_icon(icon, size)
 end
 
 --- Get the icons
--- @tparam[opt=false] boolean copy return a copy of the icons table
--- @treturn table icons
+--- @param copy boolean? [opt=false] return a copy of the icons table
+--- @return table icons
 function Data:get_icons(copy)
     if self:is_valid() then
         return copy and Table.deep_copy(self.icons) or self.icons
@@ -412,7 +411,7 @@ function Data:set_icon_at(index, values)
 end
 
 --- Get the objects name.
--- @treturn string the objects name
+--- @return string the objects name
 function Data:tostring()
     return self.valid and (self.name and self.type) and (self.type .. '/' .. self.name) or rawtostring(self)
 end
@@ -438,10 +437,10 @@ function Data:pairs(source, opts)
 end
 
 --- Returns a valid thing object reference. This is the main getter.
--- @tparam string|table object The thing to use, if string the thing must be in data.raw[type], tables are not verified
--- @tparam[opt] string object_type the raw type. Required if object is a string
--- @tparam[opt] table opts options to pass
--- @treturn Object
+--- @param string|table object The thing to use, if string the thing must be in data.raw[type], tables are not verified
+--- @param object_type string? [opt] the raw type. Required if object is a string
+--- @param opts table? [opt] options to pass
+--- @return Object
 function Data:get(object, object_type, opts)
     --assert(type(object) == 'string' or type(object) == 'table', 'object string or table is required')
 

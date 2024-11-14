@@ -1,17 +1,16 @@
 --- For working with surfaces.
--- Surfaces are the "domain" of the world.
--- @module Area.Surface
--- @usage local Surface = require('__Kux-CoreLib__/stdlib/area/surface')
--- @see LuaSurface
-
+--- Surfaces are the "domain" of the world.
+--- @class Area.Surface : StdLib.Core
+--- @usage local Surface = require('__Kux-CoreLib__/stdlib/area/surface')
+--- @see LuaSurface
 local Surface = {
     __class = 'Surface',
-    __index = require('__Kux-CoreLib__/stdlib/core')
+    __index = require('__Kux-CoreLib__/stdlib/core') --[[@as StdLib.Core]]
 }
 setmetatable(Surface, Surface)
 
-local Is = require('__Kux-CoreLib__/stdlib/utils/is')
-local Area = require('__Kux-CoreLib__/stdlib/area/area')
+local Is = require('__Kux-CoreLib__/stdlib/utils/is') --[[@as StdLib.Utils.Is]]
+local Area = require('__Kux-CoreLib__/stdlib/area/area')--[[@as StdLib.Area]]
 
 --- Flexible and safe lookup function for surfaces.
 -- <ul>
@@ -21,8 +20,8 @@ local Area = require('__Kux-CoreLib__/stdlib/area/area')
 -- <li>Returns an array of surface objects of all valid and existing surfaces.
 -- <li>Returns an empty array if no surfaces are given or if they are not found.
 -- </ul>
--- @tparam ?|nil|string|{string,...}|LuaSurface|{LuaSurface,...} surface the surfaces to look up
--- @treturn {nil|LuaSurface,...} an array of all valid surfaces or nil otherwise
+--- @param surface nil|string|string[]|LuaSurface|LuaSurface[] the surfaces to look up
+--- @return LuaSurface[]? #an array of all valid surfaces or nil otherwise
 function Surface.lookup(surface)
     if not surface then
         return {}
@@ -61,8 +60,8 @@ end
 -- @usage
 -- surface.find_all_entities({ type = 'unit', surface = 'nauvis', area = {{-1000,20},{-153,2214}})
 -- -- returns a list containing all unit entities on the nauvis surface in the given area
--- @param search_criteria (<span class="types">@{search_criteria}</span>) a table used to search for entities
--- @treturn {nil|LuaEntity,...} an array of all entities that matched the criteria **OR** *nil* if there were no matches
+--- @param search_criteria table a table used to search for entities
+--- @return LuaEntity[]? #an array of all entities that matched the criteria **OR** *nil* if there were no matches
 function Surface.find_all_entities(search_criteria)
     Is.Assert.Table(search_criteria, 'missing search_criteria argument')
     if search_criteria.name == nil and search_criteria.type == nil and search_criteria.force == nil and search_criteria.area == nil then
@@ -100,13 +99,13 @@ end
 -- @tfield[opt] string type type of an entity &mdash; (example: "unit")
 -- @tfield[opt] string|LuaForce force the force of an entity &mdash; (examples: "neutral", "enemy")
 -- @tfield[opt] ?|nil|string|{string,...}|LuaSurface|{LuaSurface,...} surface the surface to search &mdash; (example: "nauvis")
--- @tfield[opt] Concepts.BoundingBox area the area to search
+-- @tfield[opt] BoundingBox area the area to search
 -- @table search_criteria
 
 --- Gets the area which covers the entirety of a given surface.
 -- This function is useful if you wish to compare the total number of chunks against the number of chunks within the entire area of a given surface.
--- @tparam LuaSurface surface the surface for which to get the area
--- @treturn Concepts.BoundingBox the area of a given surface
+--- @param surface LuaSurface the surface for which to get the area
+--- @return BoundingBox the area of a given surface
 function Surface.get_surface_bounds(surface)
     Is.Assert(surface, 'missing surface value')
     local x1, y1, x2, y2 = 0, 0, 0, 0
@@ -128,12 +127,12 @@ function Surface.get_surface_bounds(surface)
 end
 
 --- Sets the daytime transition thresholds on a given surface
--- @tparam LuaSurface surface the surface for which to set the thresholds
--- @tparam number morning daytime to begin transition from dark to light
--- @tparam number dawn daytime to finish transition from dark to light
--- @tparam number dusk daytime to begin transition from light to dark
--- @tparam number evening daytime to finish transition from light to dark
--- @treturn boolean true if the thresholds were set, false if there was an error
+--- @param surface LuaSurface the surface for which to set the thresholds
+--- @param morning number daytime to begin transition from dark to light
+--- @param dawn number daytime to finish transition from dark to light
+--- @param dusk number daytime to begin transition from light to dark
+--- @param evening number daytime to finish transition from light to dark
+--- @return boolean true if the thresholds were set, false if there was an error
 -- @return[opt] the raised error, if any
 function Surface.set_daytime_thresholds(surface, morning, dawn, dusk, evening)
     Is.Assert.Valid(surface, 'missing surface value')

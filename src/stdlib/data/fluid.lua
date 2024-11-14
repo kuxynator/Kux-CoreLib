@@ -1,8 +1,7 @@
---- Fluid
--- @classmod Data.Fluid
-
 local Data = require('__Kux-CoreLib__/stdlib/data/data')
 
+--- Fluid
+--- @class StdLib.Data.Fluid : StdLib.Data
 local Fluid = {
     __class = 'Fluid',
     __index = Data,

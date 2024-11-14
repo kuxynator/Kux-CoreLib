@@ -1,7 +1,6 @@
 --- Tools for working with entities.
--- @module Entity.Entity
--- @usage local Entity = require('__Kux-CoreLib__/stdlib/entity/entity')
-
+--- @class Entity.Entity
+--- @usage local Entity = require('__Kux-CoreLib__/stdlib/entity/entity')
 local Entity = {
     __class = 'Entity',
     __index = require('__Kux-CoreLib__/stdlib/core')
@@ -9,9 +8,9 @@ local Entity = {
 setmetatable(Entity, Entity)
 
 --- Tests whether an entity has access to a given field.
--- @tparam LuaEntity entity the entity to test the access to a field
--- @tparam string field_name the field name
--- @treturn boolean true if the entity has access to the field, false if the entity threw an exception when trying to access the field
+--- @param entity LuaEntity the entity to test the access to a field
+--- @param field_name string the field name
+--- @return boolean true if the entity has access to the field, false if the entity threw an exception when trying to access the field
 function Entity.has(entity, field_name)
     assert(entity, 'missing entity argument')
     assert(field_name, 'missing field name argument')
@@ -28,8 +27,8 @@ end
 --- Gets the user data that is associated with an entity.
 -- The user data is stored in the storage object and it persists between loads.
 --> The user data will be removed from an entity when the entity becomes invalid.
--- @tparam LuaEntity entity the entity to look up
--- @treturn ?|nil|Mixed the user data, or nil if no data exists for the entity
+--- @param entity LuaEntity the entity to look up
+--- @return any? #the user data, or nil if no data exists for the entity
 function Entity.get_data(entity)
     assert(entity, 'missing entity argument')
     if not storage._entity_data then
@@ -58,9 +57,9 @@ end
 --- Associates the user data to an entity.
 -- The user data will be stored in the storage object and it will persist between loads.
 --> The user data will be removed from an entity when the entity becomes invalid.
--- @tparam LuaEntity entity the entity with which to associate the user data
--- @tparam ?|nil|Mixed data the data to set, or nil to delete the data associated with the entity
--- @treturn ?|nil|Mixed the previous data associated with the entity, or nil if the entity had no previous data
+--- @param entity LuaEntity the entity with which to associate the user data
+--- @param data any? the data to set, or nil to delete the data associated with the entity
+--- @return any? #the previous data associated with the entity, or nil if the entity had no previous data
 function Entity.set_data(entity, data)
     assert(entity, 'missing entity argument')
 
@@ -102,9 +101,9 @@ function Entity.set_data(entity, data)
 end
 
 --- Freezes an entity, by making it inactive, inoperable, and non-rotatable, or unfreezes by doing the reverse.
--- @tparam LuaEntity entity the entity to freeze or unfreeze
--- @tparam[opt=true] boolean mode if true, freezes the entity, if false, unfreezes the entity. If not specified, it is set to true
--- @treturn LuaEntity the entity that has been frozen or unfrozen
+--- @param entity LuaEntity the entity to freeze or unfreeze
+--- @param mode boolean? [opt=true] if true, freezes the entity, if false, unfreezes the entity. If not specified, it is set to true
+--- @return LuaEntity the entity that has been frozen or unfrozen
 function Entity.set_frozen(entity, mode)
     assert(entity, 'missing entity argument')
     mode = mode == false and true or false
@@ -115,9 +114,9 @@ function Entity.set_frozen(entity, mode)
 end
 
 --- Makes an entity indestructible so that it cannot be damaged or mined neither by the player nor by their enemy factions.
--- @tparam LuaEntity entity the entity to make indestructable
--- @tparam[opt=true] boolean mode if true, makes the entity indestructible, if false, makes the entity destructable
--- @treturn LuaEntity the entity that has been made indestructable or destructable
+--- @param entity LuaEntity the entity to make indestructable
+--- @param mode boolean? [opt=true] if true, makes the entity indestructible, if false, makes the entity destructable
+--- @return LuaEntity the entity that has been made indestructable or destructable
 function Entity.set_indestructible(entity, mode)
     assert(entity, 'missing entity argument')
     mode = mode == false and true or false
@@ -128,9 +127,9 @@ end
 
 --- Tests if two entities are equal.
 -- If they don't have a reference equality and ***entity\_a*** has ***equals*** function, it will be called with ***entity\_b*** as its first argument.
--- @tparam LuaEntity entity_a
--- @tparam LuaEntity entity_b
--- @treturn boolean
+--- @param entity_a LuaEntity
+--- @param entity_b LuaEntity
+--- @return boolean
 function Entity._are_equal(entity_a, entity_b)
     if entity_a == nil then
         return entity_a == entity_b

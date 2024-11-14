@@ -1,9 +1,8 @@
+local Data = require('__Kux-CoreLib__/stdlib/data/data') --[[@as StdLib.Data]]
+local Table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
+
 --- Item
--- @classmod Data.Item
-
-local Data = require('__Kux-CoreLib__/stdlib/data/data')
-local Table = require('__Kux-CoreLib__/stdlib/utils/table')
-
+--- @class StdLib.Data.Item : StdLib.Data
 local Item = {
     __class = 'Item',
     __index = Data,

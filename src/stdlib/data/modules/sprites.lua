@@ -1,6 +1,5 @@
 --- Sprites
--- @module Data.Sprites
-
+--- @class StdLib.Data.Sprites
 local Sprites = {}
 
 function Sprites.extract_monolith(filename, x, y, w, h)
@@ -22,7 +21,7 @@ function Sprites.extract_monolith(filename, x, y, w, h)
 end
 
 --- Quick to use empty picture.
--- @treturn table an empty pictures table
+--- @return table an empty pictures table
 function Sprites.empty_picture()
     return {
         filename = '__core__/graphics/empty.png',
@@ -34,7 +33,7 @@ end
 Sprites.empty_sprite = Sprites.empty_picture
 
 --- Quick to use empty pictures.
--- @treturn table an empty pictures table
+--- @return table an empty pictures table
 function Sprites.empty_pictures()
     local empty = Sprites.empty_picture()
     return {
@@ -51,7 +50,7 @@ end
 Sprites.empty_animation = Sprites.empty_pictures
 
 --- Quick to use empty animation.
--- @treturn table an empty animations table
+--- @return table an empty animations table
 function Sprites.empty_animations()
     return {
         Sprites.empty_pictures()
@@ -59,8 +58,8 @@ function Sprites.empty_animations()
 end
 
 --- Quick to use empty connections table.
--- @tparam int count how many connection points are needed
--- @treturn table an empty pictures table
+--- @param count int how many connection points are needed
+--- @return table an empty pictures table
 function Sprites.empty_connection_points(count)
     local points = {}
     for i = 1, count or 1, 1 do

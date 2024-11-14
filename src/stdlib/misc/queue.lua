@@ -1,20 +1,19 @@
 --- A double queue.
 -- Taken from ***Programming in Lua*** [Queues and Double Queues](http://www.lua.org/pil/11.4.html)
 -- and modified to not allow nil values, and returns nil if @{pop_first} or @{pop_last} is used when the queue is empty.
--- @module Misc.Queue
--- @usage local Queue = require('__Kux-CoreLib__/stdlib/misc/queue')
--- local q = Queue() -- create a new empty queue
--- q('my value') -- push a value onto the queue
--- q() -- pop the last value off the queue
--- game.print(#q) -- print the number of items in the queue
-
+--- @class StdLib.Misc.Queue : StdLib.Core
+--- @usage local Queue = require('__Kux-CoreLib__/stdlib/misc/queue')
+--- local q = Queue() -- create a new empty queue
+--- q('my value') -- push a value onto the queue
+--- q() -- pop the last value off the queue
+--- game.print(#q) -- print the number of items in the queue
 local Queue = {
     __class = 'Queue',
     __index = require('__Kux-CoreLib__/stdlib/core')
 }
 setmetatable(Queue, Queue)
 
-local table = require('__Kux-CoreLib__/stdlib/utils/table')
+local table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]] --[[@as StdLib.Utils.Table]]
 local t_size = table_size
 
 local Inspect = require('__Kux-CoreLib__/stdlib/vendor/inspect')
@@ -32,14 +31,14 @@ end
 
 --- Constructs a new Queue object.
 -- @param ... mixed, values to push into the queue
--- @treturn @{Queue} a new queue
+--- @return StdLib.Misc.Queue #a new queue
 function Queue.new(...)
     return Queue.__call(nil, ...)
 end
 
 --- Load global.queue or queues during on_load, as metatables are not persisted.
 -- <p>This is only needed if you are using the queue as an object and storing it in global.
--- @tparam table queue (<span class="types">@{Queue}</span>,...)
+--- @param queue table (<span class="types">@{Queue}</span>,...)
 -- @usage global.myqueue1 = Queue.new()
 -- script.on_load(function() Queue.load(global.myqueue))
 function Queue.load(queue)
@@ -49,8 +48,8 @@ function Queue.load(queue)
 end
 
 --- Push a new element to the front of the queue.
--- @tparam Queue queue the queue to push an element to
--- @tparam Mixed value the element to push
+--- @param queue StdLib.Misc.Queue the queue to push an element to
+--- @param ... any the element to push
 function Queue.push_first(queue, ...)
     for _, value in pairs { ... } do
         queue.first = queue.first - 1
@@ -60,8 +59,8 @@ function Queue.push_first(queue, ...)
 end
 
 --- Push a new element to the back of the queue.
--- @tparam Queue queue the queue to push an element to
--- @tparam Mixed ... the element(s) to push
+--- @param queue StdLib.Misc.Queue the queue to push an element to
+--- @param ... any the element(s) to push
 function Queue.push_last(queue, ...)
     for _, value in pairs { ... } do
         queue.last = queue.last + 1
@@ -75,9 +74,9 @@ end
 Queue.push = Queue.push_last
 
 --- Push a new element to a specific location of the queue.
--- @tparam Queue queue the queue to push an element to
--- @tparam number index the index to push to.
--- @tparam Mixed value the element to push.
+--- @param queue StdLib.Misc.Queue the queue to push an element to
+--- @param index number the index to push to.
+--- @param value any the element to push.
 function Queue.push_at(queue, index, value)
     if index < queue.first then
         return Queue.push_first(queue, value)
@@ -98,8 +97,8 @@ function Queue.wrapper(self, func_name, ...)
 end
 
 --- Retrieve the element at the front of the queue and remove it from the queue.
--- @tparam Queue queue the queue to retrieve the element from
--- @treturn Mixed value the element at the front of the queue
+--- @param queue StdLib.Misc.Queue the queue to retrieve the element from
+--- @return any value the element at the front of the queue
 function Queue.pop_first(queue)
     if Queue.is_empty(queue) then
         return nil
@@ -128,24 +127,24 @@ local function remove(queue, index)
 end
 
 --- Pop an element at a specific location of the queue.
--- @tparam Queue queue the queue to push an element to
--- @tparam number index the index to push to.
--- @treturn Mixed value the popped element.
+--- @param queue StdLib.Misc.Queue the queue to push an element to
+--- @param index number the index to push to.
+--- @return any value the popped element.
 function Queue.pop_at(queue, index)
     return remove(queue, index)
 end
 
 --- Peek at an element in the queue without disturbing the queue.
--- @tparam Queue queue the queue to peek at
--- @tparam number index the index in the queue to peek at
--- @treturn Mixed the value of the peeked element
+--- @param queue StdLib.Misc.Queue the queue to peek at
+--- @param index number the index in the queue to peek at
+--- @return any #the value of the peeked element
 function Queue.peek_at(queue, index)
     return queue.objects[index]
 end
 
 --- Return the element at the front of the queue and remove it from the queue.
--- @tparam Queue queue the queue to retrieve the element from
--- @treturn Mixed the element at the front of the queue
+--- @param queue StdLib.Misc.Queue the queue to retrieve the element from
+--- @return any #the element at the front of the queue
 function Queue.peek_first(queue)
     return queue.objects[queue.first]
 end
@@ -155,8 +154,8 @@ end
 Queue.peek = Queue.peek_first
 
 --- Retrieve the element at the back of the queue and remove it from the queue.
--- @tparam Queue queue the queue to retrieve the element from
--- @treturn Mixed the element at the back of the queue
+--- @param queue StdLib.Misc.Queue the queue to retrieve the element from
+--- @return any #the element at the back of the queue
 function Queue.pop_last(queue)
     if queue.is_empty(queue) then
         return nil
@@ -170,15 +169,15 @@ function Queue.pop_last(queue)
 end
 
 --- Return the element at the back of the queue.
--- @tparam Queue queue the queue to retrieve the element from
--- @treturn Mixed the element at the back of the queue
+--- @param queue StdLib.Misc.Queue the queue to retrieve the element from
+--- @return any #the element at the back of the queue
 function Queue.peek_last(queue)
     return queue.objects[queue.last]
 end
 
 --- Returns the popped value and pushes back into the queue.
--- @tparam Queue queue the queue
--- @return Mixed the value that was popped.
+--- @param queue StdLib.Misc.Queue the queue
+-- @return any #the value that was popped.
 function Queue.pop_and_push(queue)
     local ret = queue.pop(queue)
     queue.push(queue, ret)
@@ -186,8 +185,8 @@ function Queue.pop_and_push(queue)
 end
 
 --- Returns the queue after popping the last element and pushing it to the top.
--- @tparam Queue queue the queue
--- @treturn @{Queue} the queue
+--- @param queue StdLib.Misc.Queue the queue
+--- @return StdLib.Misc.Queue #the queue
 function Queue.cycle(queue)
     return queue.push(queue, queue.pop(queue))
 end
@@ -222,15 +221,15 @@ function Queue.sort(queue, func)
 end
 
 --- Returns true if the given queue is empty.
--- @tparam Queue queue the queue to check
--- @treturn boolean true if empty, false otherwise
+--- @param queue StdLib.Misc.Queue the queue to check
+--- @return boolean #true if empty, false otherwise
 function Queue.is_empty(queue)
     return queue.first > queue.last
 end
 
 --- Returns the number of items in the queue.
--- @tparam Queue queue the queue to check
--- @treturn number the number of items in the queue
+--- @param queue StdLib.Misc.Queue the queue to check
+--- @return number# the number of items in the queue
 function Queue.size(queue)
     return t_size(queue.objects)
 end
@@ -240,11 +239,11 @@ end
 Queue.count = Queue.size
 
 --- Return the next element in the queue
--- @tparam Queue queue the queue to check
--- @tparam number|nil index if nil return the first value, else return the next index value
--- @tparam boolean pop pop the value off the queue
--- @treturn number|nil the index
--- @treturn Mixed|nil the value at queue index
+--- @param queue StdLib.Misc.Queue the queue to check
+--- @param index number? if nil return the first value, else return the next index value
+--- @param pop boolean pop the value off the queue
+--- @return number|nil #the index
+--- @return any? #the value at queue index
 function Queue.next(queue, index, pop)
     index = not index and queue.first or index + (pop and 0 or 1)
     for i = index, queue.last do
@@ -257,11 +256,11 @@ function Queue.next(queue, index, pop)
 end
 
 --- Return the previous element in the queue
--- @tparam Queue queue the queue to check
--- @tparam number|nil index if nil return the last value, else return the previous index value
--- @tparam boolean pop pop the value off the queue
--- @treturn number|nil the index
--- @treturn Mixed|nil the value at queue index
+--- @param queue StdLib.Misc.Queue the queue to check
+--- @param index number? if nil return the last value, else return the previous index value
+--- @param pop boolean pop the value off the queue
+--- @return number? #the index
+--- @return any? #the value at queue index
 function Queue.rnext(queue, index, pop)
     -- next returns index of next or nil and data,
     index = not index and queue.last or (index < queue.first and queue.first or index) - 1

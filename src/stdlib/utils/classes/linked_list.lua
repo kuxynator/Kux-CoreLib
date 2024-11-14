@@ -2,7 +2,7 @@
 -- @classmod LinkedList
 
 local Core = require('__Kux-CoreLib__/stdlib/core')
-local table = require('__Kux-CoreLib__/stdlib/utils/table')
+local table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
 local Is = require('__Kux-CoreLib__/stdlib/utils/is')
 
 -- dumb shallow copy suitable for cloning instance metatables in subclasses

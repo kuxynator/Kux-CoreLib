@@ -1,9 +1,8 @@
+local Data = require('__Kux-CoreLib__/stdlib/data/data') --[[@as StdLib.Data]]
+local Item = require('__Kux-CoreLib__/stdlib/data/item') --[[@as StdLib.Data.Item]]
+
 --- Entity class
--- @classmod Data.Entity
-
-local Data = require('__Kux-CoreLib__/stdlib/data/data')
-local Item = require('__Kux-CoreLib__/stdlib/data/item')
-
+--- @class StdLib.Data.Entity : StdLib.Data
 local Entity = {
     __class = 'Entity',
     __index = Data,
@@ -12,7 +11,7 @@ local Entity = {
 setmetatable(Entity, Entity)
 
 function Entity:get_minable_item()
-    local Item = require('__Kux-CoreLib__/stdlib/data/item')
+    local Item = require('__Kux-CoreLib__/stdlib/data/item') --[[@as StdLib.Data.Item]]
     if self:is_valid() then
         local m = self.minable
         return Item(m and (m.result or (m.results and (m.results[1] or m.results.name))), nil, self.options)

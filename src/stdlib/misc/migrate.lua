@@ -1,6 +1,5 @@
 --- Migration helper functions
--- @module Misc.Migrate
-
+--- @class StdLib.Misc.Migrate : StdLib.Core
 local Migrate = {
     __class = 'Migrate',
     __index = require('__Kux-CoreLib__/stdlib/core')
@@ -10,7 +9,7 @@ setmetatable(Migrate, Migrate)
 local Is = require('__Kux-CoreLib__/stdlib/utils/is')
 
 --- Migrate a dictionary of recipe -> tech names
--- @tparam dictionary dictionary
+--- @param dictionary {[string]: string} dictionary of recipe -> tech names
 function Migrate.Recipes(dictionary)
     Is.Assert.Table(dictionary, 'dictionary of recipes->technology not found')
     for _, force in pairs(game.forces) do

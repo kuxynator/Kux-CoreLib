@@ -1,9 +1,8 @@
---- Recipe class
--- @classmod Data.Recipe
-
 local Data = require('__Kux-CoreLib__/stdlib/data/data')
-local Table = require('__Kux-CoreLib__/stdlib/utils/table')
+local Table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
 
+--- Recipe class
+--- @class StdLib.Data.Recipe : StdLib.Data
 local Recipe = {
     __class = 'Recipe',
     __index = Data,
@@ -18,8 +17,8 @@ end
 setmetatable(Recipe, Recipe)
 
 --- Remove an ingredient from an ingredients table.
--- @tparam table ingredients
--- @tparam string name Name of the ingredient to remove
+--- @param ingredients table
+--- @param name string Name of the ingredient to remove
 local function remove_ingredient(ingredients, name)
     for i, ingredient in pairs(ingredients or {}) do
         if ingredient[1] == name or ingredient.name == name then
@@ -30,10 +29,10 @@ local function remove_ingredient(ingredients, name)
 end
 
 --- Replace an ingredient.
--- @tparam table ingredients
--- @tparam string find ingredient to replace
--- @tparam concepts.ingredient replace
--- @tparam boolean replace_name_only Don't replace amounts
+--- @param ingredients table
+--- @param find string ingredient to replace
+--- @param concepts.ingredient replace
+--- @param replace_name_only boolean Don't replace amounts
 local function replace_ingredient(ingredients, find, replace, replace_name_only)
     for i, ingredient in pairs(ingredients or {}) do
         if ingredient.name == find then
@@ -48,8 +47,8 @@ local function replace_ingredient(ingredients, find, replace, replace_name_only)
 end
 
 --- Remove a product from results table.
--- @tparam table results
--- @tparam string name Name of the product to remove
+--- @param results table
+--- @param name string Name of the product to remove
 local function remove_result(results, name)
     name = name.name
     for i, product in pairs(results or {}) do
@@ -61,10 +60,10 @@ local function remove_result(results, name)
 end
 
 --- Replace a product.
--- @tparam table results
--- @tparam string find product to replace
--- @tparam concepts.product product replace
--- @tparam boolean replace_name_only Don't replace amounts
+--- @param results table
+--- @param find string product to replace
+--- @param concepts.product product replace
+--- @param replace_name_only boolean Don't replace amounts
 local function replace_result(results, find, replace)
     for i, product in pairs(results or {}) do
         if product[1] == find or product.name == find then
@@ -75,9 +74,9 @@ local function replace_result(results, find, replace)
 end
 
 --- Add a new ingredient to a recipe.
--- @tparam string|Concepts.ingredient ingredient Name or table to add
--- @tparam[opt] number count Amount of ingredient
--- @treturn Recipe
+--- @param string|Concepts.ingredient ingredient Name or table to add
+--- @param count number? [opt] Amount of ingredient
+--- @return Recipe
 function Recipe:add_ingredient(ingredient, count)
     if self:is_valid() then
 		if type(ingredient)=="string" then
@@ -107,8 +106,8 @@ end
 Recipe.add_ing = Recipe.add_ingredient
 
 --- Remove one ingredient completely.
--- @tparam string ingredient Name of ingredient to remove
--- @treturn Recipe
+--- @param ingredient string Name of ingredient to remove
+--- @return Recipe
 function Recipe:remove_ingredient(ingredient)
     if self:is_valid() then
         if self.ingredients then
@@ -120,10 +119,10 @@ end
 Recipe.rem_ing = Recipe.remove_ingredient
 
 --- Replace one ingredient with another.
--- @tparam string replace Name of ingredient to be replaced
--- @tparam string|Concepts.ingredient ingredient Name or table to add
--- @tparam[opt] number count Amount of ingredient
--- @treturn Recipe
+--- @param replace string Name of ingredient to be replaced
+--- @param string|Concepts.ingredient ingredient Name or table to add
+--- @param count number? [opt] Amount of ingredient
+--- @return Recipe
 function Recipe:replace_ingredient(replace, ingredient, count)
     assert(replace, 'Missing recipe to replace')
     if self:is_valid() then
@@ -143,7 +142,7 @@ end
 Recipe.rep_ing = Recipe.replace_ingredient
 
 --- Removes all ingredients from recipe completely.
--- @treturn self
+--- @return self
 function Recipe:clear_ingredients()
     if self:is_valid() then
 		self.ingredients = {}
@@ -152,9 +151,9 @@ function Recipe:clear_ingredients()
 end
 
 --- Copies ingredients from one recipe to another.
--- @tparam string recipe Name of the recipe to copy ingredients from
--- @tparam[opt] boolean keep_ingredients Whether to keep the original ingredients
--- @treturn self
+--- @param recipe string Name of the recipe to copy ingredients from
+--- @param keep_ingredients boolean? [opt] Whether to keep the original ingredients
+--- @return self
 function Recipe:copy_ingredients(recipe, keep_ingredients)
 	if self:is_valid() then
 		local recipe = Recipe(recipe)
@@ -171,7 +170,7 @@ function Recipe:copy_ingredients(recipe, keep_ingredients)
 end
 
 --- Shorthand to get ingredient table associated with recipe.
--- @treturn table Ingredients
+--- @return table Ingredients
 function Recipe:get_ingredients()
     if self:is_valid() then
 		return table.deepcopy(self.ingredients)
@@ -179,8 +178,8 @@ function Recipe:get_ingredients()
 end
 
 --- Multiplies the amount of each ingredient in a recipe.
--- @tparam number mult Amount to multiply each ingredient by
--- @treturn self
+--- @param mult number Amount to multiply each ingredient by
+--- @return self
 function Recipe:multiply_ingredients(mult)
 	if self:is_valid() then
 		if self.ingredients then
@@ -193,8 +192,8 @@ function Recipe:multiply_ingredients(mult)
 end
 
 --- Change the recipe category.
--- @tparam string category_name The new crafting category
--- @treturn self
+--- @param category_name string The new crafting category
+--- @return self
 function Recipe:change_category(category_name)
     if self:is_valid() then
         local Category = require('__Kux-CoreLib__/stdlib/data/category')
@@ -205,8 +204,8 @@ end
 Recipe.set_category = Recipe.change_category
 
 --- Add to technology as a recipe unlock.
--- @tparam string tech_name Name of the technology to add the unlock too
--- @treturn self
+--- @param tech_name string Name of the technology to add the unlock too
+--- @return self
 function Recipe:add_unlock(tech_name)
     if self:is_valid() then
         local Tech = require('__Kux-CoreLib__/stdlib/data/technology')
@@ -216,8 +215,8 @@ function Recipe:add_unlock(tech_name)
 end
 
 --- Remove the recipe unlock from the technology.
--- @tparam string tech_name Name of the technology to remove the unlock from
--- @treturn self
+--- @param tech_name string Name of the technology to remove the unlock from
+--- @return self
 function Recipe:remove_unlock(tech_name)
     if self:is_valid('recipe') then
         local Tech = require('__Kux-CoreLib__/stdlib/data/technology')
@@ -252,8 +251,8 @@ function Recipe:copy_unlock(recipe)
 end
 
 --- Set the enabled status of the recipe.
--- @tparam boolean enabled Enable or disable the recipe
--- @treturn self
+--- @param enabled boolean Enable or disable the recipe
+--- @return self
 function Recipe:set_enabled(enabled)
     if self:is_valid() then
         self.enabled = enabled
@@ -262,8 +261,8 @@ function Recipe:set_enabled(enabled)
 end
 
 --- Set the main product of the recipe.
--- @tparam string main_product
--- @treturn self
+--- @param main_product string
+--- @return self
 function Recipe:set_main_product(main_product)
     if self:is_valid('recipe') then
 		local Item = require('__Kux-CoreLib__/stdlib/data/item')
@@ -275,7 +274,7 @@ function Recipe:set_main_product(main_product)
 end
 
 --- Remove the main product of the recipe.
--- @treturn self
+--- @return self
 function Recipe:remove_main_product()
     if self:is_valid('recipe') then
         self.main_product = ""
@@ -284,9 +283,9 @@ function Recipe:remove_main_product()
 end
 
 --- Add a new product to results table.
--- @tparam string|Concepts.product product Name or table to add
--- @tparam[opt] number count Amount of product
--- @treturn Recipe
+--- @param string|Concepts.product product Name or table to add
+--- @param count number? [opt] Amount of product
+--- @return Recipe
 function Recipe:add_result(product, count)
     if self:is_valid() then
 		if type(product)=="string" then
@@ -301,8 +300,8 @@ function Recipe:add_result(product, count)
 end
 
 --- Remove a product from results table.
--- @tparam string|Concepts.product product Name or table to add
--- @treturn Recipe
+--- @param string|Concepts.product product Name or table to add
+--- @return Recipe
 function Recipe:remove_result(product)
     if self:is_valid() then
         if self.results then
@@ -313,10 +312,10 @@ function Recipe:remove_result(product)
 end
 
 --- Replace a product from results with a new product.
--- @tparam string replace Name of product to be replaced
--- @tparam string|Concepts.product product Name or table to add
--- @tparam[opt] number count Amount of product
--- @treturn Recipe
+--- @param replace string Name of product to be replaced
+--- @param string|Concepts.product product Name or table to add
+--- @param count number? [opt] Amount of product
+--- @return Recipe
 function Recipe:replace_result(replace, product, count)
     if self:is_valid() then
 		if type(product)=="string" then
@@ -330,7 +329,7 @@ function Recipe:replace_result(replace, product, count)
 end
 
 --- Removes all results from recipe completely.
--- @treturn self
+--- @return self
 function Recipe:clear_results()
     if self:is_valid() then
 		self.results = {}
@@ -339,9 +338,9 @@ function Recipe:clear_results()
 end
 
 --- Copies results from one recipe to another.
--- @tparam string recipe Name of the recipe to copy results from
--- @tparam[opt] boolean keep_results Whether to keep the original results
--- @treturn self
+--- @param recipe string Name of the recipe to copy results from
+--- @param keep_results boolean? [opt] Whether to keep the original results
+--- @return self
 function Recipe:copy_results(recipe, keep_results)
 	if self:is_valid() then
 		local recipe = Recipe(recipe)
@@ -358,7 +357,7 @@ function Recipe:copy_results(recipe, keep_results)
 end
 
 --- Shorthand to get results table associated with recipe.
--- @treturn table Results
+--- @return table Results
 function Recipe:get_results()
     if self:is_valid() then
 		return self["results"]
@@ -366,7 +365,7 @@ function Recipe:get_results()
 end
 
 --- Removes all surface conditions from recipe completely.
--- @treturn self
+--- @return self
 function Recipe:clear_surface_conditions()
     if self:is_valid() then
 		self.surface_conditions = {}

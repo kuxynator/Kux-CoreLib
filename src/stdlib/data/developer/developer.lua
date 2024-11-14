@@ -1,8 +1,7 @@
+local Data = require('__Kux-CoreLib__/stdlib/data/data') --[[@as StdLib.Data]]
+
 --- Developer
--- @script Developer
-
-local Data = require('__Kux-CoreLib__/stdlib/data/data')
-
+--- @class StdLib.Developer : StdLib.Data
 local Developer = {
     __index = Data
 }
@@ -21,7 +20,7 @@ local function make_no_controls()
 end
 
 --- Make entities for easier mod testing.
--- @tparam string name The name of your mod
+--- @param name string The name of your mod
 -- @usage
 -- --data.lua
 -- local Developer = require('__Kux-CoreLib__/stdlib/data/develper/developer')

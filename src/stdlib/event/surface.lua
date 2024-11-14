@@ -1,13 +1,12 @@
+local Event = require('__Kux-CoreLib__/stdlib/event/event')
+
 --- Surface storage creation.
 -- <p>All surfaces will be added to the `storage.surfaces` table.
 -- <p>This modules events should be registered after any other Init functions but before any scripts needing `storage.surfaces`.
 -- <p>This modules can register the following events:
--- @module Event.Surface
--- @usage
--- local surface = require('__Kux-CoreLib__/stdlib/event/surface').register_events()
-
-local Event = require('__Kux-CoreLib__/stdlib/event/event')
-
+--- @class StdLib.Event.Surface
+--- @usage
+--- local surface = require('__Kux-CoreLib__/stdlib/event/surface').register_events()
 local Surface = {
     __class = 'Surface',
     _new_surface_data = {}
@@ -38,7 +37,7 @@ function Surface.additional_data(...)
 end
 
 --- Remove data for a surface when it is deleted.
--- @tparam table event event table containing the surface index
+--- @param event table event table containing the surface index
 function Surface.remove(event)
     storage.surfaces[event.surface_index] = nil
 end
@@ -56,8 +55,8 @@ end
 
 --- Init or re-init the surfaces.
 -- Passing a `nil` event will iterate all existing surfaces.
--- @tparam[opt] number|table|string|LuaSurface event
--- @tparam[opt=false] boolean overwrite the surface data
+--- @param event nil|number|table|string|LuaSurface [opt]
+--- @param overwrite boolean? [opt=false] the surface data
 function Surface.init(event, overwrite)
     -- Create the storage.surfaces table if it doesn't exisit
     storage.surfaces = storage.surfaces or {}

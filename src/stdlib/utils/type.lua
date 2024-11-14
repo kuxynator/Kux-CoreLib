@@ -1,5 +1,6 @@
 local type = type
 
+---@class StdLib.Utils.Type
 local Type = {
     Table = function(param) return type(param) == 'table' end,
     Function = function(param) return type(param) == 'function' or type((getmetatable(param) or {}).__call) == 'function' end,

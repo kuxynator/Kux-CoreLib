@@ -2,32 +2,32 @@
 -- Extends the Factorio defines table.
 -- @usage require('__Kux-CoreLib__/stdlib/utils/defines/color')
 -- @module defines.color
--- @see Concepts.Color
+-- @see Color
 
 -- defines table is automatically required in all mod loading stages.
 
 --- A table of colors allowing retrieval by color name.
 -- @table color
 -- @usage color = defines.color.red
--- @tfield Concepts.Color white
--- @tfield Concepts.Color black
--- @tfield Concepts.Color darkgrey
--- @tfield Concepts.Color grey
--- @tfield Concepts.Color lightgrey
--- @tfield Concepts.Color red
--- @tfield Concepts.Color darkred
--- @tfield Concepts.Color lightred
--- @tfield Concepts.Color green
--- @tfield Concepts.Color darkgreen
--- @tfield Concepts.Color lightgreen
--- @tfield Concepts.Color blue
--- @tfield Concepts.Color darkblue
--- @tfield Concepts.Color lightblue
--- @tfield Concepts.Color orange
--- @tfield Concepts.Color yellow
--- @tfield Concepts.Color pink
--- @tfield Concepts.Color purple
--- @tfield Concepts.Color brown
+-- @tfield Color white
+-- @tfield Color black
+-- @tfield Color darkgrey
+-- @tfield Color grey
+-- @tfield Color lightgrey
+-- @tfield Color red
+-- @tfield Color darkred
+-- @tfield Color lightred
+-- @tfield Color green
+-- @tfield Color darkgreen
+-- @tfield Color lightgreen
+-- @tfield Color blue
+-- @tfield Color darkblue
+-- @tfield Color lightblue
+-- @tfield Color orange
+-- @tfield Color yellow
+-- @tfield Color pink
+-- @tfield Color purple
+-- @tfield Color brown
 local color = {}
 local colors = require('__Kux-CoreLib__/stdlib/utils/defines/color_list')
 

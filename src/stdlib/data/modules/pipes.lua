@@ -1,6 +1,5 @@
 --- Pipes
--- @module Data.Pipes
-
+--- @class StdLib.Data.Pipes
 local Pipes = {}
 local Sprites = require('__Kux-CoreLib__/stdlib/data/modules/sprites')
 

@@ -2,20 +2,20 @@
 -- Extends the Factorio defines table.
 -- @usage require('__Kux-CoreLib__/stdlib/utils/defines/lightcolor')
 -- @module defines.lightcolor
--- @see Concepts.Color
+-- @see Color
 
 -- defines table is automatically required in all mod loading stages.
 
 --- Returns a lighter color of a named color.
 -- @table lightcolor
--- @tfield Concepts.Color white defines.color.lightgrey
--- @tfield Concepts.Color grey defines.color.darkgrey
--- @tfield Concepts.Color lightgrey defines.color.grey
--- @tfield Concepts.Color red defines.color.lightred
--- @tfield Concepts.Color green defines.color.lightgreen
--- @tfield Concepts.Color blue defines.color.lightblue
--- @tfield Concepts.Color yellow defines.color.orange
--- @tfield Concepts.Color pink defines.color.purple
+-- @tfield Color white defines.color.lightgrey
+-- @tfield Color grey defines.color.darkgrey
+-- @tfield Color lightgrey defines.color.grey
+-- @tfield Color red defines.color.lightred
+-- @tfield Color green defines.color.lightgreen
+-- @tfield Color blue defines.color.lightblue
+-- @tfield Color yellow defines.color.orange
+-- @tfield Color pink defines.color.purple
 local lightcolor = {}
 local colors = require('__Kux-CoreLib__/stdlib/utils/defines/color_list')
 

@@ -1,7 +1,6 @@
 --- For playing with colors.
--- @module Utils.Color
--- @usage local Color = require('__Kux-CoreLib__/stdlib/utils/color')
-
+--- @class StdLib.Utils.Color : StdLib.Core
+--- @usage local Color = require('__Kux-CoreLib__/stdlib/utils/color')
 local Color = {
     __class = 'Color',
     __index = require('__Kux-CoreLib__/stdlib/core')
@@ -9,8 +8,8 @@ local Color = {
 setmetatable(Color, Color)
 local metatable
 
-local table = require('__Kux-CoreLib__/stdlib/utils/table')
-local math = require('__Kux-CoreLib__/stdlib/utils/math')
+local table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
+local math = require('__Kux-CoreLib__/stdlib/utils/math')  --[[@as StdLib.Utils.Math]]
 local color_list = require('__Kux-CoreLib__/stdlib/utils/defines/color_list')
 
 --- @table color @{defines.color}
@@ -26,8 +25,8 @@ Color.lightcolor = require('__Kux-CoreLib__/stdlib/utils/defines/lightcolor')
 --- Create a new Color object.
 -- it can be passed, A Color, a string color name, an array,
 -- a list of float paramaters (RGB), a color dictionary, or hex
--- @param any
--- @treturn Color
+--- @param ... any
+--- @return Color
 function Color.new(...)
     if (...) == Color then
         return Color.new(select(2, ...))
@@ -52,16 +51,16 @@ end
 Color.__call = Color.new
 
 --- Loads the color metatmethods into table without any checking.
--- @tparam Color color
--- @treturn color
+--- @param color Color
+--- @return color
 function Color.load(color)
     return setmetatable(color, metatable)
 end
 
 --- Copies the color into a new Color.
--- @tparam Color color
--- @tparam[opt] float alpha Change the alpha of the copied color
--- @treturn Color
+--- @param color Color
+--- @param alpha float? [opt] Change the alpha of the copied color
+--- @return Color
 function Color.copy(color, alpha)
     if type(color) == 'table' then
         if color == Color then
@@ -79,14 +78,14 @@ function Color.copy(color, alpha)
 end
 
 --- Returns a white Color.
--- @treturn Color
+--- @return Color
 function Color.white()
     local color = { r = 1, g = 1, b = 1, a = 0.5 }
     return setmetatable(color, metatable)
 end
 
 --- Returns a black color.
--- @treturn Color
+--- @return Color
 function Color.black()
     local color = { r = 0, g = 0, b = 0, a = 0.5 }
     return setmetatable(color, metatable)
@@ -94,9 +93,9 @@ end
 
 --- Returns a color from a string name if known.
 -- Returns white if color string is unknown
--- @tparam string string_name
--- @tparam[opt] float alpha
--- @treturn Color
+--- @param string_name string
+--- @param alpha float? [opt]
+--- @return Color
 function Color.from_string(string_name, alpha)
     local color = Color.color[string_name]
     if color then
@@ -107,11 +106,11 @@ function Color.from_string(string_name, alpha)
 end
 
 --- Converts a color in the rgb format to a color table.
--- @tparam[opt=0] float r 0-255 red
--- @tparam[opt=0] float g 0-255 green
--- @tparam[opt=0] float b 0-255 blue
--- @tparam[opt=255] float a 0-255 alpha
--- @treturn Concepts.Color
+--- @param r float? [opt=0]   0-255 red
+--- @param g float? [opt=0]   0-255 green
+--- @param b float? [opt=0]   0-255 blue
+--- @param a float? [opt=255] 0-255 alpha
+--- @return Color
 function Color.from_params(r, g, b, a)
     local new = Color.normalize { r = r, g = g or r, b = b or r, a = a or 0.5 }
     return setmetatable(new, metatable)
@@ -120,26 +119,26 @@ end
 Color.from_rgb = Color.from_params
 
 --- Converts a color in the array format to a color in the table format.
--- @tparam array color the color to convert &mdash; { [1] = @{float}, [2] = @{float}, [3] = @{float}, [4] = @{float} }
--- @tparam[opt] float alpha
--- @treturn Concepts.Color a converted color &mdash; { r = c\_arr[1], g = c\_arr[2], b = c\_arr[3], a = c\_arr[4] }
+--- @param color float[] the color to convert &mdash; { [1] = @{float}, [2] = @{float}, [3] = @{float}, [4] = @{float} }
+--- @param alpha float? [opt]
+--- @return Color #a converted color &mdash; { r = c\_arr[1], g = c\_arr[2], b = c\_arr[3], a = c\_arr[4] }
 function Color.from_array(color, alpha)
     return Color.from_params(color[1] or 0, color[2] or 0, color[3] or 0, alpha or color[4] or 0.5)
 end
 
 --- Converts a color in the dictionary format to a color in the Color format.
--- @tparam table color the color to convert
--- @tparam[opt] float alpha
--- @treturn Color
+--- @param color table the color to convert
+--- @param alpha float? [opt]
+--- @return Color
 function Color.from_table(color, alpha)
     return Color.from_params(color.r or 0, color.g or 0, color.b or 0, alpha or color.a or 0.5)
 end
 
 --- Get a color table with a hexadecimal string.
 -- Optionally provide the value for the alpha channel.
--- @tparam string color hexadecimal color string (#ffffff, not #fff)
--- @tparam[opt=1] float alpha the alpha value to set; such that *** 0 &#8924; value &#8924; 1 ***
--- @treturn Concepts.Color a color table with RGB converted from Hex and with alpha
+--- @param color string hexadecimal color string (#ffffff, not #fff)
+--- @param alpha float [opt=1]  the alpha value to set; such that *** 0 &#8924; value &#8924; 1 ***
+--- @return Color a color table with RGB converted from Hex and with alpha
 function Color.from_hex(color, alpha)
     assert(type(color) == 'string', 'missing color hex value')
     local match = color:match('%x?%x?%x%x%x%x%x%x$')
@@ -175,7 +174,7 @@ function Color.set(color, alpha)
 end
 
 --- Normalizes a color between 0 and 1
--- @tparam Color color
+--- @param color Color
 -- @return Color
 function Color.normalize(color)
     color.a = color.a or 1
@@ -189,9 +188,9 @@ function Color.normalize(color)
 end
 
 --- Set the alpha channel on a color
--- @tparam Color color
--- @tparam[opt = 1] float alpha
--- @treturn Color
+--- @param color Color
+--- @param alpha float? [opt = 1]
+--- @return Color
 function Color.alpha(color, alpha)
     alpha = alpha or 1
     alpha = alpha > 1 and alpha / 255 or alpha
@@ -200,8 +199,8 @@ function Color.alpha(color, alpha)
 end
 
 --- Premultiply alpha
--- @tparam Color color
--- @tparam float alpha
+--- @param color Color
+--- @param alpha float
 -- @return Color
 function Color.premul_alpha(color, alpha)
     alpha = alpha > 1 and math.min(alpha, 255) / 255 or alpha
@@ -233,8 +232,8 @@ local function clamped(r, g, b, a)
 end
 
 --- Add 2 colors together.
--- @tparam Color lhs
--- @tparam Color rhs
+--- @param lhs Color
+--- @param rhs Color
 -- @return Color
 function Color.add(lhs, rhs)
     lhs, rhs = make_color(lhs, rhs)
@@ -242,8 +241,8 @@ function Color.add(lhs, rhs)
 end
 
 --- Subtract 2 colors together.
--- @tparam Color lhs
--- @tparam Color rhs
+--- @param lhs Color
+--- @param rhs Color
 -- @return Color
 function Color.subtract(lhs, rhs)
     lhs, rhs = make_color(lhs, rhs)
@@ -251,8 +250,8 @@ function Color.subtract(lhs, rhs)
 end
 
 --- Multiply 2 colors together.
--- @tparam Color lhs
--- @tparam Color rhs
+--- @param lhs Color
+--- @param rhs Color
 -- @return Color
 function Color.multiply(lhs, rhs)
     lhs, rhs = make_color(lhs, rhs)
@@ -260,8 +259,8 @@ function Color.multiply(lhs, rhs)
 end
 
 --- Add 2 colors together.
--- @tparam Color lhs
--- @tparam Color rhs
+--- @param lhs Color
+--- @param rhs Color
 -- @return Color
 function Color.divide(lhs, rhs)
     lhs, rhs = make_color(lhs, rhs)
@@ -269,17 +268,17 @@ function Color.divide(lhs, rhs)
 end
 
 --- Modulo of 2 colors.
--- @tparam Color lhs
--- @tparam Color rhs
--- @treturn Color
+--- @param lhs Color
+--- @param rhs Color
+--- @return Color
 function Color.modulo(lhs, rhs)
     lhs, rhs = make_color(lhs, rhs)
     return clamped(lhs.r % rhs.r, lhs.g % rhs.g, lhs.b % rhs.b, math.max(lhs.a, rhs.a))
 end
 
 --- Flip a color to white or black.
--- @tparam Color color
--- @treturn Color
+--- @param color Color
+--- @return Color
 function Color.unary(color)
     return Color.len(color) < 1.5 and Color.white() or Color.black()
 end
@@ -290,41 +289,41 @@ end
 -- @section Color Functions
 
 --- Get the length of a color by adding all its values together
--- @tparam Color color
--- @treturn number
+--- @param color Color
+--- @return number
 function Color.len(color)
     return color.r + color.g + color.b
 end
 
 --- Are both colors equal.
--- @tparam Color lhs
--- @tparam Color rhs
--- @treturn boolean
+--- @param lhs Color
+--- @param rhs Color
+--- @return boolean
 function Color.equals(lhs, rhs)
     return lhs.r == rhs.r and lhs.g == rhs.g and lhs.b == rhs.b and lhs.a == rhs.a
 end
 
 --- Is LHS less than RHS.
--- @tparam Color lhs
--- @tparam Color rhs
--- @treturn boolean
+--- @param lhs Color
+--- @param rhs Color
+--- @return boolean
 function Color.less_than(lhs, rhs)
     lhs, rhs = make_color(lhs, rhs)
     return Color.len(lhs) < Color.len(rhs)
 end
 
 --- Is LHS less than or equal to RHS.
--- @tparam Color lhs
--- @tparam Color rhs
--- @treturn boolean
+--- @param lhs Color
+--- @param rhs Color
+--- @return boolean
 function Color.less_than_eq(lhs, rhs)
     lhs, rhs = make_color(lhs, rhs)
     return Color.len(lhs) <= Color.len(rhs)
 end
 
 --- Return a hex formated string from a color.
--- @tparam Color color
--- @treturn string
+--- @param color Color
+--- @return string
 function Color.to_hex(color)
     local str = {
         string.format('%x', color.r * 255),
@@ -336,8 +335,8 @@ function Color.to_hex(color)
 end
 
 --- Return an array with 4 paramaters.
--- @tparam Color color
--- @treturn array
+--- @param color Color
+--- @return table
 function Color.to_array(color)
     return { color.r, color.g, color.b, color.a }
 end
@@ -346,7 +345,7 @@ end
 Color.pack = Color.to_array
 
 --- Return the color as 4 paramaters.
--- @tparam Color color
+--- @param color Color
 -- @return float
 -- @return float
 -- @return float
@@ -359,8 +358,8 @@ end
 Color.unpack = Color.to_params
 
 --- Return the Color as a string.
--- @tparam Color color
--- @treturn string
+--- @param color Color
+--- @return string
 function Color.to_string(color)
     local str = {
         'r = ' .. (color.r or 0),
@@ -372,8 +371,8 @@ function Color.to_string(color)
 end
 
 --- Is this a correctly formatted color.
--- @tparam Color color
--- @treturn boolean
+--- @param color Color
+--- @return boolean
 function Color.is_complex(color)
     local r, g, b, a
     if type(color) == 'table' then
@@ -386,15 +385,15 @@ function Color.is_complex(color)
 end
 
 --- Is this a Color object.
--- @tparam Color color
--- @treturn boolean
+--- @param color Color
+--- @return boolean
 function Color.is_Color(color)
     return getmetatable(color) == metatable
 end
 
 --- Is this a Color object or correctly formatted color table.
--- @tparam Color color
--- @treturn boolean
+--- @param color Color
+--- @return boolean
 function Color.is_color(color)
     return Color.is_Color(color) or Color.is_complex(color)
 end

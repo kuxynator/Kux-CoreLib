@@ -7,7 +7,7 @@
     interface.myfunc2 = function() end -- Can even add new functions afterwards!
 ]] --
 local interface = {}
-local Table = require('__Kux-CoreLib__/stdlib/utils/table')
+local Table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
 
 local Event = require('__Kux-CoreLib__/stdlib/event/event')
 local Game = require('__Kux-CoreLib__/stdlib/game')

@@ -1,10 +1,9 @@
 --- Functions for working with orientations.
--- @module Area.Orientation
--- @usage local Orientation = require('__Kux-CoreLib__/stdlib/area/orientation')
-
+--- @class StdLib.Area.Orientation : StdLib.Core
+--- @usage local Orientation = require('__Kux-CoreLib__/stdlib/area/orientation')
 local Orientation = {
     __class = 'Orientation',
-    __index = require('__Kux-CoreLib__/stdlib/core'),
+    __index = require('__Kux-CoreLib__/stdlib/core') --[[@as StdLib.Core]]
 }
 setmetatable(Orientation, Orientation)
 
@@ -28,26 +27,26 @@ Orientation.southwest = defines.direction.southwest / 16
 local floor = math.floor
 
 --- Returns a 4way or 8way direction from an orientation.
--- @tparam float orientation
--- @tparam[opt=false] boolean eight_way
--- @treturn defines.direction
+--- @param orientation float
+--- @param eight_way boolean? [opt=false]
+--- @return defines.direction
 function Orientation.to_direction(orientation, eight_way)
     local ways = eight_way and 16 or 8
     local mod = eight_way and 2 or 4
-    return floor(orientation * ways + 0.5) % ways * mod
+    return floor(orientation * ways + 0.5) % ways * mod --TODO Factorio 2.0: multiply by 2
 end
 
 --- Returns the opposite orientation.
--- @tparam float orientation
--- @treturn float the opposite orientation
+--- @param orientation float
+--- @return float the opposite orientation
 function Orientation.opposite(orientation)
     return (orientation + 0.5) % 1
 end
 
 --- Add two orientations together.
--- @tparam float orientation1
--- @tparam float orientation2
--- @treturn float the orientations added together
+--- @param orientation1 float
+--- @param orientation2 float
+--- @return float the orientations added together
 function Orientation.add(orientation1, orientation2)
     return (orientation1 + orientation2) % 1
 end

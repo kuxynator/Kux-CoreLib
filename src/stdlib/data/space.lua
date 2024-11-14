@@ -1,9 +1,9 @@
---- Space, the final frontier. Intended for planet, space-connection, and space-location
--- @classmod Data.Space
 
 local Data = require('__Kux-CoreLib__/stdlib/data/data')
-local Table = require('__Kux-CoreLib__/stdlib/utils/table')
+local Table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
 
+--- Space, the final frontier. Intended for planet, space-connection, and space-location
+--- @class Data.Space : StdLib.Data
 local Space = {
     __class = 'Space',
     __index = Data,

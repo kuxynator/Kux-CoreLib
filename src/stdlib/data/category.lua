@@ -1,6 +1,5 @@
 --- Category
--- @classmod Data.Category
-
+--- @class StdLib.Data.Category : StdLib.Data
 local Category = {
     __class = 'Category',
     __index = require('__Kux-CoreLib__/stdlib/data/data'),
