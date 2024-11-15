@@ -1,10 +1,11 @@
+---@diagnostic disable
 --Serpent version used in factorio
 do
   local n, v = "serpent", "0.30" -- (C) 2012-17 Paul Kulchenko; MIT License
   local c, d = "Paul Kulchenko", "Lua serializer and pretty printer"
   local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
   local badtype = {thread = true, userdata = true, cdata = true}
-  local getmetatable = debug and debug.getmetatable or getmetatable
+  local getmetatable = getmetatable -- debug.getmetatable hast been removed 1.1.107
   local pairs = function(t) return next, t end -- avoid using __pairs in Lua 5.2+
   local keyword, globals, G = {}, {}, (_G or _ENV)
   for _,k in ipairs({'and', 'break', 'do', 'else', 'elseif', 'end', 'false',

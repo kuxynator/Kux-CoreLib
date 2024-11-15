@@ -10,7 +10,7 @@
 -- This module does not have many of the multiplayer protections that `script.on_event` does.
 -- <br>Due to this, great care should be taken when registering events conditionally.
 -- </blockquote>
---- @class StdLib.Event
+--- @class StdLib.Event : StdLib.Core
 --- @usage local Event = require('__Kux-CoreLib__/stdlib/event/event')
 local Event = {
     __class = 'Event',
@@ -18,7 +18,7 @@ local Event = {
     custom_events = {}, -- Holds custom event ids
     stop_processing = {}, -- just has to be unique
     Filters = require('__Kux-CoreLib__/stdlib/event/modules/event_filters'),
-    __index = require('__Kux-CoreLib__/stdlib/core')
+    __index = require('__Kux-CoreLib__/stdlib/core') --[[ @as StdLib.Core ]]
 }
 setmetatable(Event, Event)
 
@@ -61,7 +61,7 @@ local event_names = table.invert(defines.events)
 
 if not config.skip_script_protections then -- Protections for post and pre registrations
     for _, define in pairs(defines.events) do
-        if Event.script.get_event_handler(define) then
+        if Event.script.get_event_handler(define--[[@as uint]]) then
             error('Detected attempt to add the STDLIB event module after using script.on_event')
         end
     end
@@ -118,11 +118,11 @@ local stupid_events = {
 -- Event.register(-120, function() game.print('Every 120 ticks') end
 -- -- Function call chaining
 -- Event.register(event1, handler1).register(event2, handler2)
--- @param event_id (<span class="types">@{defines.events}, @{int}, @{string}, or {@{defines.events}, @{int}, @{string},...}</span>)
+--- @param event_id defines.events|int|string|(defines.events|int|string)[]
 --- @param handler function the function to call when the given events are triggered
---- @param filter function [opt=nil] a function whose return determines if the handler is executed. event and pattern are passed into this
+--- @param filter function? [opt=nil] a function whose return determines if the handler is executed. event and pattern are passed into this
 --- @param pattern any? [opt=nil] an invariant that can be used in the filter function, passed as the second parameter to your filter
---- @param options table [opt=nil] a table of options that take precedence over the module options.
+--- @param options table? [opt=nil] a table of options that take precedence over the module options.
 --- @return StdLib.Event #Event module object allowing for call chaining
 function Event.register(event_id, handler, filter, pattern, options)
     assert(event_id, 'missing event_id argument')
@@ -133,7 +133,7 @@ function Event.register(event_id, handler, filter, pattern, options)
     options = setmetatable(options or {}, Event_options_meta)
 
     --Recursively handle event id tables
-    if Type.Table(event_id) then
+    if type(event_id)=="table" then
         for _, id in pairs(event_id) do
             Event.register(id, handler)
         end
@@ -159,7 +159,7 @@ function Event.register(event_id, handler, filter, pattern, options)
             Event.script.on_event(event_id, Event.dispatch)
         elseif event_id < 0 then
             --Use negative values to register on_nth_tick
-            Event.script.on_nth_tick(math.abs(event_id)--[[@as uint]] , Event.dispatch)
+            Event.script.on_nth_tick(math.abs(event_id--[[@as uint]])--[[@as uint]] , Event.dispatch)
         end
     end
 
@@ -195,15 +195,15 @@ end
 -- and can be a custom input name which is in <span class="types">@{string}</span>.
 -- <p>The `event_id` parameter takes in either a single, multiple, or mixture of @{defines.events}, @{int}, and @{string}.
 --- @param event_id defines.events|integer|string|table<defines.events|integer|string>
---- @param handler function [opt] the handler to remove, if not present remove all registered handlers for the event_id
---- @param filter function [opt]
+--- @param handler? function [opt] the handler to remove, if not present remove all registered handlers for the event_id
+--- @param filter? function [opt]
 --- @param pattern any
 --- @return StdLib.Event #Event module object allowing for call chaining
 function Event.remove(event_id, handler, filter, pattern)
     assert(event_id, 'missing event_id argument')
 
     -- Handle recursion here
-    if Type.Table(event_id) then
+    if type(event_id)=="table" then
         for _, id in pairs(event_id) do
             Event.remove(id, handler)
         end
@@ -274,7 +274,7 @@ function Event.remove(event_id, handler, filter, pattern)
                 Event.script.on_event(event_id, nil)
             elseif event_id < 0 then
                 -- Use negative values to remove on_nth_tick
-                Event.script.on_nth_tick(math.abs(event_id)--[[@as uint]] , nil)
+                Event.script.on_nth_tick(math.abs(event_id--[[@as uint]])--[[@as uint]] , nil)
             end
         elseif not found_something then
             log('Attempt to deregister already non-registered listener from event: ' .. event_id)

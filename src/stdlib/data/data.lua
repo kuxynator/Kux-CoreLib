@@ -7,11 +7,21 @@ end
 local Table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
 local groups = require('__Kux-CoreLib__/stdlib/data/modules/groups')
 
+
+--TODO fields temporary added
+
 --- Data
 --- @class StdLib.Data : StdLib.Core
+--- @field name string
+--- @field type string
+--- @field _raw table
+--- @field valid boolean
+--- @field overwrite boolean
+--- @field class string
+--- @field options {[string]:boolean}
 local Data = {
     __class = 'Data',
-    __index = require('__Kux-CoreLib__/stdlib/core'),
+    __index = require('__Kux-CoreLib__/stdlib/core') --[[@as StdLib.Core]],
     Sprites = require('__Kux-CoreLib__/stdlib/data/modules/sprites'),
     Pipes = require('__Kux-CoreLib__/stdlib/data/modules/pipes'),
     Util = require('__Kux-CoreLib__/stdlib/data/modules/util'),
@@ -46,7 +56,7 @@ end
 
 --- Is this a valid object
 --- @param type string? [opt] if present is the object this type
---- @return self
+--- @return boolean
 function Data:is_valid(type)
     if type then
         return rawget(self, 'valid') == type or false
@@ -225,9 +235,9 @@ end
 -- The object and any additional paramaters are passed to the function.
 --- @param func function then function to run.
 --- @return self
-function Data:run_function(fun, ...)
+function Data:run_function(func, ...)
     if self:is_valid() then
-        fun(self, ...)
+        func(self, ...)
     end
     return self
 end
@@ -235,11 +245,13 @@ Data.execute = Data.run_function
 
 --- Run a function on a valid object and return its results.
 --- @param func function the function to run. self is passed as the first paramter
---- @return boolean if the object was valid
---- @return the results from the passed function
-function Data:get_function_results(fun, ...)
+--- @return boolean #if the object was valid
+--- @return any #the results from the passed function
+function Data:get_function_results(func, ...)
     if self:is_valid() then
-        return true, fun(self, ...)
+        return true, func(self, ...)
+	else
+		return false, nil
     end
 end
 
@@ -255,7 +267,7 @@ end
 
 --- Add or change a field.
 --- @param field string the field to change.
---- @param value mixed the value to set on the field.
+--- @param value any the value to set on the field.
 --- @return self
 function Data:set_field(field, value)
     self[field] = value
@@ -277,23 +289,18 @@ end
 
 --- Get a field.
 --- @param field string
---- @param default_value mixed return this if the field doesn't exist
---- @return nil|mixed the value of the field
+--- @param default_value any return this if the field doesn't exist
+--- @return nil|any #the value of the field
 function Data:get_field(field, default_value)
-    if self:is_valid() then
-        local has = self[field]
-        if has ~= nil then
-            return has
-        else
-            return default_value
-        end
-    end
+    if not self:is_valid() then return nil end
+	local v = self[field]
+	return v ~= nil and v or default_value
 end
 
 --- Iterate an array of fields and return the values as paramaters
 --- @param arr array
 --- @param as_dictionary boolean Return the results as a dictionary table instead of parameters
---- @return anythe parameters
+--- @return any #the parameters
 -- @usage local icon, name = Data('stone-furnace', 'furnace'):get_fields({icon, name})
 function Data:get_fields(arr, as_dictionary)
     if self:is_valid() then
@@ -329,7 +336,7 @@ end
 
 --- Change the item-subgroup and/or order.
 --- @param subgroup string? [opt=nil] The subgroup to change to if valid.
---- @param order string? [opt=nil]The order string to use
+--- @param order string? [opt=nil] The order string to use
 -- note if subgroup is non nil and subgroub is not valid order wil not be changed.
 --- @return self
 function Data:subgroup_order(subgroup, order)
@@ -338,7 +345,7 @@ function Data:subgroup_order(subgroup, order)
             if data.raw['item-subgroup'][subgroup] then
                 self.subgroup = subgroup
             else
-                order = false
+                order = nil
             end
         end
         if order and #order > 0 then
@@ -369,10 +376,12 @@ end
 
 --- Get the icons
 --- @param copy boolean? [opt=false] return a copy of the icons table
---- @return table icons
+--- @return table? icons
 function Data:get_icons(copy)
     if self:is_valid() then
         return copy and Table.deep_copy(self.icons) or self.icons
+	else
+		return nil
     end
 end
 
@@ -437,10 +446,10 @@ function Data:pairs(source, opts)
 end
 
 --- Returns a valid thing object reference. This is the main getter.
---- @param string|table object The thing to use, if string the thing must be in data.raw[type], tables are not verified
+--- @param object string|table The thing to use, if string the thing must be in data.raw[type], tables are not verified
 --- @param object_type string? [opt] the raw type. Required if object is a string
 --- @param opts table? [opt] options to pass
---- @return Object
+--- @return table
 function Data:get(object, object_type, opts)
     --assert(type(object) == 'string' or type(object) == 'table', 'object string or table is required')
 

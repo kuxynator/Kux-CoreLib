@@ -62,7 +62,7 @@ function Surface.init(event, overwrite)
     storage.surfaces = storage.surfaces or {}
 
     --get a valid surface object or nil
-    local surface = game.surfaces[event.surface_index]
+    local surface = event and game.surfaces[event.surface_index] or nil
 
     if surface then
         if not storage.surfaces[surface.index] or (storage.surfaces[surface.index] and overwrite) then
@@ -80,8 +80,8 @@ function Surface.init(event, overwrite)
 end
 
 function Surface.dump_data()
-    game.write_file(Surface.get_file_path('Surface/surface_data.lua'), inspect(Surface._new_surface_data, { longkeys = true, arraykeys = true }))
-    game.write_file(Surface.get_file_path('Surface/storage.lua'), inspect(storage.surfaces or nil, { longkeys = true, arraykeys = true }))
+    helpers.write_file(script.mod_name .. '/Surface/surface_data.lua', inspect(Surface._new_surface_data, { longkeys = true, arraykeys = true }))
+    helpers.write_file(script.mod_name .. '/Surface/storage.lua', inspect(storage.surfaces or nil, { longkeys = true, arraykeys = true }))
 end
 
 function Surface.register_init()

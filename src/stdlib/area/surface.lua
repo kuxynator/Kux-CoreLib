@@ -1,6 +1,6 @@
 --- For working with surfaces.
 --- Surfaces are the "domain" of the world.
---- @class Area.Surface : StdLib.Core
+--- @class StdLib.Area.Surface : StdLib.Core
 --- @usage local Surface = require('__Kux-CoreLib__/stdlib/area/surface')
 --- @see LuaSurface
 local Surface = {
@@ -21,28 +21,22 @@ local Area = require('__Kux-CoreLib__/stdlib/area/area')--[[@as StdLib.Area]]
 -- <li>Returns an empty array if no surfaces are given or if they are not found.
 -- </ul>
 --- @param surface nil|string|string[]|LuaSurface|LuaSurface[] the surfaces to look up
---- @return LuaSurface[]? #an array of all valid surfaces or nil otherwise
+--- @return LuaSurface[] #an array of all valid surfaces
 function Surface.lookup(surface)
-    if not surface then
-        return {}
-    end
+    if not surface then return {} end
     if type(surface) == 'string' or type(surface) == 'number' then
         local lookup = game.surfaces[surface]
-        if lookup then
-            return { lookup }
-        end
+        if lookup then return { lookup } end
         return {}
     end
-    if type(surface) == 'table' and surface['__self'] then
-        return Surface.lookup(surface.name)
-    end
+    if Is.Object(surface) then return Surface.lookup(surface.name) end
     local results = {}
     for _, surface_item in pairs(surface) do
         if type(surface_item) == 'string' then
             if game.surfaces[surface_item] then
                 table.insert(results, game.surfaces[surface_item])
             end
-        elseif type(surface_item) == 'table' and surface_item['__self'] then
+        elseif Is.Object(surface_item) then
             table.insert(results, surface_item)
         end
     end
@@ -63,7 +57,7 @@ end
 --- @param search_criteria table a table used to search for entities
 --- @return LuaEntity[]? #an array of all entities that matched the criteria **OR** *nil* if there were no matches
 function Surface.find_all_entities(search_criteria)
-    Is.Assert.Table(search_criteria, 'missing search_criteria argument')
+    Is.Assert.Table(search_criteria--[[, 'missing search_criteria argument']])
     if search_criteria.name == nil and search_criteria.type == nil and search_criteria.force == nil and search_criteria.area == nil then
         error('Missing search criteria field: name or type or force or area of entity', 2)
     end
@@ -98,7 +92,7 @@ end
 -- @tfield[opt] string name internal name of an entity &mdash; (example: "locomotive")
 -- @tfield[opt] string type type of an entity &mdash; (example: "unit")
 -- @tfield[opt] string|LuaForce force the force of an entity &mdash; (examples: "neutral", "enemy")
--- @tfield[opt] ?|nil|string|{string,...}|LuaSurface|{LuaSurface,...} surface the surface to search &mdash; (example: "nauvis")
+-- @tfield[opt] ?|nil|string|string[]|LuaSurface|LuaSurface[] surface the surface to search &mdash; (example: "nauvis")
 -- @tfield[opt] BoundingBox area the area to search
 -- @table search_criteria
 
@@ -135,7 +129,7 @@ end
 --- @return boolean true if the thresholds were set, false if there was an error
 -- @return[opt] the raised error, if any
 function Surface.set_daytime_thresholds(surface, morning, dawn, dusk, evening)
-    Is.Assert.Valid(surface, 'missing surface value')
+    Is.Assert.Valid(surface--[[, 'missing surface value']])
     Is.Assert(Is.Float(morning) and Is.Float(dawn) and Is.float(dusk) and Is.Float(evening), 'paramaters must be floats')
 
     return pcall(

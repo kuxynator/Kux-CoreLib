@@ -68,3 +68,5 @@
 ---@field maxn fun(t: table): integer Returns the highest numeric index in a table (deprecated).
 
 ---@alias array any[]
+
+---@alias anyevent table

@@ -24,16 +24,25 @@ Orientation.southeast = defines.direction.southeast / 16
 --- southwest orientation
 Orientation.southwest = defines.direction.southwest / 16
 
+Orientation.northnortheast = defines.direction.northnortheast / 16
+Orientation.eastnortheast = defines.direction.eastnortheast / 16
+Orientation.eastsoutheast = defines.direction.eastsoutheast / 16
+Orientation.southsoutheast = defines.direction.southsoutheast / 16
+Orientation.southsouthwest = defines.direction.southsouthwest / 16
+Orientation.westsouthwest = defines.direction.westsouthwest / 16
+Orientation.westnorthwest = defines.direction.westnorthwest / 16
+Orientation.northnorthwest = defines.direction.northnorthwest / 16
+
 local floor = math.floor
 
 --- Returns a 4way or 8way direction from an orientation.
 --- @param orientation float
---- @param eight_way boolean? [opt=false]
+--- @param eight_way boolean? [opt=false] true to get the next direction in 8-way; else 4-way
 --- @return defines.direction
 function Orientation.to_direction(orientation, eight_way)
-    local ways = eight_way and 16 or 8
+    local f = eight_way and 16 or 8
     local mod = eight_way and 2 or 4
-    return floor(orientation * ways + 0.5) % ways * mod --TODO Factorio 2.0: multiply by 2
+    return floor(orientation * f + 0.5) % f * mod * 2 --[[@as defines.direction]] --2.0
 end
 
 --- Returns the opposite orientation.

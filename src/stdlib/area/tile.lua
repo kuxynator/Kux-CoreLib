@@ -57,15 +57,13 @@ end
 --- Gets the user data that is associated with a tile.
 -- The user data is stored in the global object and it persists between loads.
 --- @param surface LuaSurface the surface on which the user data is looked up
---- @param TilePosition tile_pos the tile position on which the user data is looked up
+--- @param tile_pos TilePosition the tile position on which the user data is looked up
 --- @param default_value any the user data to set for the tile and returned if it did not have user data
 --- @return any? #the user data **OR** *nil* if it does not exist for the tile and no default_value was set
 function Tile.get_data(surface, tile_pos, default_value)
-    surface = Game.get_surface(surface)
+    local surface = Game.get_surface(surface)
     assert(surface, 'invalid surface')
-
     local key = Position.to_key(Position.floor(tile_pos))
-
     return Game.get_or_set_data('_tile_data', surface.index, key, false, default_value)
 end
 Tile.get = Tile.get_data
@@ -77,11 +75,9 @@ Tile.get = Tile.get_data
 --- @param value any? the user data to set **OR** *nil* to erase the existing user data for the tile
 --- @return any? #the previous user data associated with the tile **OR** *nil* if the tile had no previous user data
 function Tile.set_data(surface, tile_pos, value)
-    surface = Game.get_surface(surface)
+    local surface = Game.get_surface(surface)
     assert(surface, 'invalid surface')
-
     local key = Position.to_key(Position.floor(tile_pos))
-
     return Game.get_or_set_data('_tile_data', surface.index, key, true, value)
 end
 Tile.set = Tile.set_data

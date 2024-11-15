@@ -1,4 +1,4 @@
-local Data = require('__Kux-CoreLib__/stdlib/data/data')
+local Data = require('__Kux-CoreLib__/stdlib/data/data') --[[@as StdLib.Data]]
 
 --- Fluid
 --- @class StdLib.Data.Fluid : StdLib.Data

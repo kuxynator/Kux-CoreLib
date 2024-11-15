@@ -1,4 +1,4 @@
-local Data = require('__Kux-CoreLib__/stdlib/data/data')
+local Data = require('__Kux-CoreLib__/stdlib/data/data') --[[@as StdLib.Data]]
 local Space = require('__Kux-CoreLib__/stdlib/data/space')
 local Table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
 

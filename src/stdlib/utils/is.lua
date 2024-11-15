@@ -20,7 +20,7 @@
 -- @section Callers
 
 --- Is the test truthy
---- @class StdLib.Utils.Is
+--- @class StdLib.Utils.Is : StdLib.Utils.Is.M
 --- @usage
 --- local Is = require('__Kux-CoreLib__/stdlib/utils/is')
 --- Is.True(true)
@@ -34,11 +34,11 @@ local Is = {}
 Is.Not = {}
 
 --- Assert that the test is Truthy
---- @class StdLib.Utils.Is.Assert
+--- @class StdLib.Utils.Is.Assert : StdLib.Utils.Is.M
 Is.Assert = {}
 
 --- Assert that the test is not Truthy
---- @class StdLib.Utils.Is.Assert.Not
+--- @class StdLib.Utils.Is.Assert.Not : StdLib.Utils.Is.M
 Is.Assert.Not = {}
 
 --- Functions
@@ -349,15 +349,15 @@ M.alpha = M.AlphanumWord
 M.alphanumword = M.AlphanumWord
 
 --- Is this a factorio object
---- @param var LuaObject The variable to check
---- @return any #the var if this is an LuaObject
+--- @param var any The variable to check
+--- @return LuaObject? #the var if this is an LuaObject
 function M.Object(var)
-    return M.Table(var) and var.__self and var
+    return (M.Table(var) or M.Userdata(var)) and var["objct_name"] and var or nil
 end
 M.object = M.Object
 
 --- Is this factorio object valid
---- @param var LuaObject The variable to check
+--- @param var any The variable to check
 --- @return any #the var if this is a valid LuaObject
 function M.Valid(var)
     return M.Object(var) and var.valid and var
@@ -452,6 +452,7 @@ setmetatable(
         end
     }
 )
+---@diagnostic disable-next-line: inject-field
 Is.assert.is_not = Is.Assert.Not
 
 return Is

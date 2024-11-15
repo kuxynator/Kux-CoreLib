@@ -1,9 +1,9 @@
 --- For working with inventories.
---- @class Entity.Inventory
+--- @class Entity.Inventory : StdLib.Core
 --- @usage local Inventory = require('__Kux-CoreLib__/stdlib/entity/inventory')
 local Inventory = {
     __class = 'Inventory',
-    __index = require('__Kux-CoreLib__/stdlib/core')
+    __index = require('__Kux-CoreLib__/stdlib/core') --[[@as StdLib.Core]]
 }
 setmetatable(Inventory, Inventory)
 
@@ -85,14 +85,14 @@ end
 --- @param stack LuaItemStack
 --- @param is_bp_setup boolean? [opt]
 --- @param no_book boolean? [opt]
---- @return LuaItemStack
+--- @return LuaItemStack?
 function Inventory.get_blueprint(stack, is_bp_setup, no_book)
     if stack and stack.valid and stack.valid_for_read then
         if stack.is_blueprint then
-            return not is_bp_setup and stack or stack.is_blueprint_setup() and stack
+            return not is_bp_setup and stack or stack.is_blueprint_setup() and stack or nil
         elseif stack.is_blueprint_book and not no_book and stack.active_index then
             local book = stack.get_inventory(defines.inventory.item_main)
-            if #book >= stack.active_index then
+            if book and #book >= stack.active_index then
                 return Inventory.get_blueprint(book[stack.active_index], is_bp_setup)
             end
         end
@@ -104,7 +104,7 @@ end
 --- @param label string
 --- @return boolean
 function Inventory.is_named_bp(stack, label)
-    return stack and stack.valid_for_read and stack.is_blueprint and stack.label and stack.label:find('^' .. label)
+    return stack and stack.valid_for_read and stack.is_blueprint and stack.label and stack.label:find('^' .. label)>0 or false
 end
 
 --- Returns either the item at a position, or the filter at the position if there isn't an item there.

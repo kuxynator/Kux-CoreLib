@@ -57,11 +57,9 @@ end
 --- @param default_value any the user data to set for the chunk and returned if the chunk had no user data
 --- @return any? #the user data **OR** *nil* if it does not exist for the chunk and if no default_value was set
 function Chunk.get_data(surface, chunk_pos, default_value)
-    surface = Game.get_surface(surface)
+    local surface = Game.get_surface(surface)
     assert(surface, 'invalid surface')
-
     local key = Position(chunk_pos):to_key()
-
     return Game.get_or_set_data('_chunk_data', surface.index, key, false, default_value)
 end
 Chunk.get = Chunk.get_data
@@ -73,11 +71,9 @@ Chunk.get = Chunk.get_data
 --- @param value any? the user data to set **OR** *nil* to erase the existing user data for the chunk
 --- @return any? #the previous user data associated with the chunk **OR** *nil* if the chunk had no previous user data
 function Chunk.set_data(surface, chunk_pos, value)
-    surface = Game.get_surface(surface)
+    local surface = Game.get_surface(surface)
     assert(surface, 'invalid surface')
-
     local key = Position(chunk_pos):to_key()
-
     return Game.get_or_set_data('_chunk_data', surface.index, key, true, value)
 end
 Chunk.set = Chunk.set_data

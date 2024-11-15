@@ -20,7 +20,7 @@ local function make_no_controls()
 end
 
 --- Make entities for easier mod testing.
---- @param name string The name of your mod
+-- @param name string The name of your mod
 -- @usage
 -- --data.lua
 -- local Developer = require('__Kux-CoreLib__/stdlib/data/develper/developer')

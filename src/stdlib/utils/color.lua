@@ -45,6 +45,8 @@ function Color.new(...)
             return Color.from_params(...)
         elseif c_type == 'table' then
             return Color.copy(...)
+		else
+			error("invalid parameter")
         end
     end
 end
@@ -52,7 +54,7 @@ Color.__call = Color.new
 
 --- Loads the color metatmethods into table without any checking.
 --- @param color Color
---- @return color
+--- @return Color
 function Color.load(color)
     return setmetatable(color, metatable)
 end
@@ -73,7 +75,7 @@ function Color.copy(color, alpha)
             return Color.from_table(color, alpha)
         end
     else
-        Color.new(color, alpha)
+        return Color.new(color, alpha)
     end
 end
 
@@ -142,7 +144,7 @@ end
 function Color.from_hex(color, alpha)
     assert(type(color) == 'string', 'missing color hex value')
     local match = color:match('%x?%x?%x%x%x%x%x%x$')
-    color = tonumber(match, 16)
+    local color = tonumber(match, 16)
     local new = { r = 0, g = 0, b = 0, a = 1 }
     if #match == 8 then
         new.r = bit32.extract(color, 24, 8) / 255
@@ -374,14 +376,15 @@ end
 --- @param color Color
 --- @return boolean
 function Color.is_complex(color)
-    local r, g, b, a
     if type(color) == 'table' then
-        r = color.r and color.r <= 1
-        g = color.g and color.g <= 1
-        b = color.b and color.b <= 1
-        a = color.b and color.a <= 1
+        local r = color.r and color.r <= 1 or false
+        local g = color.g and color.g <= 1 or false
+        local b = color.b and color.b <= 1 or false
+        local a = color.b and color.a <= 1 or false
+		return r and b and g and a
+	else
+		return false
     end
-    return r and b and g and a
 end
 
 --- Is this a Color object.

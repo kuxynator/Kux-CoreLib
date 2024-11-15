@@ -1,4 +1,4 @@
-local Data = require('__Kux-CoreLib__/stdlib/data/data')
+local Data = require('__Kux-CoreLib__/stdlib/data/data') --[[@as StdLib.Data]]
 local Table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
 
 --- Recipe class
@@ -31,7 +31,7 @@ end
 --- Replace an ingredient.
 --- @param ingredients table
 --- @param find string ingredient to replace
---- @param concepts.ingredient replace
+--- @param replace Ingredient
 --- @param replace_name_only boolean Don't replace amounts
 local function replace_ingredient(ingredients, find, replace, replace_name_only)
     for i, ingredient in pairs(ingredients or {}) do
@@ -48,9 +48,9 @@ end
 
 --- Remove a product from results table.
 --- @param results table
---- @param name string Name of the product to remove
+--- @param name string|Product Name of the product to remove
 local function remove_result(results, name)
-    name = name.name
+    name = type(name)=="string" and name or name.name
     for i, product in pairs(results or {}) do
         if product[1] == name or product.name == name then
             table.remove(results, i)
@@ -59,11 +59,22 @@ local function remove_result(results, name)
     end
 end
 
+--- Finds a product from results table.
+--- @param results table
+--- @param name string Name of the product to find
+--- @return Product?
+local function find_result(results, name)
+    for i, product in pairs(results or {}) do
+        if product.name == name then
+            return product
+        end
+    end
+end
+
 --- Replace a product.
 --- @param results table
 --- @param find string product to replace
---- @param concepts.product product replace
---- @param replace_name_only boolean Don't replace amounts
+--- @param replace Product product
 local function replace_result(results, find, replace)
     for i, product in pairs(results or {}) do
         if product[1] == find or product.name == find then
@@ -74,9 +85,9 @@ local function replace_result(results, find, replace)
 end
 
 --- Add a new ingredient to a recipe.
---- @param string|Concepts.ingredient ingredient Name or table to add
+--- @param ingredient string|Ingredient Name or table to add
 --- @param count number? [opt] Amount of ingredient
---- @return Recipe
+--- @return StdLib.Data.Recipe
 function Recipe:add_ingredient(ingredient, count)
     if self:is_valid() then
 		if type(ingredient)=="string" then
@@ -107,7 +118,7 @@ Recipe.add_ing = Recipe.add_ingredient
 
 --- Remove one ingredient completely.
 --- @param ingredient string Name of ingredient to remove
---- @return Recipe
+--- @return StdLib.Data.Recipe
 function Recipe:remove_ingredient(ingredient)
     if self:is_valid() then
         if self.ingredients then
@@ -120,9 +131,9 @@ Recipe.rem_ing = Recipe.remove_ingredient
 
 --- Replace one ingredient with another.
 --- @param replace string Name of ingredient to be replaced
---- @param string|Concepts.ingredient ingredient Name or table to add
+--- @param ingredient string|Ingredient Name or table to add
 --- @param count number? [opt] Amount of ingredient
---- @return Recipe
+--- @return StdLib.Data.Recipe
 function Recipe:replace_ingredient(replace, ingredient, count)
     assert(replace, 'Missing recipe to replace')
     if self:is_valid() then
@@ -170,7 +181,7 @@ function Recipe:copy_ingredients(recipe, keep_ingredients)
 end
 
 --- Shorthand to get ingredient table associated with recipe.
---- @return table Ingredients
+--- @return table? Ingredients
 function Recipe:get_ingredients()
     if self:is_valid() then
 		return table.deepcopy(self.ingredients)
@@ -283,25 +294,27 @@ function Recipe:remove_main_product()
 end
 
 --- Add a new product to results table.
---- @param string|Concepts.product product Name or table to add
+--- @param product string|Product product Name or table to add
 --- @param count number? [opt] Amount of product
---- @return Recipe
-function Recipe:add_result(product, count)
+--- @param probability number? [opt] A value in range [0, 1]. Item is only given with this probability; otherwise no product is produced.
+--- @return StdLib.Data.Recipe
+function Recipe:add_result(product, count, probability)
     if self:is_valid() then
 		if type(product)=="string" then
 			local count = count or 1
-			product = {type="item",name=product,amount=count}
+			local probability = probability or 1
+			product = {type="item", name=product, amount=count, probability=probability}--[[@as ItemProduct]]
 		end
         if self.results then
-			table.insert(self.results,product)
+			table.insert(self.results, product)
         end
     end
     return self
 end
 
 --- Remove a product from results table.
---- @param string|Concepts.product product Name or table to add
---- @return Recipe
+--- @param product string|Product Name or table to add
+--- @return StdLib.Data.Recipe
 function Recipe:remove_result(product)
     if self:is_valid() then
         if self.results then
@@ -313,18 +326,22 @@ end
 
 --- Replace a product from results with a new product.
 --- @param replace string Name of product to be replaced
---- @param string|Concepts.product product Name or table to add
+--- @param product string|Product Name or table to add
 --- @param count number? [opt] Amount of product
---- @return Recipe
-function Recipe:replace_result(replace, product, count)
-    if self:is_valid() then
-		if type(product)=="string" then
-			product = {name=product,amount=1,type="item"}
-		end
-		if self.results then
-            replace_result(self.results, replace, product)
-        end
-    end
+--- @param probability number? [opt] A value in range [0, 1]. Item is only given with this probability; otherwise no product is produced.
+--- @return StdLib.Data.Recipe
+function Recipe:replace_result(replace, product, count, probability)
+    if not self:is_valid() then return self end
+	if type(product)=="string" then
+		local p0 = find_result(self.results, replace)
+		if not p0 then return self end
+		local count = (p0.amount and p0.amount > 0) and p0.amount or ((count and count > 1) and count or 1)
+		local probability = (p0.probability and p0.probability > 0) and p0.probability or ((probability and probability > 1) and probability or 1)
+		product = {name=product, amount=count, type="item", probability=probability}
+	end
+	if self.results then
+		replace_result(self.results, replace, product)
+	end
     return self
 end
 
@@ -357,7 +374,7 @@ function Recipe:copy_results(recipe, keep_results)
 end
 
 --- Shorthand to get results table associated with recipe.
---- @return table Results
+--- @return Product[]? #Results
 function Recipe:get_results()
     if self:is_valid() then
 		return self["results"]
@@ -372,4 +389,5 @@ function Recipe:clear_surface_conditions()
     end
     return self
 end
+
 return Recipe

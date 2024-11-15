@@ -1,7 +1,11 @@
+error("deprecated. if you need this the make a request.")
+--- @diagnostic disable
+--- not used internally
+---------------------------------------------------------------------------------------------------
 --- A double-linked list implementation
--- @classmod LinkedList
+--- @class StdLib.LinkedList
 
-local Core = require('__Kux-CoreLib__/stdlib/core')
+local Core = require('__Kux-CoreLib__/stdlib/core') --[[@as StdLib.Core]]
 local table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
 local Is = require('__Kux-CoreLib__/stdlib/utils/is')
 

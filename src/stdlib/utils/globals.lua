@@ -36,7 +36,9 @@ local data_traceback = type(debug) == 'table' and debug.getinfo and function()
         if trace then
             level = level + 1
             if (trace.what == 'Lua' or trace.what == 'main') and not ignored[trace.name] then
-                local cur = trace.source:gsub('.*__Kux-CoreLib__', '__Kux-CoreLib__'):gsub('.*/Factorio%-Stdlib', '__Kux-CoreLib__')
+                local cur = trace.source
+					:gsub('.*__Kux-CoreLib__', '__Kux-CoreLib__')
+					--:gsub('.*/Factorio%-Stdlib', '__Kux-CoreLib__')
                 cur = cur .. ':' .. (trace.currentline or '0') .. ' in ' .. (trace.name or '???')
                 str[#str + 1] = cur
             end
@@ -67,7 +69,7 @@ require('__Kux-CoreLib__/stdlib/utils/defines/time')
 --- @param suppress_all boolean suppress all errors, not just file_not_found
 --- @return any
 local function prequire(module, suppress_all)
-    local ok, err = pcall(require, module)
+    local ok, err = pcall(require--[[@as fun(string)]], module)
     if ok then
         return err
     elseif not suppress_all and not err:find('^module .* not found') then
@@ -154,26 +156,26 @@ function STDLIB.create_stdlib_globals(files)
     files =
         files or
         {
-            GAME = 'stdlib/game',
-            AREA = 'stdlib/area/area',
-            POSITION = 'stdlib/area/position',
-            TILE = 'stdlib/area/tile',
-            SURFACE = 'stdlib/area/surface',
-            CHUNK = 'stdlib/area/chunk',
-            COLOR = 'stdlib/utils/color',
-            ENTITY = 'stdlib/entity/entity',
+            GAME      = 'stdlib/game',
+            AREA      = 'stdlib/area/area',
+            POSITION  = 'stdlib/area/position',
+            TILE      = 'stdlib/area/tile',
+            SURFACE   = 'stdlib/area/surface',
+            CHUNK     = 'stdlib/area/chunk',
+            COLOR     = 'stdlib/utils/color',
+            ENTITY    = 'stdlib/entity/entity',
             INVENTORY = 'stdlib/entity/inventory',
-            RESOURCE = 'stdlib/entity/resource',
-            CONFIG = 'stdlib/misc/config',
-            LOGGER = 'stdlib/misc/logger',
-            QUEUE = 'stdlib/misc/queue',
-            EVENT = 'stdlib/event/event',
-            GUI = 'stdlib/event/gui',
-            PLAYER = 'stdlib/event/player',
-            FORCE = 'stdlib/event/force',
-            TABLE = 'stdlib/utils/table',
-            STRING = 'stdlib/utils/string',
-            MATH = 'stdlib/utils/math'
+            RESOURCE  = 'stdlib/entity/resource',
+            CONFIG    = 'stdlib/misc/config',
+            LOGGER    = 'stdlib/misc/logger',
+            QUEUE     = 'stdlib/misc/queue',
+            EVENT     = 'stdlib/event/event',
+            GUI       = 'stdlib/event/gui',
+            PLAYER    = 'stdlib/event/player',
+            FORCE     = 'stdlib/event/force',
+            TABLE     = 'stdlib/utils/table',
+            STRING    = 'stdlib/utils/string',
+            MATH      = 'stdlib/utils/math'
         }
     for glob, path in pairs(files) do
         rawset(_ENV, glob, require('__Kux-CoreLib__/' .. (path:gsub('%.', '/')))) -- extra () required to emulate select(1)
@@ -184,17 +186,17 @@ function STDLIB.create_stdlib_data_globals(files)
     files =
         files or
         {
-            RECIPE = 'stdlib/data/recipe',
-            ITEM = 'stdlib/data/item',
-            FLUID = 'stdlib/data/fluid',
-            ENTITY = 'stdlib/data/entity',
+            RECIPE     = 'stdlib/data/recipe',
+            ITEM       = 'stdlib/data/item',
+            FLUID      = 'stdlib/data/fluid',
+            ENTITY     = 'stdlib/data/entity',
             TECHNOLOGY = 'stdlib/data/technology',
-            CATEGORY = 'stdlib/data/category',
-            DATA = 'stdlib/data/data',
-            TABLE = 'stdlib/utils/table',
-            STRING = 'stdlib/utils/string',
-            MATH = 'stdlib/utils/math',
-            COLOR = 'stdlib/utils/color'
+            CATEGORY   = 'stdlib/data/category',
+            DATA       = 'stdlib/data/data',
+            TABLE      = 'stdlib/utils/table',
+            STRING     = 'stdlib/utils/string',
+            MATH       = 'stdlib/utils/math',
+            COLOR      = 'stdlib/utils/color'
         }
     STDLIB.create_stdlib_globals(files)
 end

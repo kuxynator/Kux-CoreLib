@@ -1,9 +1,10 @@
+---@diagnostic disable
 --- A collection library to simplify sequential table operations
 --
 --    local Enumerable = require('__Kux-CoreLib__/stdlib/vendor/enumerable')
 --    Enumerable.create({1,2,3})
--- @classmod Vendor.Enumerable
--- @author Billiam
+--- @class StdLib.Vendor.Enumerable
+--- @author Billiam
 local Enumerable = {}
 Enumerable.mt = {
   __index = function(self, key)
@@ -24,7 +25,7 @@ local function isSequence(t)
 end
 
 --- Whether the item passed in may be called as a function
--- @param Item f to test for callability
+--- @param f any Item to test for callability
 --- @return boolean True if passed in item may be called, false otherwise
 local function isCallable(f)
   local t = type(f)
@@ -47,8 +48,8 @@ end
 --
 -- @usage
 --  collection = Enumerable.create({123})
---- @param ?table collection Sequential table to wrap
---- @return enumerable A new collection instance
+--- @param collection table Sequential table to wrap
+--- @return StdLib.Vendor.Enumerable #A new collection instance
 -- @raise 'Enumerable data must be a sequence' if given a non-sequential table
 function Enumerable.create(collection)
   if collection and not (type(collection) == 'table' and isSequence(collection)) then
@@ -156,7 +157,7 @@ end
 --  -> 1
 --  collection:first(3)
 --  -> {1,2,3}
---- @param ?int n Number of elements to return. If absent, the first item will be returned.
+--- @param n int Number of elements to return. If absent, the first item will be returned.
 --- @return table|*
 function Enumerable:first(n)
   if not n or n == 1 then
@@ -181,7 +182,7 @@ end
 --  -> 4
 --  collection:last(3)
 --  -> {2, 3, 4}
---- @param ?int n Number of elements to return. If absent, the last item will be returned.
+--- @param n int Number of elements to return. If absent, the last item will be returned.
 --- @return table
 function Enumerable:last(n)
   if not n or n == 1 then
@@ -245,7 +246,7 @@ end
 --  -> 6
 --  numbers:reduce(20, function(accumulator, value) return accumulator + value end)
 --  -> 26
---- @param ?int initial Initial value for accumulator
+--- @param initial int Initial value for accumulator
 --- @param callback callable
 -- @return Accumulator value
 function Enumerable:reduce(initial, callback)
@@ -276,7 +277,7 @@ end
 -- -> 'aaaaa'
 --  strings:min(function(value) return #value end)
 -- -> 'c'
---- @param ?callable callback
+--- @param callback callable
 -- @return Lowest value
 function Enumerable:min(callback)
   callback = callback or function(v) return v end
@@ -304,7 +305,7 @@ end
 -- -> 'c'
 --  strings:max(function(value) return #value end)
 -- -> 'aaaaa'
---- @param ?callable callback
+--- @param callback callable
 -- @return Highest value
 function Enumerable:max(callback)
   callback = callback or function(v) return v end
@@ -332,7 +333,7 @@ end
 -- -> (1,6)
 --  strings:max(function(value) return 10 - value end)
 -- -> (6, 1)
---- @param ?callable callback
+--- @param callback callable
 -- @return Lowest value
 -- @return Highest value
 function Enumerable:minmax(callback)
@@ -350,7 +351,7 @@ end
 --  -> numbers now contains {1,2,3}
 --  numbers:sort(function(a, b) return b < a end)
 --  -> numbers now contains {3,2,1}
---- @param ?callable callback sort method
+--- @param callback callable sort method
 --- @return enumerable The collection instance
 function Enumerable:sort(callback)
   table.sort(self._data, callback)

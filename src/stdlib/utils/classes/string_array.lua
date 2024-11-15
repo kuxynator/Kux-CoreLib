@@ -1,7 +1,11 @@
+error("deprecated. Use unique-array.lua")
+--- @diagnostic disable
+--- not used internally
+--- if needed, we will make it a normal string array later
+---------------------------------------------------------------------------------------------------
 --- String Array Metatable
 -- For working with string arrays without duplicate values
--- @classmod string_array
-
+--- @class StdLib.Classes.StringArray
 local M = {
     __class = 'string-array-class'
 }
@@ -31,7 +35,7 @@ function M:has(name)
 end
 
 --- Add a string to the array if it doesn't exist in the array.
---- @param name string
+--- @param name string|string[] The string to add.
 --- @return self
 function M:add(name)
     local type = type(name)
@@ -112,14 +116,30 @@ function M:tostring()
     return table.concat(self, ', ')
 end
 
+
+--[[ WTF?
 --- Concat string-arrays and strings together
---- @param string|string-array rhs
---- @return string-array
+--- @param rhs string|StdLib.Classes.StringArray
+--- @return StdLib.Classes.StringArray
 function M:concat(rhs)
     if getmetatable(self) == metatable then
         return self:add(rhs)
     else
         return rhs:add(self)
+    end
+end
+]]
+
+--- Concat string-arrays and strings together
+--- @param rhs string|StdLib.Classes.StringArray
+--- @return StdLib.Classes.StringArray
+function M:concat(rhs)
+    if type(rhs) == "string" then
+        return self:add(rhs)
+    elseif getmetatable(rhs) == metatable then
+        return self:add(rhs)
+    else
+        error("Invalid type for rhs: " .. type(rhs))
     end
 end
 

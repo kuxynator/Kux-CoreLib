@@ -10,7 +10,7 @@ local Trains = {
 setmetatable(Trains, Trains)
 
 local Event = require('__Kux-CoreLib__/stdlib/event/event')
-local Surface = require('__Kux-CoreLib__/stdlib/area/surface')
+local Surface = require('__Kux-CoreLib__/stdlib/area/surface')--[[@as StdLib.Area.Surface]]
 local Entity = require('__Kux-CoreLib__/stdlib/entity/entity')
 local table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
 
@@ -19,43 +19,39 @@ local table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils
 -- which means that when locomotives are attached or detached from their wagons or from other locomotives, the ID of the train changes.
 -- <p>For example: A train with a front and rear locomotives will get its ID
 -- from the front locomotive. If the front locomotive gets disconnected, the rear locomotive becomes the main one and the train's ID changes.
---- @event on_train_id_changed
---- @param old_id uint the ID of the train before the change
---- @param new_id uint the ID of the train after the change
---- @usage
---- Event.register(Trains.on_train_id_changed, my_handler)
+-- @event on_train_id_changed
+-- @param old_id uint the ID of the train before the change
+-- @param new_id uint the ID of the train after the change
+-- @usage
+-- Event.register(Trains.on_train_id_changed, my_handler)
 Trains.on_train_id_changed = Event.generate_event_name()
 
 --- Given a @{criteria|search criteria}, search for trains that match the criteria.
 -- If ***criteria.surface*** is not supplied, this function searches through all existing surfaces.
 -- If ***criteria.force*** is not supplied, this function searches through all existing forces.
 -- If ***criteria.state*** is not supplied, this function gets trains in any @{defines.train_state|state}.
---- @param criteria criteria a table used to search for trains
+--- @param criteria StdLib.Event.Trains.criteria? a table used to search for trains
 -- @return (<span class="types">{@{train_details},...}</span>) an array of train IDs and LuaTrain instances
 -- @usage
 -- Trains.find_filtered({ surface = "nauvis", state = defines.train_state.wait_station })
-function Trains.find_filtered(criteria)
-    criteria = criteria or {}
-
-    local surface_list = Surface.lookup(criteria.surface)
-    if criteria.surface == nil then
-        surface_list = game.surfaces
-    end
+function Trains.find_filtered(criteria) --Factorio 2.0 compatible
+	criteria = criteria or {}
+    local filter = table.deepcopy(criteria)
+	filter.state = nil
 
     local results = {}
-
-    for _, surface in pairs(surface_list) do
-        local trains = surface.get_trains(criteria.force)
-        for _, train in pairs(trains) do
-            table.insert(results, train)
-        end
-    end
+	local trains = game.train_manager.get_trains(filter)
+	for _, train in pairs(trains) do
+		table.insert(results, train)
+	end
 
     -- Apply state filters
     if criteria.state then
         results =
         table.filter(
             results,
+			---@param train LuaTrain
+			---@return boolean
             function(train)
                 return train.state == criteria.state
             end
@@ -76,20 +72,19 @@ end
 
 ---
 -- This table should be passed into @{find_filtered} to find trains that match the criteria.
--- @tfield[opt] ?|nil|string|{string,...}|LuaSurface|{LuaSurface,...} surface the surfaces to look up for the trains
--- @tfield[opt] ?|nil|string|LuaForce force the force of the trains to search
--- @tfield[opt] ?|nil|defines.train_state state the state of the trains to search
--- @table criteria
+--- @class StdLib.Event.Trains.criteria : TrainFilter
+--- @field state nil|defines.train_state  [opt] the state of the trains to search
 
----
--- @{find_filtered} returns an array with one or more of ***this*** table based on the @{criteria|search criteria}.
--- @tfield LuaTrain train an instance of the train
--- @tfield uint id the ID of the train
--- @table train_details
+
+--- {find_filtered} returns an array with one or more of ***this*** table based on the @{criteria|search criteria}.
+--- @class StdLib.Event.Trains.train_details
+--- @field train LuaTrain an instance of the train
+--- @field id uint the ID of the train
+
 
 --- Find the ID of a LuaTrain instance.
 --- @param train LuaTrain
---- @return uint the ID of the train
+--- @return uint? #the ID of the train
 function Trains.get_train_id(train)
     local loco = Trains.get_main_locomotive(train)
     return loco and loco.unit_number
@@ -128,7 +123,7 @@ end
 
 --- Get the main locomotive of a train.
 --- @param train LuaTrain
---- @return LuaEntity the main locomotive
+--- @return LuaEntity? #the main locomotive
 function Trains.get_main_locomotive(train)
     if train and train.valid and train.locomotives and (#train.locomotives.front_movers > 0 or #train.locomotives.back_movers > 0) then
         return train.locomotives.front_movers and train.locomotives.front_movers[1] or train.locomotives.back_movers[1]
@@ -191,12 +186,12 @@ function Trains.create_train_registry()
 end
 
 function Trains.on_train_created(event)
-    local train_id = Trains.get_train_id(event.train)
+    local train_id = Trains.get_train_id(event.train) or error("unexpected")
     storage._train_registry[train_id] = event.train
 end
 
 --- This needs to be called to register events for this module
---- @return Trains
+--- @return StdLib.Event.Trains
 function Trains.register_events()
     -- When a locomotive is removed ...
     local train_remove_events = { defines.events.on_entity_died, defines.events.on_pre_player_mined_item, defines.events.on_robot_pre_mined }

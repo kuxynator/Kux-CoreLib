@@ -1,5 +1,6 @@
 local type = type
 
+---does not work for EmmyLua
 ---@class StdLib.Utils.Type
 local Type = {
     Table = function(param) return type(param) == 'table' end,

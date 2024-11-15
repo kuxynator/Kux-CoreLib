@@ -58,8 +58,7 @@ function Position.new(pos)
 end
 
 --- Creates a table representing the position from x and y.
---- @param x number x-position
---- @param y number y-position
+--- @param ... number x and y position
 --- @return Position
 function Position.construct(...)
     -- was self was passed as first argument?
@@ -762,16 +761,16 @@ function Position.is_position(pos)
 end
 
 --- Return the atan2 of 2 positions.
---- @param pos1 Position
---- @param pos2 Position
+--- @param pos1 Position the first position
+--- @param pos2 Position the second position
 --- @return number
 function Position.atan2(pos1, pos2)
     return atan2(pos2.x - pos1.x, pos2.y - pos1.y)
 end
 
 --- The angle between two positions
---- @param pos1 Position
---- @param pos2 Position
+--- @param pos1 Position the first position
+--- @param pos2 Position the second position
 --- @return number
 function Position.angle(pos1, pos2)
     local dist = Position.distance(pos1, pos2)
@@ -783,24 +782,24 @@ function Position.angle(pos1, pos2)
 end
 
 --- Return the cross product of two positions.
---- @param pos1 Position
---- @param pos2 Position
+--- @param pos1 Position the first position
+--- @param pos2 Position the second position
 --- @return number
 function Position.cross(pos1, pos2)
     return pos1.x * pos2.y - pos1.y * pos2.x
 end
 
 -- Return the dot product of two positions.
---- @param pos1 Position
---- @param pos2 Position
+--- @param pos1 Position the first position
+--- @param pos2 Position the second position
 --- @return number
 function Position.dot(pos1, pos2)
     return pos1.x * pos2.x + pos1.y * pos2.y
 end
 
 --- Tests whether or not the two given positions are equal.
---- @param pos1 Position
---- @param pos2 Position
+--- @param pos1 Position the first position
+--- @param pos2 Position the second position
 --- @return boolean true if positions are equal
 function Position.equals(pos1, pos2)
     if not (pos1 and pos2) then return false end
@@ -809,24 +808,24 @@ function Position.equals(pos1, pos2)
 end
 
 --- Is pos1 less than pos2.
---- @param pos1 Position
---- @param pos2 Position
+--- @param pos1 Position the first position
+--- @param pos2 Position the second position
 --- @return boolean
 function Position.less_than(pos1, pos2)
     return Position.len(pos1) < Position.len(pos2)
 end
 
 --- Is pos1 less than or equal to pos2.
---- @param pos1 Position
---- @param pos2 Position
+--- @param pos1 Position the first position
+--- @param pos2 Position the second position
 --- @return boolean
 function Position.less_than_eq(pos1, pos2)
     return Position.len(pos1) <= Position.len(pos2)
 end
 
 --- Calculates the Euclidean distance squared between two positions, useful when sqrt is not needed.
---- @param pos1 Position
---- @param pos2 Position? [opt]
+--- @param pos1 Position the first position
+--- @param pos2 Position the second position
 --- @return number #the square of the euclidean distance
 function Position.distance_squared(pos1, pos2)
     local ax_bx = pos1.x - pos2.x
@@ -835,8 +834,8 @@ function Position.distance_squared(pos1, pos2)
 end
 
 --- Calculates the Euclidean distance between two positions.
---- @param pos1 Position
---- @param pos2 Position? [opt={x=0, y=0}]
+--- @param pos1 Position the first position
+--- @param pos2 Position the second position
 --- @return number #the euclidean distance
 function Position.distance(pos1, pos2)
     local ax_bx = pos1.x - pos2.x
@@ -845,8 +844,8 @@ function Position.distance(pos1, pos2)
 end
 
 --- Calculates the manhatten distance between two positions.
---- @param pos1 Position
---- @param pos2 Position? [opt] the second position
+--- @param pos1 Position the first position
+--- @param pos2 Position the second position
 --- @return number the manhatten distance
 -- @see https://en.wikipedia.org/wiki/Taxicab_geometry Taxicab geometry (manhatten distance)
 function Position.manhattan_distance(pos1, pos2)
@@ -862,17 +861,17 @@ function Position.direction_to(pos1, pos2)
     local dy = pos1.y - pos2.y
     if dx ~= 0 then
         if dy == 0 then
-            return dx > 0 and directions.west or directions.east
+            return dx > 0 and directions.west or directions.east --[[@as defines.direction]]
         else
             local adx, ady = abs(dx), abs(dy)
             if adx > ady then
-                return dx > 0 and directions.north or directions.south
+                return dx > 0 and directions.north or directions.south --[[@as defines.direction]]
             else
-                return dy > 0 and directions.west or directions.east
+                return dy > 0 and directions.west or directions.east --[[@as defines.direction]]
             end
         end
     else
-        return dy > 0 and directions.north or directions.south
+        return dy > 0 and directions.north or directions.south --[[@as defines.direction]]
     end
 end
 

@@ -82,7 +82,7 @@ end
 --- Init or re-init a player or players.
 -- Passing a `nil` event will iterate all existing players.
 --- @param event number|table|string|LuaPlayer [opt]
---- @param overwrite boolean the player data [opt=false]
+--- @param overwrite boolean? the player data [opt=false]
 function Player.init(event, overwrite)
     -- Create the storage.players table if it doesn't exisit
     storage.players = storage.players or {}
@@ -121,8 +121,8 @@ function Player.update_force(event)
 end
 
 function Player.dump_data()
-    game.write_file(Player.get_file_path('Player/player_data.lua'), 'return ' .. inspect(Player._new_player_data, { longkeys = true, arraykeys = true }))
-    game.write_file(Player.get_file_path('Player/storage.lua'), 'return ' .. inspect(storage.players or nil, { longkeys = true, arraykeys = true }))
+    helpers.write_file(script.mod_name .. '/Player/player_data.lua', 'return ' .. inspect(Player._new_player_data, { longkeys = true, arraykeys = true }))
+    helpers.write_file(script.mod_name .. '/Player/storage.lua', 'return ' .. inspect(storage.players or nil, { longkeys = true, arraykeys = true }))
 end
 
 function Player.register_init()

@@ -10,7 +10,7 @@ local Is = require('__Kux-CoreLib__/stdlib/utils/is') --[[@as StdLib.Utils.Is]]
 local table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
 
 function Util.extend(proto_array)
-    Is.Assert.Table(proto_array, 'Missing table or array to extend')
+    assert(Is.Assert.Table(proto_array) 'Missing table or array to extend')
     data:extend(#proto_array > 0 and proto_array or { proto_array })
 end
 
@@ -62,7 +62,6 @@ end
 -- load the data portion of stdlib into globals, by default it loads everything into an ALLCAPS name.
 -- Alternatively you can pass a dictionary of `[global names] -> [require path]`.
 --- @param files table? [opt]
---- @return Data
 -- @usage
 -- require('__Kux-CoreLib__/stdlib/data/data).util.create_data_globals()
 function Util.create_data_globals(files)

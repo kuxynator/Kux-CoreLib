@@ -1,24 +1,26 @@
 --- Resource utilities.
--- @module Entity.Resource
--- @usage local Resource = require('__Kux-CoreLib__/stdlib/entity/resource')
-
-local Resource = { __class = 'Resource',
-    __index = require('__Kux-CoreLib__/stdlib/core') }
+--- @class StdLib.Entity.Resource
+--- @usage local Resource = require('__Kux-CoreLib__/stdlib/entity/resource')
+local Resource = {
+	__class = 'Resource',
+    __index = require('__Kux-CoreLib__/stdlib/core') --[[@as StdLib.Core]]
+}
 setmetatable(Resource, Resource)
 
 local Is = require('__Kux-CoreLib__/stdlib/utils/is')
 
-local Surface = require('__Kux-CoreLib__/stdlib/area/surface')
-local Area = require('__Kux-CoreLib__/stdlib/area/area')
-local Tile = require('__Kux-CoreLib__/stdlib/area/tile')
+local Surface = require('__Kux-CoreLib__/stdlib/area/surface') --[[@as StdLib.Area.Surface]]
+local Area = require('__Kux-CoreLib__/stdlib/area/area')       --[[@as StdLib.Area]]
+local Tile = require('__Kux-CoreLib__/stdlib/area/tile')	   --[[@as StdLib.Area.Tile]]
 local Queue = require('__Kux-CoreLib__/stdlib/misc/queue')
-local table = require('__Kux-CoreLib__/stdlib/utils/table') --[[@as StdLib.Utils.Table]]
+local table = require('__Kux-CoreLib__/stdlib/utils/table')    --[[@as StdLib.Utils.Table]]
+
 
 --- Gets all resource entities at the specified position and surface.
 -- Adapted from *YARM/resmon.lua &rarr; find\_resource\_at*
 --- @param surface string|LuaSurface the surface to look up
 --- @param position Position the position to check
---- @return LuaEntity[]? #an array of resource entities or nil if none found
+--- @return LuaEntity[] #an array of resource entities
 function Resource.get_resources_at(surface, position)
     Is.Assert(surface, 'missing surface')
     Is.Assert(position, 'missing position')
@@ -134,37 +136,28 @@ end
 --- Given an array of resource entities, get an array containing their names.
 -- Every element within the new array is unique and is the name of a resource entity.
 --- @param resources LuaEntity[] an array of resource entities
---- @return string[]? #a new array with the names of the resources or nil if no resource entities are given
+--- @return string[] #a new array with the names of the resources
 function Resource.get_resource_types(resources)
     local result = {}
-
-    if resources then
-        local resource_names = {}
-
-        for _, resource in pairs(resources) do
-            resource_names[resource.name] = true
-        end
-
-        result = table.keys(resource_names, false, true)
-    end
-
+    if not resources then return result end
+	local resource_names = {}
+	for _, resource in pairs(resources) do
+		resource_names[resource.name] = true
+	end
+	result = table.keys(resource_names, false, true)
     return result
 end
 
 --- Given an array of resource entities, return the ones that have the given resource names.
 --- @param resources LuaEntity[] an array of resource entities
 --- @param resource_names string[] the names of the resource entities
---- @return LuaEntity[]? #a new array containing the entities matching the given resource names or nil if no matches were found
+--- @return LuaEntity[] #a new array containing the entities matching the given resource names
 function Resource.filter_resources(resources, resource_names)
     Is.Assert(resources, 'missing resource entities list')
-
-    if not resource_names or #resource_names == 0 then
-        return resources
-    end
+    if not resource_names or #resource_names == 0 then return resources end
 
     -- filter the resources that have the same name as one of the given names in resource_names
-    local result =
-    table.filter(
+    local result = table.filter(
         resources,
         function(resource_entity)
             return table.any(

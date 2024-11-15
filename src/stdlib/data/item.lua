@@ -20,7 +20,7 @@ end
 
 local function change_inputs(name, lab_names, add)
     lab_names = make_table(lab_names)
-    local Entity = require('__Kux-CoreLib__/stdlib/data/entity')
+    local Entity = require('__Kux-CoreLib__/stdlib/data/entity') --[[@as StdLib.Data.Entity]]
     for _, lab_name in pairs(lab_names) do
         Entity(lab_name, 'lab'):change_lab_inputs(name, add)
     end

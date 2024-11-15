@@ -4,7 +4,10 @@
 --- @see StdLib.Area.Position
 --- @see BoundingBox
 --- @see Position
-local Area = { __class = 'Area', __index = require('__Kux-CoreLib__/stdlib/core') }
+local Area = {
+	__class = 'Area',
+	__index = require('__Kux-CoreLib__/stdlib/core') --[[@as StdLib.Core]]
+}
 setmetatable(Area, Area)
 
 local Position = require('__Kux-CoreLib__/stdlib/area/position') --[[@as StdLib.Area.Position]]
@@ -85,9 +88,10 @@ end
 --- @param area_string string the area to convert
 --- @return BoundingBox
 function Area.from_key(area_string)
+	function n(v) return tonumber(v) or error('Invalid number: ' .. v) end
     local tab = string.split(area_string, ',', false, tonumber)
-    local lt = Position.new { x = tab[1], y = tab[2] }
-    local rb = Position.new { x = tab[3], y = tab[4] }
+    local lt = Position.new { x = n(tab[1]), y = n(tab[2]) }
+    local rb = Position.new { x = n(tab[3]), y = n(tab[4]) }
     return new_area(lt, rb)
 end
 
@@ -189,10 +193,15 @@ function Area.center_points(area)
     return new_area(Position.center(area.left_top), right_bottom_center(area.right_bottom), area.orientation)
 end
 
+---@class BoundingBox.corners : BoundingBox.0
+---@field left_bottom Position
+---@field right_top Position
+
 --- add left_bottom and right_top to the area
 --- @param area BoundingBox
---- @return BoundingBox #the area with left_bottom and right_top included
+--- @return BoundingBox.corners #the area with left_bottom and right_top included
 function Area.corners(area)
+	---@cast area BoundingBox.corners
     local lt, rb = area.left_top, area.right_bottom
     local lb = area.left_bottom or Position.construct_xy(0, 0)
     local rt = area.right_top or Position.construct_xy(0, 0)
@@ -209,14 +218,14 @@ end
 --- @return BoundingBox #the fliped area
 function Area.flip(area)
     local w, h = Area.dimensions(area)
-    if w == h then
-        return area -- no point flipping a square
-    elseif h > w then
+    if h > w then
         local rad = h / 2 - w / 2
         return Area.adjust(area, { rad, -rad })
     elseif w > h then
         local rad = w / 2 - h / 2
         return Area.adjust(area, { -rad, rad })
+	else
+		return area -- no point flipping a square
     end
 end
 
@@ -460,6 +469,7 @@ end
 --- @return number lt.y
 --- @return number rb.x
 --- @return number rb.y
+--- @return float orientation
 function Area.unpack(area)
     return area.left_top.x, area.left_top.y, area.right_bottom.x, area.right_bottom.y, area.orientation
 end

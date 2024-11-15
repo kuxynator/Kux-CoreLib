@@ -12,7 +12,7 @@ local Core = {
     _LICENSE = [[
         MIT LICENSE
 
-        Copyright (c) 2016, Afforess
+        Copyright (c) 2016 Afforess, 2024 Kuxynator
 
         Permission to use, copy, modify, and/or distribute this software for any
         purpose with or without fee is hereby granted, provided that the above
@@ -46,6 +46,7 @@ function Core.log_and_print(msg)
         return true
     else
         log(msg)
+		return false
     end
 end
 
