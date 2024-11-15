@@ -32,7 +32,7 @@ Chunk.to_position = Position.from_chunk_position
 
 -- Hackish function, Factorio lua doesn't allow require inside functions because...
 local function load_area(area)
-    local Area = package.loaded[AREA_PATH]
+    local Area = package.loaded[AREA_PATH..".lua"]
     if not Area then
         local log = log or function(_msg_) end
         log('WARNING: Area for Position not found in package.loaded')
