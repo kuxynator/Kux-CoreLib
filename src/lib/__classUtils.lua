@@ -109,6 +109,7 @@ local function inject_ctor(obj)
 	obj.__isInitialized = false
 	obj.__on_initialized = setmetatable({}, mt__on_initialized)
 	obj.asGlobal = function() return KuxCoreLib.__classUtils.asGlobal(obj) end
+	obj.__isGlobal = false
 end
 
 -- Usage:

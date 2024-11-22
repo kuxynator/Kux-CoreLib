@@ -454,9 +454,11 @@ function Trace.getIdentifier(o)
 	if(o.object_name) then
 		pcall(function() p.type = o.type end)
 		pcall(function() p.name = o.name end)
+		pcall(function() p.unit_number = o.unit_number end)
 	else
 		p.type = o.type
 		p.name = o.name
+		p.unit_number = o.unit_number 
 		p.__class = o.__class
 	end
 	return serpent.line(p)

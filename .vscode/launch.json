@@ -12,8 +12,14 @@
             "env": {
                 "LUA_PATH": "${workspaceFolder}/src/?/?.lua;${workspaceFolder}/tests/?/?.lua;"
             },
-            "luaVersion": "5.2",       
-            "stopOnEntry": false,     
-        }
+            "luaVersion": "lua52",
+            "stopOnEntry": false,
+        },
+		{
+			"type": "factoriomod",
+			"request": "launch",
+			"name": "Factorio Mod Debug",
+		}
+
     ]
 }

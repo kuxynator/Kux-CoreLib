@@ -6,6 +6,7 @@ local function isEnabled()
 end
 
 ---@class KuxCoreLib.Debug
+---@field asGlobal fun():KuxCoreLib.Debug Provides Debug in the global namespace
 local Debug = {
 	__class  = "Debug",
 	__guid   = "{62243C3D-5389-42F7-B7C2-D87967E2D9AF}",
@@ -80,8 +81,7 @@ Debug.getCallingMod = Debug.util.getExecutingMod
 
 ---------------------------------------------------------------------------------------------------
 
----Provides Debug in the global namespace
----@return KuxCoreLib.Debug
-function Debug.asGlobal(mode) return KuxCoreLib.__classUtils.asGlobal(Debug, mode) end
+
+
 
 return Debug

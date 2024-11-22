@@ -179,15 +179,44 @@ function Factorissimo.getWallRect(factory)
 end
 
 ---Gets the top level surface of an entity
----@param entity LuaEntity
+---@param obj LuaEntity|Factorissimo.FactoryObject
 ---@return LuaSurface? #the top level surface or nil if not built
-function Factorissimo.getToplevelSurface(entity)
-	if(not Factorissimo.isFactoryFloor(entity.surface)) then return entity.surface end
-	while true do
-		local factory = Factorissimo.api.find_surrounding_factory(entity.surface, entity.position)
-		if(not factory) then return entity.surface end
-		entity = factory.building
-		if(not entity) then return nil end --factory is not built
+function Factorissimo.getToplevelSurface(obj)
+	if type(obj)=="userdata" and obj.object_name=="LuaEntity" then local entity = obj --[[@as LuaEntity]]
+		if(not Factorissimo.isFactoryFloor(entity.surface)) then return entity.surface end
+		while true do
+			local factory = Factorissimo.api.find_surrounding_factory(entity.surface, entity.position)
+			if(not factory) then return entity.surface end
+			entity = factory.building
+			if(not entity) then return nil end --factory is not built
+		end
+	elseif type(obj)=="table" then local factory = obj --[[@as Factorissimo.FactoryObject]]
+		local entity = factory.building
+		if(not entity) then --factory is not built
+			surface_name = factory.inside_surface.name:match("^(.-)%-factory%-floor")
+			return game.surfaces[surface_name] --maybe nil
+		end
+		if(not Factorissimo.isFactoryFloor(entity.surface)) then return entity.surface end
+		return Factorissimo.getToplevelSurface(entity)
+		-- TODO use factory.inside_surface.planet
+	else
+		error("Invalid Argument. 'obj' must be a LuaEntity or FactoryObject")
+	end
+end
+
+---Gets the planet to which the specified object belongs
+---@param obj LuaEntity|Factorissimo.FactoryObject
+---@return LuaPlanet? #the planet to which the obj belongs or nil
+---@deprecated Not yet implemented
+function Factorissimo.getPlanet(obj)
+	-- TODO: Factorissimo API request: inside_surface.planet should return the real planet
+	-- https://github.com/notnotmelon/factorissimo-2-notnotmelon/issues/119
+	if type(obj)=="userdata" and obj.object_name=="LuaEntity" then local entity = obj --[[@as LuaEntity]]
+		return entity.surface.planet
+	elseif type(obj)=="table" then local factory = obj --[[@as Factorissimo.FactoryObject]]
+		return factory.inside_surface.planet
+	else
+		error("Invalid Argument. 'obj' must be a LuaEntity or FactoryObject")
 	end
 end
 

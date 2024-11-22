@@ -2,6 +2,7 @@ require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
 ---@class KuxCoreLib.Events : KuxCoreLib.Class
 ---@field asGlobal fun():KuxCoreLib.Events
+-- replaces script (LuaBootstrap) for all event actions
 local Events = {
 	__class  = "Events",
 	__guid   = "92a52084-19c4-4577-a8c7-714efb79644f",
@@ -36,6 +37,12 @@ function Events.on_loaded(fnc) return EventDistributor.register("on_loaded", fnc
 ---@param fnc fun()
 ---@return boolean
 function Events.on_init(fnc) return EventDistributor.register("on_init", fnc) end
+
+---Registers a function to be called on next tick
+---@param state object? a custom state object for the event
+---@param fnc fun(KuxCoreLib.NextTickEventData)
+---@return true
+function Events.on_next_tick(state, fnc) return EventDistributor.register_on_next_tick(state, fnc) end
 
 ---@param fnc fun(e: ConfigurationChangedData)
 ---@return boolean

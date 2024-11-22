@@ -328,6 +328,7 @@ function EventDistributor.register (eventIdentifier, fnc, arg)
 	local key = eventId or eventName
 	if    (eventName=="nth_tick"  ) then error("Argument out of range. name: eventIdentifier, value: "..eventIdentifier)
 	elseif(eventName=="on_loaded" ) then EventDistributor.register_nth_tick(1, on_loaded)
+	elseif(eventName=="on_next_tick" ) then EventDistributor.register_on_next_tick(arg, fnc)
 	elseif(eventName=="on_timer"  ) then error("Argument out of range. name: eventIdentifier, value: "..eventIdentifier)
 	elseif(eventName=="on_built"  ) then EventDistributor.register_on_built(nil, fnc); return true
 	elseif(eventName=="on_destroy") then EventDistributor.register_on_destroy(nil, fnc); return true
@@ -388,6 +389,42 @@ function EventDistributor.register_on_timer(tick, fnc)
 		if(Table.contains(events["on_timer"][tick], fnc)) then return false end
 		table.insert(events["on_timer"][tick], fnc)
 	end
+	return true
+end
+
+---@type {[uint]:{fnc:function,state:any}[]}
+local next_tick_registrations = {}
+
+
+---@class KuxCoreLib.NextTickEventData
+---@field tick uint 32 bit unsigned integer. Ranges from 0 to 4 294 967 295, or [0, 2^32-1] <br/>The tick during which the event happened.
+---@field name "on_next_tick"
+---@field state object? custom event data
+
+---distributes the on_next_tick events
+---@param e NthTickEventData
+local function on_next_tick(e)
+	local reg = next_tick_registrations[e.tick]
+	if not reg then return end
+	for _, d in ipairs(reg) do
+		local arg = {
+			tick = e.tick,
+			name = "on_next_tick",
+			state = d.state
+		}
+		d.fnc(arg) -- raise --TODO use pcal?
+	end
+	next_tick_registrations[e.tick] = nil
+end
+
+---Registers a function to be called on next tick
+---@param state object? a custom state object for the event
+---@param fnc fun(KuxCoreLib.NextTickEventData)
+---@return true
+function EventDistributor.register_on_next_tick(state, fnc)
+	next_tick_registrations[game.tick+1] = next_tick_registrations[game.tick+1] or {}
+	table.insert(next_tick_registrations[game.tick+1],{fnc=fnc,state=state})
+	EventDistributor.register_nth_tick(1, on_next_tick)
 	return true
 end
 

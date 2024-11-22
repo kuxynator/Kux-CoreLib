@@ -59,6 +59,7 @@ end
 
 ---@class KuxCorelib.Extend
 ---@field prefix string The name prefix for all settings
+---@overload fun(args:KuxCorelib.ExtendArguments|table)
 SettingsData.extend = {
 	---@type string
 	prefix = nil,

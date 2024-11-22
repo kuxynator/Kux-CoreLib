@@ -1,4 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.14.3
+  Features:
+    - Player: add zoom, controller_type
+    - add Events.on_next_tick
+  Changes:
+    - Factorissimo.getToplevelSurface
+    - Trace.getIdentifier: add unit number
+---------------------------------------------------------------------------------------------------
+Version: 3.14.2
+  Bugfixes:
+    - another false warnung fixed "Area for Position not found in package.loaded"
+---------------------------------------------------------------------------------------------------
 Version: 3.14.1
   Bugfixes:
     - false warnung fixed "Area for Position not found in package.loaded"

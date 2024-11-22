@@ -594,7 +594,7 @@ end
 
 -- Hackish function, Factorio lua doesn't allow require inside functions because...
 local function load_area(area)
-    local Area = package.loaded[AREA_PATH]
+    local Area = package.loaded[AREA_PATH..".lua"]
     if not Area then
         local log = log or function(_msg_)
         end

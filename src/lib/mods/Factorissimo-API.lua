@@ -27,7 +27,7 @@
 ---@field connection_settings any --{{*}*}
 ---@field connection_indicators any[]
 ---@field upgrades any
----@field build boolean
+---@field built boolean
 
 ---@class Factorissimo.global
 ---@field factories Factorissimo.FactoryObject[] List of all factories
