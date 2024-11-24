@@ -1,8 +1,9 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
----@class KuxCoreLib.ItemData
+---@class KuxCoreLib.ItemData : KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.ItemData
 local ItemData = {
-	__class  = "ItemData",
+	__class  = "KuxCoreLib.ItemData",
 	__guid   = "{AD869786-5B06-420C-9866-E83F3AB736C0}",
 	__origin = "Kux-CoreLib/lib/data/ItemData.lua",
 }
@@ -10,6 +11,10 @@ if KuxCoreLib.__classUtils.cache(ItemData) then return KuxCoreLib.__classUtils.c
 ---------------------------------------------------------------------------------------------------
 local DataRaw = KuxCoreLib.DataRaw
 
+---Clone an item prototype
+---@param name string The name of the item prototype to clone
+---@param entity data.EntityPrototype The corresponding entity prototype
+---@return data.ItemPrototype #The cloned item prototype
 function ItemData.clone(name, entity)
 	local base = data.raw["item"][name] or ItemData.find(name)
 	if(not base) then error("Item prrototype not found: "..name) end
@@ -17,10 +22,13 @@ function ItemData.clone(name, entity)
 	item.name = entity.name
 	item.localised_name = {"item-name."..entity.name}
 	item.place_result = entity.name
-	item.base=base
+	item["base"] = base -- additional data, only for data stage
 	return item
 end
 
+---Find an item prototype by name
+---@param itemName string The name of the item prototype to find
+---@return data.ItemPrototype? #The first found item prototype or nil
 function ItemData.find(itemName)
     for _,typeName in ipairs(DataRaw.itemTypes) do
         local item = data.raw[typeName][itemName]
@@ -28,6 +36,9 @@ function ItemData.find(itemName)
     end
 end
 
+---Find an item prototype by name and return the type
+---@param itemName string The name of the item prototype to find
+---@return string? #The type of the first found item prototype or nil
 function ItemData.findType(itemName)
     for _,typeName in ipairs(DataRaw.itemTypes) do
         local item = data.raw[typeName][itemName]
@@ -36,7 +47,4 @@ function ItemData.findType(itemName)
 end
 
 ---------------------------------------------------------------------------------------------------
-
-function ItemData.asGlobal() return KuxCoreLib.__classUtils.asGlobal(ItemData) end
-
 return ItemData

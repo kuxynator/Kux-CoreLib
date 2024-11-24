@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.14.4
+  Changes:
+    - make ModInfo unprotected and add a protect() function
+    - EventDistributor spports on_space_platform_built_entity, on_space_platform_mined_entity
+---------------------------------------------------------------------------------------------------
 Version: 3.14.3
   Features:
     - Player: add zoom, controller_type

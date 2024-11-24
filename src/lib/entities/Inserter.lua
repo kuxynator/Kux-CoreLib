@@ -1,6 +1,7 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
----@class KuxCoreLib.Inserter
+---@class KuxCoreLib.Inserter: KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.Inserter
 Inserter = {
 	__class  = "Inserter",
 	__guid   = "bbd1b177-9f09-426f-8b36-0d40a9f02503",
@@ -10,6 +11,8 @@ if KuxCoreLib.__classUtils.cache(Inserter) then return KuxCoreLib.__classUtils.c
 ---------------------------------------------------------------------------------------------------
 local Math = KuxCoreLib.Math
 
+--- this is a try to make bobmods compatible with slim inserters
+
 local this = {}
 setmetatable(this,{__index=Inserter})
 
@@ -18,6 +21,12 @@ if not bobmods then bobmods = {} end
 if not bobmods.logistics then bobmods.logistics = {} end
 if not bobmods.logistics.inserters then bobmods.logistics.inserters = {} end
 if not bobmods.math then bobmods.math = {} end
+-- dummy
+local more_technology = "bob-inserters-1"
+local more2_technology = "bob-inserters-2"
+local long_technology = "bob-inserters-3"
+local long2_technology = "bob-inserters-4"
+local near_technology = "bob-inserters-5"
 
 function bobmods.math.mod(number, div)
   if number < 0 then
@@ -709,7 +718,4 @@ this.positions = {
 }
 
 ---------------------------------------------------------------------------------------------------
-
-function Inserter.asGlobal() return KuxCoreLib.__classUtils.asGlobal(Inserter) end
-
 return Inserter

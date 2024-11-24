@@ -1,8 +1,9 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
----@class KuxCoreLib.SettingsData
+---@class KuxCoreLib.SettingsData: KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.SettingsData
 local SettingsData = {
-	__class  = "SettingsData",
+	__class  = "KuxCoreLib.SettingsData",
 	__guid   = "{6B1DC373-2A83-4C81-94BD-92E772340FDE}",
 	__origin = "Kux-CoreLib/lib/data/SettingsData.lua",
 }
@@ -66,8 +67,8 @@ SettingsData.extend = {
 	---@type table
 	common = nil
 }
-setmetatable(SettingsData.extend,{
-	__call =call_extend
+setmetatable(SettingsData.extend --[[@as table]],{
+	__call = call_extend
 })
 
 local function getPrefix(self)
@@ -186,7 +187,4 @@ function SettingsData.extend:color(t)
 end
 
 ---------------------------------------------------------------------------------------------------
-
-function SettingsData.asGlobal() return KuxCoreLib.__classUtils.asGlobal(SettingsData) end
-
 return SettingsData

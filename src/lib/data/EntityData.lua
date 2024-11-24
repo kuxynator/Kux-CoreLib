@@ -1,8 +1,9 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
----@class KuxCoreLib.EntityData
+---@class KuxCoreLib.EntityData : KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.EntityData
 local EntityData = {
-	__class  = "EntityData",
+	__class  = "KuxCoreLib.EntityData",
 	__guid   = "{990068A3-AA60-4453-A786-A4F2C7E7CA7F}",
 	__origin = "Kux-CoreLib/lib/data/EntityData.lua",
 }
@@ -29,8 +30,7 @@ local DataRaw = KuxCoreLib.DataRaw
 		end
 	end
 
-	---@diagnostic disable-next-line: assign-type-mismatch, inject-field
-	entity.base = base
+	entity["base"] = base -- additional data, only for data stage
 
 	return entity
 end
@@ -83,7 +83,4 @@ function EntityData.findType(entityName)
 end
 
 ---------------------------------------------------------------------------------------------------
-
-function EntityData.asGlobal() return KuxCoreLib.__classUtils.asGlobal(EntityData) end
-
 return EntityData

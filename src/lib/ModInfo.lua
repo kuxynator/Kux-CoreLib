@@ -136,6 +136,12 @@ function ModInfo.update()
 	--log("ModInfo.update(): stage="..ModInfo.current_stage.." mod="..ModInfo.name.." "..ModInfo.version)
 end
 
+function ModInfo:protect()
+	local mt = getmetatable(self)
+	mt.__newindex = function() error("ModInfo is protected.") end
+	mt.__metatable = "ModInfo is protected"
+end
+
 ---------------------------------------------------------------------------------------------------
 
 ---Provides ModInfo in the global namespace
@@ -162,8 +168,8 @@ function ModInfo.new(additinalMembers)
 	if additinalMembers then for key, value in pairs(additinalMembers) do instance[key] = value end end
 	local mod = setmetatable(instance, {
 		__index = ModInfo,
-		__newindex = function() error("ModInfo is protected.") end,
-		__metatable = "ModInfo is protected"
+		--__newindex = function() error("ModInfo is protected.") end,
+		--__metatable = "ModInfo is protected"
 	})
 	ModInfo.update()
 	ModInfo.prefix = mod.name..mod.separator

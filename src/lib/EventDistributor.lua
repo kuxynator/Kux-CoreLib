@@ -436,6 +436,7 @@ function EventDistributor.register_on_built(item_filter, fnc)
     EventDistributor.register(defines.events.on_robot_built_entity, on_built, item_filter)
     EventDistributor.register(defines.events.script_raised_built,   on_built, item_filter)
     EventDistributor.register(defines.events.script_raised_revive,  on_built, item_filter)
+	EventDistributor.register(defines.events.on_space_platform_built_entity,  on_built, item_filter) -- new in Factorio 2.0
 end
 
 function EventDistributor.register_on_destroy(item_filter, fnc)
@@ -446,6 +447,7 @@ function EventDistributor.register_on_destroy(item_filter, fnc)
 	EventDistributor.register(defines.events.on_robot_pre_mined,       on_destroy, item_filter)
 	EventDistributor.register(defines.events.on_entity_died,           on_destroy, item_filter)
 	EventDistributor.register(defines.events.script_raised_destroy,    on_destroy, item_filter)
+	EventDistributor.register(defines.events.on_space_platform_mined_entity,  on_built, item_filter) -- new in Factorio 2.0
 end
 
 function EventDistributor.unregister_on_built(fnc)

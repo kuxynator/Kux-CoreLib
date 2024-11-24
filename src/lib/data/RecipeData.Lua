@@ -1,8 +1,9 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
----@class KuxCoreLib.RecipeData
+---@class KuxCoreLib.RecipeData : KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.RecipeData
 local RecipeData= {
-	__class  = "RecipeData",
+	__class  = "KuxCoreLib.RecipeData",
 	__guid   = "{6B1DC373-2A83-4C81-94BD-92E772340FDE}",
 	__origin = "Kux-CoreLib/lib/data/RecipeData.lua",
 }
@@ -16,12 +17,12 @@ RecipeData.clone = function(name, item)
 	recipe.name = item.name
 	recipe.localised_name = {"recipe-name."..item.name}
 	RecipeData.setResults(recipe, {{amount = 1, name = item.name, type = "item"}})
-	recipe.base=base
+	recipe["base"]=base -- additional data, only for data stage
 	return recipe
 end
 
 RecipeData.setResults = function(recipe, results)
-	if(recipe.normal) then
+	if isV1 and recipe.normal then
 		recipe.normal.results = results
 		recipe.normal.result = nil
 		recipe.results = nil
@@ -59,7 +60,4 @@ RecipeData.recipeFactor = function (recipe, factor)
 end
 
 ---------------------------------------------------------------------------------------------------
-
-function RecipeData.asGlobal() return KuxCoreLib.__classUtils.asGlobal(RecipeData) end
-
 return RecipeData
