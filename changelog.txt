@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.15.0
+  Changes:
+    - KuxCoreLib.PrototypeData.Extend extended for all prototypes
+  Bugfixes:
+    - Change the order of event registration. fixes Factorissimo get_factory_by_entity
+---------------------------------------------------------------------------------------------------
 Version: 3.14.4
   Changes:
     - make ModInfo unprotected and add a protect() function

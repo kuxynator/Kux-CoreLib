@@ -56,8 +56,9 @@ function PrototypeData.finalize(data)
 	return data
 end
 
----@type KuxCorelib.PrototypeData.Extend
-PrototypeData.extend = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/data/PrototypeData-extend") --[[@as KuxCorelib.PrototypeData.Extend]]
+
+---@type KuxCoreLib.PrototypeData.Extend
+PrototypeData.extend = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/data/PrototypeData-extend") --[[@as KuxCoreLib.PrototypeData.Extend]]
 
 ---------------------------------------------------------------------------------------------------
 

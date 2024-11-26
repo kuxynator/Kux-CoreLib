@@ -1,7 +1,9 @@
----@class KuxCorelib.PrototypeData.Extend.Arguments
 
----@class KuxCorelib.PrototypeData.Extend
+---@class KuxCoreLib.PrototypeData.Extend.Arguments
+
+---@class KuxCoreLib.PrototypeData.Extend
 ---@field prefix string
+---@overload fun(KuxCoreLib.PrototypeData.Extend.Arguments):KuxCoreLib.PrototypeData.ExtendInstance
 local extend = {
 	---@type string
 	prefix = nil,
@@ -9,39 +11,61 @@ local extend = {
 	common = {}
 }
 
+---@class KuxCoreLib.PrototypeData.ExtendInstance : KuxCoreLib.PrototypeData.ExtendInstanceBase
+local instanceMembers = {}
+
+---@class KuxCoreLib.PrototypeData.Extend.Utils
+local utils = {}
+
+---@type KuxCoreLib.PrototypeData.ExtendInstanceBase
+local extendBase = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/data/PrototypeData-extend-base")
+
+---------------------------------------------------------------------------------------------------
+
+extendBase.setUtils(utils)
+setmetatable(instanceMembers, {__index = extendBase}) --instanceMembers inherits from baseClass
+
 ---Creates a new Extend object
----@param t KuxCorelib.PrototypeData.Extend.Arguments | table ExtendArguments | {setting_type, order}
----@return KuxCorelib.PrototypeData.Extend
+---@param t KuxCoreLib.PrototypeData.Extend.Arguments | table ExtendArguments | {setting_type, order}
+---@return KuxCoreLib.PrototypeData.ExtendInstance
 local function call_extend(self, t)
-	local new = {common = t or {}, count = 0}
+	local new = {
+		common = t or {},
+		count = 0
+	}
 	setmetatable(new, {
-		__index = extend
+		__index = instanceMembers
 	})
 	return new
 end
 
-setmetatable(extend,{
+setmetatable(extend--[[@as table]],{
 	__call = call_extend
 })
 
+
+---------------------------------------------------------------------------------------------------
+--- Utils
+---------------------------------------------------------------------------------------------------
+
 ---Returns the prefix
----@param self KuxCorelib.PrototypeData.Extend
+---@param obj KuxCoreLib.PrototypeData.ExtendInstance
 ---@return string
-local function getPrefix(self)
-	return (self.common.prefix or extend.prefix
+function utils.getPrefix(obj)
+	return (obj["common"].prefix or extend.prefix
 		or (_G["mod"] and _G["mod"].prefix or nil)) -- assumnig the mod defines a global "mod" variable
 		or error("No prefix defined. use extend.common.prefix, extend.prefix, or _G.mod.prefix")
 end
 
 ---Returns the name with prefix
----@param self KuxCorelib.PrototypeData.Extend
+---@param obj KuxCoreLib.PrototypeData.ExtendInstance
 ---@param name string
 ---@return string
-local function getName(self, name)
-	return getPrefix(self)..name
+function utils.getName(obj, name)
+	return utils.getPrefix(obj)..name
 end
 
-local function merge(common, data, final_fixes)
+function utils.merge(common, data, final_fixes)
 	--print("merge", order_index, common, data, final_fixes)
 	local merged = {}
 	--merge common-- << extend(common)
@@ -59,24 +83,12 @@ local function merge(common, data, final_fixes)
 	return merged
 end
 
----@class extend.CustomInputPrototype : data.CustomInputPrototype
----@field name string?
----@field key_sequence string?
----@field [1] string name
----@field [2] string key_sequence
 
----Adds a custom-input
----[View documentation](https://lua-api.factorio.com/latest/classes/LuaCustomInputPrototype.html)
----@param t extend.CustomInputPrototype CustomInputPrototype | {name, key_sequence}
-function extend:custom_input(t)
-	local d = merge(self.common, t, {
-		type          = "custom-input",
-		name          = getName(self, t.name or t[1]),
-		key_sequence  = t.key_sequence or t[2] or "",
-		consuming     = t.consuming or "none",
-		-- forced_value -- Only loaded if hidden = true
-	})
-	data:extend{d}
-end
+---------------------------------------------------------------------------------------------------
+--- instanceMembers
+---------------------------------------------------------------------------------------------------
 
+---------------------------------------------------------------------------------------------------
 return extend
+
+
