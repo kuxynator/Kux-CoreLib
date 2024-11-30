@@ -89,6 +89,8 @@ end
 ---@field GuiElementCache KuxCoreLib.GuiElementCache
 ---@field Timer KuxCoreLib.Timer
 ---@field PlayerStorage KuxCoreLib.PlayerStorage
+---@field RadarData KuxCoreLib.RadarData
+---@field SelectionTool KuxCoreLib.SelectionTool
 
 ---Provides access to Kux-CoreLib modules<br>
 ---Usage: `local moduleName = KuxCoreLib.MODULENAME`<br>
@@ -179,8 +181,11 @@ local require_map = { --RUN (F5) to AUTOGENERATE
         TechnologyData = "data",
         TechnologyIndex = "data",
 		BigData = "data",
+		RadarData = "data",
+		SelectionTool = "data",
 
         Inserter = "entities",
+
         Storage = "storage",
         StoragePlayer = "storage",
         StoragePlayers = "storage",

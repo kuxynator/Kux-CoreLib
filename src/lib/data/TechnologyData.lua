@@ -1,6 +1,7 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
----@class KuxCoreLib.TechnologyData
+---@class KuxCoreLib.TechnologyData : KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.TechnologyData
 local TechnologyData = {
 	__class  = "TechnologyData",
 	__guid   = "69c904c0-8169-454a-a807-d9d5232e9986",
@@ -10,13 +11,20 @@ if KuxCoreLib.__classUtils.cache(TechnologyData) then return KuxCoreLib.__classU
 ---------------------------------------------------------------------------------------------------
 local Table = KuxCoreLib.Table
 
+---@class KuxCoreLib.Data.TechnologyPrototype : data.TechnologyPrototype
+---@field base data.TechnologyPrototype additional internal reference
+
+---Clones a technology
+---@param name string base name
+---@param newName string new name
+---@return KuxCoreLib.Data.TechnologyPrototype
 function TechnologyData.clone(name, newName)
 	local base = data.raw["technology"][name]
 	if(not base) then error("Prototype not found: "..name.." (type: technology)") end
-	local technology = table.deepcopy(base)
+	local technology = table.deepcopy(base) --[[@as KuxCoreLib.Data.TechnologyPrototype]]
 	technology.name = newName
 	--technology.localised_name = {"recipe-name."..newName}
-	technology.base = base
+	technology.base = base -- additional internal reference
 	return technology
 end
 
@@ -95,7 +103,4 @@ function TechnologyData.findByIngredient(ingredient)
 end
 
 ---------------------------------------------------------------------------------------------------
-
-function TechnologyData.asGlobal() return KuxCoreLib.__classUtils.asGlobal(TechnologyData) end
-
 return TechnologyData
