@@ -7,10 +7,18 @@ require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 ---@field public text_color Color
 ---@field public background_color Color
 ---@field asGlobal fun():KuxCoreLib.Trace Provides Trace in the global namespace
---- ---
---- **Usage:**
---- `Trace.write(...)` or short `Trace(...)`
---- `Trace.append(...)`
+--[[
+	Usage: <br>
+	  `Trace.write(...)` or short `Trace(...)` <br>
+	  `Trace.append(...)` <br><br>
+	Format Usage: <br>
+	  ```
+	  _G.trace = KuxCoreLib.Trace
+	  trace.sign_color = trace.colors.blue
+	  trace.text_color = trace.colors.lightblue
+	  trace.background_color = trace.colors.gray_32
+	  ```
+--]]
 local Trace = {
 	__class  = "Trace",
 	__guid   = "d37816ef-cba2-46af-8c46-56be0fd02322",
@@ -458,7 +466,7 @@ function Trace.getIdentifier(o)
 	else
 		p.type = o.type
 		p.name = o.name
-		p.unit_number = o.unit_number 
+		p.unit_number = o.unit_number
 		p.__class = o.__class
 	end
 	return serpent.line(p)
@@ -494,7 +502,7 @@ setMetatable()
 KuxCoreLib.__classUtils.finalize(Trace)
 return Trace
 
----@class KuxCoreLib.Trace.Colors : {[string]:Color}
+---@class (exact) KuxCoreLib.Trace.Colors -- : {[string]:Color}
 ---@field black Color
 ---@field red Color
 ---@field green Color

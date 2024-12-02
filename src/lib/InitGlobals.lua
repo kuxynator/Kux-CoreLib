@@ -66,7 +66,7 @@ else
 end
 
 if(script)then
-	
+
 	---Gets a value indicating wether `value` is a table or userdata
 	---@param value any
 	---@param object_name string? The object_name to check for
@@ -79,6 +79,51 @@ if(script)then
 		if object_name then return isO and value.object_name == object_name
 		else return isO end
 	end
+
+	local function getLuaObject(var, object_name, prop)
+		local type = type(var)
+		local t = object_name == "LuaPlayer" and game.players
+			or object_name == "LuaPlayer" and game.players
+			or object_name == "LuaSurface" and game.surfaces
+			or object_name == "LuaForce" and game.forces
+			or error("Invalid object_name: "..object_name)
+
+		local obj = type=="string" and t[var]
+			or type=="number" and t[var]
+			or type=="userdata" and var["object_name"]==object_name and var
+			or error("Invalid input: "..serpent.block(var))
+		if not obj.valid then error("Invalid "..object_name) end
+		if prop == nil then return obj end
+		return obj[prop]
+	end
+
+	---@alias LuaPlayerId integer|string|LuaPlayer
+	---@alias LuaSurfaceId integer|string|LuaSurface
+	---@alias LuaForceId integer|string|LuaForce
+
+	---@param var LuaPlayerId
+	---@return string
+	function _G.getPlayerName(var) return getLuaObject(var, "LuaPlayer", "name")--[[@as string]] end
+
+	---@param var LuaPlayerId
+	---@return LuaPlayer
+	function _G.getPlayer(var) return getLuaObject(var, "LuaPlayer", nil)--[[@as LuaPlayer]] end
+
+	---@param var LuaSurfaceId
+	---@return string
+	function _G.getSurfaceName(var) return getLuaObject(var, "LuaSurface", "name")--[[@as string]] end
+
+	---@param var LuaSurfaceId
+	---@return LuaSurface
+	function _G.getSurface(var) return getLuaObject(var, "LuaSurface", nil)--[[@as LuaSurface]] end
+
+	---@param var LuaForceId
+	---@return string
+	function _G.getForceName(var) return getLuaObject(var, "LuaForce", "name")--[[@as string]] end
+
+	---@param var LuaForceId
+	---@return LuaForce
+	function _G.getForce(var) return getLuaObject(var, "LuaForce", nil)--[[@as LuaForce]] end
 end
 
 
