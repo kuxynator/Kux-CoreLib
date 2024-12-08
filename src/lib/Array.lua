@@ -2,6 +2,7 @@ require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
 ---Provides array functions
 ---@class KuxCoreLib.Array : KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.Array
 local Array = {
 	__class  = "Array",
 	__guid   = "{57811545-A9BF-42D3-9AD5-DDEF82BB9C40}",
@@ -53,9 +54,4 @@ function Array:removeAt(index)
 end
 
 ---------------------------------------------------------------------------------------------------
-
----Provides Array in the global namespace
----@return KuxCoreLib.Array
-function Array.asGlobal() return KuxCoreLib.__classUtils.asGlobal(Array) end
-
 return Array

@@ -1,7 +1,8 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
 ---DRAFT Provides ErrorHandler functions
----@class KuxCoreLib.ErrorHandler
+---@class KuxCoreLib.ErrorHandler : KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.ErrorHandler
 local ErrorHandler = {
 	__class  = "ErrorHandler",
 	__guid   = "236d7a73-2be3-4cc8-81a4-c5c08e91bff9",

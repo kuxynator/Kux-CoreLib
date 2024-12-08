@@ -67,6 +67,28 @@ end
 
 Storage.register("storage.__KuxCoreLib__", "KuxCoreLib.Storage")
 
+function Storage.check()
+	local me = {}
+	function me.func()
+		me.scan(storage, "storage")
+	end
+
+	function me.scan(tbl, path)
+		for key, value in pairs(tbl) do
+			if type(key) == "function" then error("Function key found at path: " .. path) end
+			local current_path = path .. "." .. tostring(key)
+
+			if type(value) == "function" then
+				error("Function found at path: " .. current_path)
+			elseif type(value) == "table" then
+				me.scan(value, current_path)
+			end
+		end
+	end
+
+	me.func()
+end
+
 local function register_events()
 	Events.on_load(function()
 		Storage.raw = storage or error("storage is not available")

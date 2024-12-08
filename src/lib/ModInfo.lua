@@ -158,14 +158,14 @@ if(ModInfo.current_stage=="control") then
 end
 
 ---Initializes a new mod (due updating ModInfo)
----@param additinalMembers table [optional] additional members
+---@param additionalMembers {key:string, value:any} [optional] additional members
 ---@return KuxCoreLib.ModInfo
 ---@overload fun(): KuxCoreLib.ModInfo
----@overload fun(additinalMembers: table): KuxCoreLib.ModInfo
-function ModInfo.new(additinalMembers)
+---@overload fun(additionalMembers: {key:string, value:any}): KuxCoreLib.ModInfo
+function ModInfo.new(additionalMembers)
 	--log("ModInfo.new()")
 	local instance = {}
-	if additinalMembers then for key, value in pairs(additinalMembers) do instance[key] = value end end
+	if additionalMembers then for key, value in pairs(additionalMembers) do instance[key] = value end end
 	local mod = setmetatable(instance, {
 		__index = ModInfo,
 		--__newindex = function() error("ModInfo is protected.") end,

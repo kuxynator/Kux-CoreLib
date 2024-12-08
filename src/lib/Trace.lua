@@ -28,6 +28,7 @@ local Trace = {
 	sign_color = {192,192,192},--lightgray
 	text_color= {192,192,192},--lightgray
 	background_color = {0,0,0},--black
+	isEnabled = false,
 
 	---@type KuxCoreLib.Trace.Colors
 	colors = {
@@ -160,6 +161,7 @@ local Trace = {
 		"☏",
 		"☐",
 		"☑",
+		"🛠️",
 	},
 }
 if KuxCoreLib.__classUtils.cache(Trace) then return KuxCoreLib.__classUtils.cached end
@@ -187,8 +189,6 @@ local function setMetatable()
 end
 
 ---------------------------------------------------------------------------------------------------
-
-_G._trace_isEnabled = true --TODO: set default from settings
 
 local function timestamp()
 	local ticks = (game or {}).tick or 0
@@ -259,7 +259,7 @@ local function colorbackground(text, color) return set_background_color(color)..
 Trace.colortext = colortext
 
 local function write(append, ...)
-	if(not _trace_isEnabled) then return end
+	if(not Trace.isEnabled) then return end
 	local args = {...}
 	local prefix_sign = Trace.prefix_sign and (Trace.prefix_sign.." ") or ""
 	local str = colortext(prefix_sign, Trace.sign_color)..timestamp()..": "
@@ -305,8 +305,8 @@ function Trace.write(...) write(false, ...) end
 ---@param ... any
 function Trace.append(...) write(true, ...) end
 
-function Trace.on() local last = _G._trace_isEnabled; _G._trace_isEnabled = true; return last end
-function Trace.off() local last = _G._trace_isEnabled; _G._trace_isEnabled = false; return last end
+function Trace.on() local last = Trace.isEnabled; Trace.isEnabled = true; return last end
+function Trace.off() local last = Trace.isEnabled; Trace.isEnabled = false; return last end
 
 function Trace.pause(fnc)
 	local was_on = Trace.off()

@@ -1,7 +1,8 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
 ---flying-text
----@class KuxCoreLib.FlyingText
+---@class KuxCoreLib.FlyingText : KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.FlyingText
 local FlyingText = {
 	__class  ="FlyingText",
 	__guid   = "{8BFF3C82-2A4F-41F8-A7B3-C2969A741749}",
@@ -94,9 +95,4 @@ function FlyingText.create(player, text, color)
 end
 
 ---------------------------------------------------------------------------------------------------
-
----Provides FlyingText in the global namespace
----@return KuxCoreLib.FlyingText
-function FlyingText.asGlobal() return KuxCoreLib.__classUtils.asGlobal(FlyingText) end
-
 return FlyingText

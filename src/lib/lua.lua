@@ -10,17 +10,10 @@ local String = KuxCoreLib.String
 ---@param falseValue any
 ---@return any
 function iif(condition, trueValue, falseValue)
-	local retValue
-	if condition then
-		retValue = trueValue
-	else
-		retValue = falseValue
-	end
-
+	local retValue = condition and trueValue or falseValue
 	if type(retValue) =="function" then
 		retValue = retValue()
 	end
-
 	return retValue
 end
 
@@ -126,7 +119,7 @@ function safegetOrCreate(...)
 	local o, p
 	local c = select("#",...)
 	for i = 1, c do
-		local v = select(i,...); 
+		local v = select(i,...);
 		if(i==1) then if(type(v)=="string") then o = _G else o = v; goto next end end
 		local fragments = String.split(v,nil, {".","/"})
 		for iFragment,fragment in ipairs(fragments) do
@@ -167,6 +160,43 @@ end
 function anypairs(t)
 	return next, t, nil
 end
+
+local function set_x(i,...)
+	local values = { ... }
+	if #values == 1 then
+		_G["_"..i] = values[1] -- Einzelner Wert direkt speichern
+	else
+		_G["_"..i] = values    -- Mehrere Werte in einer Tabelle speichern
+	end
+	return ...
+end
+
+function _G.set_1(...) return set_x(1,...) end
+function _G.set_2(...) return set_x(2,...) end
+function _G.set_3(...) return set_x(3,...) end
+function _G.set_4(...) return set_x(4,...) end
+function _G.set_5(...) return set_x(5,...) end
+function _G.set_6(...) return set_x(6,...) end
+function _G.set_7(...) return set_x(7,...) end
+function _G.set_8(...) return set_x(8,...) end
+function _G.set_9(...) return set_x(9,...) end
+
+function _G.set_n(...)
+	_G._n = {...}
+	local values = {...}
+	for i = 1, 9 do _G["_"..i] = values[i] end
+	return values
+end
+
+--[[
+if set_1(some_function()) == expected_value then
+	print(_1)
+end
+
+if set_n(some_function())[2] == expected_value then
+	print(_1)
+end
+]]
 
 ---@class KuxCoreLib.lua
 local lua = {

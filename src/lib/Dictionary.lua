@@ -1,7 +1,8 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
 ---DRAFT Provides Dictionary functions
----@class KuxCoreLib.Dictionary
+---@class KuxCoreLib.Dictionary : KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.Dictionary
 local Dictionary = {
 	__class  = "Dictionary",
 	__guid   = "{114989BE-8900-4ABF-91F4-BC5D19537396}",
@@ -44,9 +45,4 @@ function Dictionary:clear()
 end
 
 ---------------------------------------------------------------------------------------------------
-
----Provides Dictionary in the global namespace
----@return KuxCoreLib.Dictionary
-function Dictionary.asGlobal() return KuxCoreLib.__classUtils.asGlobal(Dictionary) end
-
 return Dictionary

@@ -1,6 +1,7 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
---- @class KuxCoreLib.Event The event class represents an event.
+--- @class KuxCoreLib.Event The event class represents an event. : KuxCoreLib.Class
+--- @field asGlobal fun():KuxCoreLib.Event
 --- @field name string Gets the name of the event. [ReadOnly]
 --- @field id integer Gets the ID of the event. [ReadOnly]
 local Event = {
@@ -26,9 +27,4 @@ function Event:raise()
 end
 
 ---------------------------------------------------------------------------------------------------
-
----Provides Event in the global namespace
----@return KuxCoreLib.Event
-function Event.asGlobal() return KuxCoreLib.__classUtils.asGlobal(Event) end
-
 return Event

@@ -3,7 +3,8 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
 ---DRAFT Provides DataGrid functions
----@class KuxCoreLib.DataGrid
+---@class KuxCoreLib.DataGrid : KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.DataGrid
 local DataGrid = {
 	__class  = "DataGrid",
 	__guid   = "{114989BE-8900-4ABF-91F4-BC5D19537396}",
@@ -14,10 +15,7 @@ local DataGrid = {
 }
 if KuxCoreLib.__classUtils.cache(DataGrid) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
----Provides DataGrid in the global namespace
----@return KuxCoreLib.DataGrid
-function DataGrid.asGlobal() return KuxCoreLib.__classUtils.asGlobal(DataGrid) end
----------------------------------------------------------------------------------------------------
+
 
 local function array_getRowIndex(array, index, columns)
 	return math.floor((index - 1) / columns) + 1

@@ -38,6 +38,7 @@ end
 
 
 ---@class KuxCoreLib.__modules
+---@field AsyncTask KuxCoreLib.AsyncTask
 ---@field Array KuxCoreLib.Array
 ---@field ColorConverter KuxCoreLib.ColorConverter
 ---@field Colors KuxCoreLib.Colors
@@ -90,7 +91,7 @@ end
 ---@field Timer KuxCoreLib.Timer
 ---@field PlayerStorage KuxCoreLib.PlayerStorage
 ---@field RadarData KuxCoreLib.RadarData
----@field SelectionTool KuxCoreLib.SelectionTool
+-- ---@field SelectionTool KuxCoreLib.SelectionTool
 
 ---Provides access to Kux-CoreLib modules<br>
 ---Usage: `local moduleName = KuxCoreLib.MODULENAME`<br>
@@ -103,6 +104,7 @@ end
 ---@field __classUtils KuxCoreLib.__classUtils
 ---@field requireAll function
 ---@field Data table
+---@field __version string
 
 ---@type KuxCoreLib
 ---@diagnostic disable-next-line: missing-fields
@@ -113,7 +115,8 @@ KuxCoreLib = {
 
 	--[[@diagnostic disable-next-line: missing-fields]]
 	__modules = {},
-	__classUtils=nil
+	__classUtils = nil,
+	__version = (mods or script.active_mods)["Kux-CoreLib"],
 }
 
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/__classUtils")
@@ -142,6 +145,7 @@ require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/Factorio11BackwardCompatibi
 
 local require_map = { --RUN (F5) to AUTOGENERATE
         Array = "",
+		AsyncTask = "",
         ColorConverter = "",
         Colors = "",
         Debug = "",

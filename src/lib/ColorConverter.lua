@@ -4,6 +4,7 @@ require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
 --- ColorConverter module
 ---@class KuxCoreLib.ColorConverter Provides color conversion
+---@field asGlobal fun():KuxCoreLib.ColorConverter
 local ColorConverter = {
 	__class = "ColorConverter",
 	__guid      = "{C29DBDDA-9A65-424D-98F2-45CDBAD8D2A1}",
@@ -170,9 +171,4 @@ function ColorConverter.hsvToRgb(h, s, v, a)
 end
 
 ---------------------------------------------------------------------------------------------------
-
----Provides ColorConverter in the global namespace
----@return KuxCoreLib.ColorConverter
-function ColorConverter.asGlobal() return KuxCoreLib.__classUtils.asGlobal(ColorConverter) end
-
 return ColorConverter
