@@ -10,6 +10,7 @@ local ItemData = {
 if KuxCoreLib.__classUtils.cache(ItemData) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 local DataRaw = KuxCoreLib.DataRaw
+local Table = KuxCoreLib.Table
 
 ---Clone an item prototype
 ---@param name string The name of the item prototype to clone
@@ -44,6 +45,19 @@ function ItemData.findType(itemName)
         local item = data.raw[typeName][itemName]
         if(item) then return typeName end
     end
+end
+
+---Set the stack size of an item prototype
+---@param itemName string The name of the item prototype
+---@param stackSize number The new stack size
+---@param exact boolean? #If false, the stack size is only set if the current stack size is less then the new stack size
+function ItemData.setStackSize(itemName, stackSize, exact)
+	local item = data.raw["item"][itemName]
+	if not item then error("Item not found: "..itemName) end
+	if not exact and item.stack_size >= stackSize then return end
+	item.stack_size = stackSize
+	if stackSize==1 then table.insert(item.flags, "not-stackable")
+	else Table.remove(item.flags, "not-stackable") end
 end
 
 ---------------------------------------------------------------------------------------------------
