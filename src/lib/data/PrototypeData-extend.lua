@@ -8,14 +8,26 @@ local extend = {
 	---@type string
 	prefix = nil,
 	---@type table
-	common = {}
+	common = {},
 }
 
 ---@class KuxCoreLib.PrototypeData.ExtendInstance : KuxCoreLib.PrototypeData.ExtendInstanceBase
 local instanceMembers = {}
 
 ---@class KuxCoreLib.PrototypeData.Extend.Utils
-local utils = {}
+local utils = {
+		---@type any
+		NIL = "nil\b\b\b",
+		---@return any
+		MERGE = function (t) t.ACTION="merge"; return t end,
+		---@return any
+		PATCH = function (t) t.ACTION="patch"; return t end,
+		---@return any
+		DEEPCOPY = function (t) t.ACTION="deepcopy"; return t end,
+		---@return any
+		COPY = function (t) t.ACTION="copy"; return t end --reduntand because it is the default action
+}
+extend.utils = utils
 
 ---@type KuxCoreLib.PrototypeData.ExtendInstanceBase
 local extendBase = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/data/PrototypeData-extend-base")
@@ -43,7 +55,6 @@ setmetatable(extend--[[@as table]],{
 	__call = call_extend
 })
 
-
 ---------------------------------------------------------------------------------------------------
 --- Utils
 ---------------------------------------------------------------------------------------------------
@@ -53,7 +64,7 @@ setmetatable(extend--[[@as table]],{
 ---@return string
 function utils.getPrefix(obj)
 	return (obj["common"].prefix or extend.prefix
-		or (_G["mod"] and _G["mod"].prefix or nil)) -- assumnig the mod defines a global "mod" variable
+		or (_G["mod"] and _G["mod"]["prefix"] or nil)) -- assumig the mod defines a global "mod.prefix" variable
 		or error("No prefix defined. use extend.common.prefix, extend.prefix, or _G.mod.prefix")
 end
 
@@ -83,6 +94,23 @@ function utils.merge(common, data, final_fixes)
 	return merged
 end
 
+function utils.patch(data, patch)
+	local function prepTable(d,k)
+		if type(d[k])=="table" then return
+		elseif d[k]==nil then d[k] = {}
+		else error("Cannot patch a non-table value: "..tostring(d[k]))
+		end
+	end
+	for k,v in pairs(patch) do
+		if(v==utils.NIL) then data[k] = nil
+		elseif k=="ACTION" and (v=="merge" or v=="patch" or v=="deepcopy") then --skip
+		--elseif type(v)=="table" and v.ACTION=="merge" then utils.merge(data[k], v)
+		--elseif type(v)=="table" and v.ACTION=="deepcopy" then utils.deepcopy(data[k], v)
+		elseif type(v)=="table" and v.ACTION=="patch" then prepTable(data,k); utils.patch(data[k], v)
+		else data[k] = v
+		end
+	end
+end
 
 ---------------------------------------------------------------------------------------------------
 --- instanceMembers

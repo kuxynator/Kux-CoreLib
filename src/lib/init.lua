@@ -91,6 +91,7 @@ end
 ---@field Timer KuxCoreLib.Timer
 ---@field PlayerStorage KuxCoreLib.PlayerStorage
 ---@field RadarData KuxCoreLib.RadarData
+---@field Radar KuxCoreLib.Radar
 -- ---@field SelectionTool KuxCoreLib.SelectionTool
 
 ---Provides access to Kux-CoreLib modules<br>
@@ -189,6 +190,7 @@ local require_map = { --RUN (F5) to AUTOGENERATE
 		SelectionTool = "data",
 
         Inserter = "entities",
+		Radar = "entities",
 
         Storage = "storage",
         StoragePlayer = "storage",

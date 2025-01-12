@@ -68,9 +68,15 @@ local function eventPair (eventIdentifier)
 		eventId = defines.events[eventIdentifier]
 		--if eventId==nil then eventId = 0 end -- "on_init" "on_load" "on_configuration_changed", o.a.
 	elseif eventType == "table" then
-		eventId = eventIdentifier.name
-		eventName = mapEventNumberToName[eventIdentifier]
-					or eventIdentifier.input_name --The prototype name of the custom input that was activated.
+		eventIdentifier = eventIdentifier.name
+		eventType = type(eventIdentifier)
+		if eventType == "number" then
+			eventName = mapEventNumberToName[eventIdentifier]
+			eventId = eventIdentifier
+		elseif eventType == "string" then
+			eventName = eventIdentifier
+			eventId = defines.events[eventIdentifier]
+		end
 	end
 	return eventName, eventId
 end
@@ -209,21 +215,21 @@ end
 ---@class KuxCoreLib.on_entity_moved : PickerDollies.dolly_moved_entity
 ---@field name string name of the event "on_entity_moved"
 ---@field tick uint the tick the event was raised
+---@field entity LuaEntity the entity that was moved
+---@field start_postion MapPosition the position the entity was moved from
 
 ---@param e PickerDollies.dolly_moved_entity
 local function on_entity_moved(e)
-	---@cast e KuxCoreLib.on_entity_moved
+
 	local handlers = events["on_entity_moved"]
-	if(handlers) then
-		local e1={
-			name = "on_entity_moved",
-			tick = game.tick,
-			player_index = e.player_index,
-			entity = e.moved_entity,
-			start_postion = e.start_pos
-		} --[[@as KuxCoreLib.on_entity_moved]]
-		for _,fnc in pairs(handlers) do fnc(e1) end
-	end
+	if not handlers then return end
+	local e1 = e ---@cast e1 KuxCoreLib.on_entity_moved
+	-- we leave the dolly_moved_entity fields intact and add the on_entity_moved fields
+	e1.name = "on_entity_moved"
+	e1.entity = e.moved_entity
+	e1.start_postion = e.start_pos
+
+	for _,fnc in pairs(handlers) do fnc(e1) end
 end
 
 --#endregion event handlers
@@ -243,7 +249,7 @@ local function script_register(eventIdentifier, param)
 	elseif(eventName=="on_load"                 ) then script[eventName](on_load)
 	elseif(eventName=="on_configuration_changed") then script[eventName](on_configuration_changed)
 	elseif(eventName=="on_nth_tick"             ) then script.on_nth_tick(param,  on_nth_tick)
-	elseif(eventId and eventId >= 0             ) then script.on_event(eventId,   on_event)
+	elseif(eventId and eventId >= 0             ) then script.on_event(eventId,   on_event, param)
 	else   --[[check_customInput(eventName); ]]        script.on_event(eventName, on_event_customInput)
 	end
 	-- can't use check_customInput, because 'game' is not yet available
@@ -273,17 +279,19 @@ function EventDistributor.unregister(eventIdentifier, fnc)
 	local eventName, eventId = eventPair(eventIdentifier)
 	local key = eventId or eventName
 	Table.remove(events[key], fnc)
-	if(#events[key]>0) then return end
+	if(not events[key] or #events[key]>0) then return end
 	if(eventName=="on_built") then
-		EventDistributor.unregister(defines.events.on_built_entity,       on_built)
-		EventDistributor.unregister(defines.events.on_robot_built_entity, on_built)
-		EventDistributor.unregister(defines.events.script_raised_built,   on_built)
-		EventDistributor.unregister(defines.events.script_raised_revive,  on_built)
+		EventDistributor.unregister(defines.events.on_built_entity,                 on_built)
+		EventDistributor.unregister(defines.events.on_robot_built_entity,           on_built)
+		EventDistributor.unregister(defines.events.script_raised_built,             on_built)
+		EventDistributor.unregister(defines.events.script_raised_revive,            on_built)
+		EventDistributor.unregister(defines.events.on_space_platform_built_entity,  on_built)
 	elseif(eventName=="on_destroy") then
-		EventDistributor.unregister(defines.events.on_pre_player_mined_item, on_destroy)
-		EventDistributor.unregister(defines.events.on_robot_pre_mined,       on_destroy)
-		EventDistributor.unregister(defines.events.on_entity_died,           on_destroy)
-		EventDistributor.unregister(defines.events.script_raised_destroy,    on_destroy)
+		EventDistributor.unregister(defines.events.on_pre_player_mined_item,        on_destroy)
+		EventDistributor.unregister(defines.events.on_robot_pre_mined,              on_destroy)
+		EventDistributor.unregister(defines.events.on_entity_died,                  on_destroy)
+		EventDistributor.unregister(defines.events.script_raised_destroy,           on_destroy)
+		EventDistributor.unregister(defines.events.on_space_platform_mined_entity,  on_destroy)
 	elseif(eventName=="on_entity_moved") then
 		error("Not implemented")
 		--TODO PickerDollies.unregister()

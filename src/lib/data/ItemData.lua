@@ -11,12 +11,27 @@ if KuxCoreLib.__classUtils.cache(ItemData) then return KuxCoreLib.__classUtils.c
 ---------------------------------------------------------------------------------------------------
 local DataRaw = KuxCoreLib.DataRaw
 local Table = KuxCoreLib.Table
+local utils = KuxCoreLib.PrototypeData.extend.utils
+
+
+---Clone an item prototype
+---@overload fun(name:string, entity:data.EntityPrototype, patch:table?):data.ItemPrototype
+---@overload fun(name:string, new_name:string, patch:table?):data.ItemPrototype
+function ItemData.clone(...)
+	local args, count = {...}, select("#", ...)
+	local arg_types = {}
+	for i = 1, count, 1 do arg_types[i] = type(args[i]) end
+	if arg_types[2] == "table" then return ItemData.clone_nep(...) end
+	if arg_types[2] == "string" then return ItemData.clone_nnp(...) end
+	error("Invalid arguments: "..table.concat(arg_types, ", "))
+end
 
 ---Clone an item prototype
 ---@param name string The name of the item prototype to clone
 ---@param entity data.EntityPrototype The corresponding entity prototype
+---@param patch table?
 ---@return data.ItemPrototype #The cloned item prototype
-function ItemData.clone(name, entity)
+function ItemData.clone_nep(name, entity, patch)
 	local base = data.raw["item"][name] or ItemData.find(name)
 	if(not base) then error("Item prrototype not found: "..name) end
 	local item = table.deepcopy(base)
@@ -24,6 +39,19 @@ function ItemData.clone(name, entity)
 	item.localised_name = {"item-name."..entity.name}
 	item.place_result = entity.name
 	item["base"] = base -- additional data, only for data stage
+	if(patch) then utils.patch(item, patch) end -- apply patch if any
+	return item
+end
+
+function ItemData.clone_nnp(name, new_name, patch)
+	local base = data.raw["item"][name] or ItemData.find(name)
+	if(not base) then error("Item prrototype not found: "..name) end
+	local item = table.deepcopy(base)
+	item.name = new_name
+	item.localised_name = {"item-name."..new_name}
+	--item.place_result = new_name
+	item["base"] = base -- additional data, only for data stage
+	if(patch) then utils.patch(item, patch) end -- apply patch if any
 	return item
 end
 

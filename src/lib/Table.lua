@@ -721,6 +721,15 @@ function Table.appendRange(t, list)
 	end
 end
 
+---Appends a sequence of values
+---@param t any[]|KuxCoreLib.List
+---@param list any[]|KuxCoreLib.List the valies to append
+function Table.appendRangeReverse(t, list)
+	for i = #list, 1, -1 do
+		Table.append(t, list[i])
+	end
+end
+
 ---Gets the highest numeric index
 ---@param t table
 ---@param assumeInteger boolean? assumes that all keys are integers. thist is faster.

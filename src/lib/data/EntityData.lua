@@ -11,13 +11,15 @@ if KuxCoreLib.__classUtils.cache(EntityData) then return KuxCoreLib.__classUtils
 ---------------------------------------------------------------------------------------------------
 local Table= KuxCoreLib.Table
 local DataRaw = KuxCoreLib.DataRaw
+local utils = KuxCoreLib.PrototypeData.extend.utils
 
 ---Clone an entity prototype
 ---@param type string
 ---@param name string
 ---@param newName string
+---@param patch table
 ---@return data.EntityPrototype
- function EntityData.clone(type, name, newName)
+ function EntityData.clone(type, name, newName, patch)
 	local base = data.raw[type][name]
 	if(not base) then error("Prototype not found: "..name.." (type: "..type..")") end
 	local entity = table.deepcopy(base) or {} --[[@as data.EntityPrototype]]
@@ -29,9 +31,8 @@ local DataRaw = KuxCoreLib.DataRaw
 			if(entity.minable.result == name) then entity.minable.result = newName end
 		end
 	end
-
 	entity["base"] = base -- additional data, only for data stage
-
+	if(patch) then utils.patch(entity, patch) end -- apply patch if any
 	return entity
 end
 

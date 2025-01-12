@@ -71,9 +71,16 @@ setmetatable(SettingsData.extend --[[@as table]],{
 	__call = call_extend
 })
 
+
+---@param self KuxCorelib.Extend
+---@return string
 local function getPrefix(self)
-	return (self.common.prefix or SettingsData.extend.prefix or mod.prefix)
+	return (self.common.prefix or SettingsData.extend.prefix or mod and mod["prefix"] or "")
 end
+
+---@param self KuxCorelib.Extend
+---@param name string
+---@return string
 local function getName(self, name)
 	return getPrefix(self)..name
 end

@@ -10,6 +10,7 @@ local TechnologyData = {
 if KuxCoreLib.__classUtils.cache(TechnologyData) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 local Table = KuxCoreLib.Table
+local utils = KuxCoreLib.PrototypeData.extend.utils
 
 ---@class KuxCoreLib.Data.TechnologyPrototype : data.TechnologyPrototype
 ---@field base data.TechnologyPrototype additional internal reference
@@ -17,14 +18,16 @@ local Table = KuxCoreLib.Table
 ---Clones a technology
 ---@param name string base name
 ---@param newName string new name
+---@param patch table?
 ---@return KuxCoreLib.Data.TechnologyPrototype
-function TechnologyData.clone(name, newName)
+function TechnologyData.clone(name, newName, patch)
 	local base = data.raw["technology"][name]
 	if(not base) then error("Prototype not found: "..name.." (type: technology)") end
 	local technology = table.deepcopy(base) --[[@as KuxCoreLib.Data.TechnologyPrototype]]
 	technology.name = newName
 	--technology.localised_name = {"recipe-name."..newName}
 	technology.base = base -- additional internal reference
+	if(patch) then utils.patch(technology, patch) end -- apply patch if any
 	return technology
 end
 

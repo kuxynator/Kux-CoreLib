@@ -107,7 +107,7 @@ end
 --- @param pos Position
 --- @return Position
 function Position.from_chunk_position(pos)
-    local x, y = (floor(pos.x) * 32), (floor(pos.y) * 32)
+    local x, y = (floor(pos.x or pos[1]) * 32), (floor(pos.y or pos[2]) * 32)
     return new(x, y)
 end
 

@@ -18,11 +18,20 @@ local _filter = nil --[[@as EventFilter?]]
 
 --https://mods.factorio.com/mod/PickerDollies
 
-
+--[[
 ---@class PickerDollies.dolly_moved_entity
 ---@field player_index uint        The index of the player who moved the entity
 ---@field moved_entity LuaEntity   The entity that was moved
 ---@field start_pos    MapPosition The position that the entity was moved from
+]]
+
+---@class PickerDollies.dolly_moved_entity: EventData
+---@field player_index uint                 Player index
+---@field moved_entity LuaEntity            The entity that was moved. See 'transporter mode' note below
+---@field start_pos MapPosition             The start position from which the entity was moved
+---@field start_direction defines.direction The start direction of the entity (since 2.5.0)
+---@field start_unit_number integer?        The original unit number of the entity (since 2.5.0)
+---[View documentation](https://github.com/hgschmie/factorio-even-pickier-dollies/blob/main/API.md)
 
 ---@param e PickerDollies.dolly_moved_entity
 local function on_entity_moved(e)
@@ -48,6 +57,43 @@ function PickerDollies.initialize(eventDistributor_callback, filter)
 	if(handler) then error("PickerDollies event handler already registered") end
 	script.on_event(_dolly_moved_entity_id, on_entity_moved)
 end
+
+---@param entity_name string
+function add_blacklist_name(entity_name)
+	remote.call('PickerDollies', 'add_blacklist_name', entity_name)
+end
+
+---@param entity_name string
+function remove_blacklist_name(entity_name)
+	remote.call('PickerDollies', 'remove_blacklist_name', entity_name)
+end
+
+---@return table<string, true>
+function get_blacklist_names()
+	return remote.call('PickerDollies', 'get_blacklist_names')
+end
+
+---@param entity_name string
+---@param distance number
+function add_oblong_name(entity_name, distance)
+	return remote.call('PickerDollies', 'add_oblong_name', entity_name, distance)
+end
+
+---@param entity_name string
+function remove_oblong_name(entity_name)
+	return remote.call('PickerDollies', 'remove_oblong_name', entity_name)
+end
+
+---@return table<string, number>
+function get_oblong_names()
+	return remote.call('PickerDollies', 'get_oblong_names')
+end
+
+--[[
+function PickerDollies.move()
+
+end
+]]
 
 
 ---------------------------------------------------------------------------------------------------
