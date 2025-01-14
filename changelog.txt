@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.15.6
+  Features:
+    - add PickerDollies.move_shadow_entities
+    - add PickerDollies.move_entity
+    - add hidden const settings for `extend` -> bool_const, int_const, double_const, string_const, color_const
+---------------------------------------------------------------------------------------------------
 Version: 3.15.5
   Features:
     - add ItemData.setStacksize

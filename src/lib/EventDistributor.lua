@@ -194,7 +194,13 @@ local function on_built(e)
 end
 
 local function on_destroy(e)
-	--print("EventDistributor.on_built")
+	--print("EventDistributor.on_destroy")
+
+	if     e.name == defines.events.on_robot_pre_mined then return
+	elseif e.name == defines.events.on_pre_player_mined_item then return
+	elseif e.name == defines.events.on_space_platform_pre_mined then return
+	end
+
 	local handlers = events["on_destroy"]
 	if(not handlers) then return end
 	for _,fnc in pairs(handlers) do fnc(e) end
@@ -338,8 +344,8 @@ function EventDistributor.register (eventIdentifier, fnc, arg)
 	elseif(eventName=="on_loaded" ) then EventDistributor.register_nth_tick(1, on_loaded)
 	elseif(eventName=="on_next_tick" ) then EventDistributor.register_on_next_tick(arg, fnc)
 	elseif(eventName=="on_timer"  ) then error("Argument out of range. name: eventIdentifier, value: "..eventIdentifier)
-	elseif(eventName=="on_built"  ) then EventDistributor.register_on_built(nil, fnc); return true
-	elseif(eventName=="on_destroy") then EventDistributor.register_on_destroy(nil, fnc); return true
+	elseif(eventName=="on_built"  ) then EventDistributor.register_on_built(arg, fnc); return true
+	elseif(eventName=="on_destroy") then EventDistributor.register_on_destroy(arg, fnc); return true
 	elseif(eventName=="on_entity_moved") then EventDistributor.register_on_entity_moved(fnc, arg) return true
 	end
 	if(List.isNilOrEmpty(events[key])) then
@@ -440,6 +446,8 @@ function EventDistributor.register_on_built(item_filter, fnc)
 	register_artifical_event("on_built", fnc)
 
 	--TODO: join item_filter. at the moment only the first resgistration works!
+
+	--on_pre_build
     EventDistributor.register(defines.events.on_built_entity,       on_built, item_filter)
     EventDistributor.register(defines.events.on_robot_built_entity, on_built, item_filter)
     EventDistributor.register(defines.events.script_raised_built,   on_built, item_filter)
@@ -451,11 +459,21 @@ function EventDistributor.register_on_destroy(item_filter, fnc)
 	register_artifical_event("on_destroy", fnc)
 
 	--TODO: join item_filter. at the moment only the first resgistration works!
-	EventDistributor.register(defines.events.on_pre_player_mined_item, on_destroy, item_filter)
-	EventDistributor.register(defines.events.on_robot_pre_mined,       on_destroy, item_filter)
-	EventDistributor.register(defines.events.on_entity_died,           on_destroy, item_filter)
-	EventDistributor.register(defines.events.script_raised_destroy,    on_destroy, item_filter)
-	EventDistributor.register(defines.events.on_space_platform_mined_entity,  on_built, item_filter) -- new in Factorio 2.0
+
+	--internal only, not distributed:
+	EventDistributor.register(defines.events.on_pre_player_mined_item,       on_destroy, item_filter)
+	EventDistributor.register(defines.events.on_robot_pre_mined,             on_destroy, item_filter)
+	EventDistributor.register(defines.events.on_space_platform_pre_mined,    on_destroy, item_filter) -- new in Factorio 2.0
+	--EventDistributor.register(defines.events.on_robot_mined,                 on_destroy, nil)
+
+	--distributed: (this are all event where the entity is yet valid)
+	EventDistributor.register(defines.events.on_player_mined_entity,         on_destroy, item_filter)
+	EventDistributor.register(defines.events.on_robot_mined_entity,          on_destroy, item_filter)
+	EventDistributor.register(defines.events.on_entity_died,                 on_destroy, item_filter)
+	EventDistributor.register(defines.events.script_raised_destroy,          on_destroy, item_filter)
+	EventDistributor.register(defines.events.on_space_platform_mined_entity, on_destroy, item_filter) -- new in Factorio 2.0
+
+	--on_post_entity_died?
 end
 
 function EventDistributor.unregister_on_built(fnc)

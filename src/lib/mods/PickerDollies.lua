@@ -89,12 +89,23 @@ function get_oblong_names()
 	return remote.call('PickerDollies', 'get_oblong_names')
 end
 
---[[
-function PickerDollies.move()
 
+function PickerDollies.move_shadow_entities(main_entity, shadow_names, old_pos)
+	local surface = main_entity.surface
+	shadow_names = type(shadow_names)~="table" and {shadow_names} or shadow_names
+	for _, shadow_name in pairs(shadow_names) do
+		local entity = surface.find_entity(shadow_name, old_pos)
+		if(not entity) then return end
+		entity.teleport(main_entity.position)
+	end
 end
-]]
 
+function PickerDollies.move_entity(surface_name, entity_name, start_pos, new_pos)
+	local surface = game.surfaces[surface_name]
+	local entity = surface.find_entity(entity_name, start_pos)
+	if(not entity) then return end
+	entity.teleport(new_pos)
+end
 
 ---------------------------------------------------------------------------------------------------
 

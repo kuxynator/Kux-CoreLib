@@ -111,6 +111,21 @@ function SettingsData.extend:bool(t)
 	data:extend{d}
 end
 
+---Adds bool-setting (hidden constant)
+---@param t KuxCorelib.BoolSetting|table BoolSetting | {name, default_value}
+function SettingsData.extend:bool_const(t)
+	self.count = self.count + 1
+	local value = tostring(t.default_value or t[2] or false)  == "true"
+	local d = merge(self.count, self.common, t, {
+		type          = "bool-setting",
+		name          =  getName(self, t.name or t[1]),
+		default_value = value,
+		forced_value = value,
+		hidden = true
+	})
+	data:extend{d}
+end
+
 ---@class KuxCorelib.IntSetting
 ---@field name string
 ---@field default_value int64 Defines the default value of the setting.
@@ -129,6 +144,21 @@ function SettingsData.extend:int(t)
 		allowed_values = t.allowed_values or t.allowed or t[3],
 		minimum_value  = t.minimum_value or t.min,
 		maximum_value  = t.maximum_value or t.max,
+	})
+	data:extend{d}
+end
+
+---Adds int-setting (hidden constant)
+---@param t KuxCorelib.IntSetting|table IntSetting | {name, default_value, allowed_values}
+function SettingsData.extend:int_const(t)
+	self.count = self.count + 1
+	local value = t.default_value or t[2] or t.default or error("Missing value 'default_value'")
+	local d = merge(self.count, self.common, t, {
+		type           = "int-setting",
+		name           = getName(self, t.name or t[1]),
+		default_value  = value,
+		allowed_values = {value},
+		hidden = true
 	})
 	data:extend{d}
 end
@@ -155,6 +185,21 @@ function SettingsData.extend:double(t)
 	data:extend{d}
 end
 
+---Adds double-setting (hidden constant)
+---@param t KuxCorelib.DoubleSetting|table DoubleSetting | {name, default_value, allowed_values}
+function SettingsData.extend:double_const(t)
+	self.count = self.count + 1
+	local value  = t.default_value or t[2] or t.default or error("Missing value 'default_value'")
+	local d = merge(self.count, self.common, t, {
+		type           = "double-setting",
+		name           = getName(self, t.name or t[1]),
+		default_value  = value,
+		allowed_values = {value},
+		hidden = true
+	})
+	data:extend{d}
+end
+
 ---@class KuxCorelib.StringSetting
 ---@field name string
 ---@field default_value string Defines the default value of the setting.
@@ -177,6 +222,23 @@ function SettingsData.extend:string(t)
 	data:extend{d}
 end
 
+---Adds string-setting (hidden constant)
+---@param t KuxCorelib.StringSetting|table StringSetting | {name, default_value, allowed_values}
+function SettingsData.extend:string_const(t)
+	self.count = self.count + 1
+	local value  = t.default_value or t[2] or t.default or error("Missing value 'default_value'")
+	local d = merge(self.count, self.common, t, {
+		type           = "string-setting",
+		name           = getName(self, t.name or t[1]),
+		default_value  = value,
+		allowed_values = {value},
+		hidden = true
+		--allow_blank
+		--auto_trim
+	})
+	data:extend{d}
+end
+
 ---@class KuxCorelib.ColorSetting
 ---@field name string
 ---@field default_value Color Defines the default value of the setting.
@@ -189,6 +251,21 @@ function SettingsData.extend:color(t)
 		type          = "color-setting",
 		name          = getName(self, t.name or t[1]),
 		default_value = t.default_value or t[2] or t.default or error("default_value is mandatory"),
+	})
+	data:extent{d}
+end
+
+---Adds color-setting (hidden constant)
+---<br>NOTE: can not overide already set colors!
+---@param t KuxCorelib.ColorSetting|table ColorSetting | {name, default_value}
+function SettingsData.extend:color_const(t)
+	self.count = self.count + 1
+	local value = t.default_value or t[2] or t.default or error("default_value is mandatory")
+	local d = merge(self.count, self.common, t, {
+		type          = "color-setting",
+		name          = getName(self, t.name or t[1]),
+		default_value = value,
+		hidden = true
 	})
 	data:extent{d}
 end
