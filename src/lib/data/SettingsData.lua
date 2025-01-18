@@ -35,7 +35,7 @@ local function merge(order_index, common, data, final_fixes)
 
 	--merge final_fixes--
 	for k,v in pairs(final_fixes) do merged[k] = v; end
-	merged.allowed_values = final_fixes.allowed_values --WORKOROUND, I dont know wjy allowed_values is set to 0
+	merged.allowed_values = final_fixes.allowed_values --WORKOROUND, I dont know why allowed_values is set to 0
 
 	--clean up--
 	merged.prefix = nil
@@ -43,28 +43,46 @@ local function merge(order_index, common, data, final_fixes)
 	return merged
 end
 
+---
 ---@class KuxCorelib.ExtendArguments
----@field setting_type "startup"|"runtime-global"|"runtime-user"
----@field order string
+---@field [1] "startup"|"runtime-global"|"runtime-per-user" setting_type
+---@field [2] string? order
+---@field prefix string? The name prefix for all settings
+---
+
+---
+---@class KuxCorelib.ExtendArguments.Common
+---@field setting_type "startup"|"runtime-global"|"runtime-per-user" setting_type
+---@field order string? order
+---@field prefix string? The name prefix for all settings
+---
+
+local function common_from_args(t)
+	local common = {}
+	for k,v in pairs(t) do common[k] = v end
+	if t[1] then common.setting_type = t[1] end
+	if t[2] then common.order = t[2] end
+	return common
+end
 
 ---Creates a new Extend object
----@param t KuxCorelib.ExtendArguments | table ExtendArguments | {setting_type, order}
----@return KuxCorelib.Extend
+---@param t KuxCorelib.ExtendArguments
+---@return KuxCoreLib.SettingsData.Extend
 local function call_extend(self, t)
-	local new = {common = t, count = 0}
+	local new = {common = common_from_args(t), count = 0}
 	setmetatable(new, {
 		__index = SettingsData.extend
 	})
 	return new
 end
 
----@class KuxCorelib.Extend
+---@class KuxCoreLib.SettingsData.Extend
 ---@field prefix string The name prefix for all settings
 ---@overload fun(args:KuxCorelib.ExtendArguments|table)
 SettingsData.extend = {
 	---@type string
 	prefix = nil,
-	---@type table
+	---@type KuxCorelib.ExtendArguments.Common
 	common = nil
 }
 setmetatable(SettingsData.extend --[[@as table]],{
@@ -72,42 +90,47 @@ setmetatable(SettingsData.extend --[[@as table]],{
 })
 
 
----@param self KuxCorelib.Extend
+---@param self KuxCoreLib.SettingsData.Extend
 ---@return string
 local function getPrefix(self)
 	return (self.common.prefix or SettingsData.extend.prefix or mod and mod["prefix"] or "")
 end
 
----@param self KuxCorelib.Extend
+---@param self KuxCoreLib.SettingsData.Extend
 ---@param name string
 ---@return string
 local function getName(self, name)
 	return getPrefix(self)..name
 end
 
----@class KuxCorelib.BoolSetting
----@field name string
----@field default_value boolean Defines the default value of the setting.
----@field forced_value boolean
+
+---
+---@class KuxCorelib.BaseSetting
+---@field hidden boolean?
+---@field localised_name LocalisedString?
+---@field localised_description LocalisedString?
+---
+
+---
+---@class KuxCorelib.BoolSetting : KuxCorelib.BaseSetting
+---
+---@field [1] string 'name'
+---@field [2] boolean 'default_value' Defines the default value of the setting.
+---@field name string?
+---@field default_value boolean?  Defines the default value of the setting.
+---@field forced_value boolean?
+---
 
 ---Adds bool-setting
----@param t KuxCorelib.BoolSetting|table BoolSetting | {name, default_value}
+---@param t KuxCorelib.BoolSetting
 function SettingsData.extend:bool(t)
 	self.count = self.count + 1
-
-	local default_value = tostring(t.default_value or t[2] or false)
-	-- default_value = tostring(t.default_value or t[2] or false),
-
-
 	local d = merge(self.count, self.common, t, {
 		type          = "bool-setting",
 		name          =  getName(self, t.name or t[1]),
-		-- default_value = tostring(t.default_value or t[2] or false)
-		-- FIX for 2.0: Error while loading mod-setting prototype "<NAME>" (bool-setting): Value must be a bool in property tree at ROOT.bool-setting.<NAME>.default_value
 		default_value = tostring(t.default_value or t[2] or false) == "true",
 		-- forced_value -- Only loaded if hidden = true
 	})
-	--print("SettingsData.extend:bool => " .. serpent.block(d)) -- manuall TEST
 	data:extend{d}
 end
 
@@ -126,21 +149,27 @@ function SettingsData.extend:bool_const(t)
 	data:extend{d}
 end
 
----@class KuxCorelib.IntSetting
----@field name string
----@field default_value int64 Defines the default value of the setting.
----@field minimum_value int64 Defines the lowest possible number.
----@field maximum_value int64 Defines the highest possible number.
----@field allowed_values int64[] Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.
+---@class KuxCorelib.IntSettingArguments
+---@field [1] string 'name' Defines the name of the setting.
+---@field [2] int64? 'default_value' Defines the default value of the setting.
+---@field [3] int64[]? Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.
+---@field name string? Defines the name of the setting. [for compatibility]
+---@field default_value int64? Defines the default value of the setting. [for compatibility]
+---@field minimum_value int64? Defines the lowest possible number. [for compatibility]
+---@field min int64? Defines the lowest possible number.
+---@field maximum_value int64? Defines the highest possible number. [for compatibility]
+---@field max int64? Defines the highest possible number.
+---@field allowed_values int64[]? Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.
+---@field allowed int64[]? Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.
 
 ---Adds int-setting
----@param t KuxCorelib.IntSetting|table IntSetting | {name, default_value, allowed_values}
+---@param t KuxCorelib.IntSettingArguments
 function SettingsData.extend:int(t)
 	self.count = self.count + 1
 	local d = merge(self.count, self.common, t, {
 		type           = "int-setting",
 		name           = getName(self, t.name or t[1]),
-		default_value  = t.default_value or t[2] or t.default or error("Missing value 'default_value'"),
+		default_value  = t.default_value or t[2] or error("Missing value 'default_value|default|[2]'"),
 		allowed_values = t.allowed_values or t.allowed or t[3],
 		minimum_value  = t.minimum_value or t.min,
 		maximum_value  = t.maximum_value or t.max,
@@ -149,10 +178,10 @@ function SettingsData.extend:int(t)
 end
 
 ---Adds int-setting (hidden constant)
----@param t KuxCorelib.IntSetting|table IntSetting | {name, default_value, allowed_values}
+---@param t KuxCorelib.IntSettingArguments
 function SettingsData.extend:int_const(t)
 	self.count = self.count + 1
-	local value = t.default_value or t[2] or t.default or error("Missing value 'default_value'")
+	local value = t.default_value or t[2] or error("Missing value 'default_value'|[2]")
 	local d = merge(self.count, self.common, t, {
 		type           = "int-setting",
 		name           = getName(self, t.name or t[1]),
@@ -163,22 +192,27 @@ function SettingsData.extend:int_const(t)
 	data:extend{d}
 end
 
----@class KuxCorelib.DoubleSetting
----@field name string
----@field default_value double Defines the default value of the setting.
----@field minimum_value double Defines the lowest possible number.
----@field maximum_value double Defines the highest possible number.
+---@class KuxCorelib.DoubleSettingArguments
+---@field [1] string 'name' Defines the name of the setting.
+---@field [2] double 'default_value' Defines the default value of the setting.
+---@field [3] double[]? 'allowed_values' Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.
+---@field name string?
+---@field default_value double? Defines the default value of the setting.
+---@field minimum_value double Defines the lowest possible number. [only for compatibility, use 'min' instead]
+---@field maximum_value double Defines the highest possible number. [only for compatibility, use 'max' instead]
+---@field min double? Defines the lowest possible number.
+---@field max double? Defines the highest possible number.
 ---@field allowed_values double[] Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.
 
 ---Adds double-setting
----@param t KuxCorelib.DoubleSetting|table DoubleSetting | {name, default_value, allowed_values}
+---@param t KuxCorelib.DoubleSettingArguments
 function SettingsData.extend:double(t)
 	self.count = self.count + 1
 	local d = merge(self.count, self.common, t, {
 		type           = "double-setting",
 		name           = getName(self, t.name or t[1]),
-		default_value  = t.default_value or t[2] or t.default or error("Missing value 'default_value'"),
-		allowed_values = t.allowed_values or t.allowed or t[3],
+		default_value  = t.default_value or t[2] or error("Missing value 'default_value'"),
+		allowed_values = t.allowed_values or t[3],
 		minimum_value  = t.minimum_value or t.min,
 		maximum_value  = t.maximum_value or t.max,
 	})
@@ -186,10 +220,10 @@ function SettingsData.extend:double(t)
 end
 
 ---Adds double-setting (hidden constant)
----@param t KuxCorelib.DoubleSetting|table DoubleSetting | {name, default_value, allowed_values}
+---@param t KuxCorelib.DoubleSettingArguments
 function SettingsData.extend:double_const(t)
 	self.count = self.count + 1
-	local value  = t.default_value or t[2] or t.default or error("Missing value 'default_value'")
+	local value  = t.default_value or t[2] or error("Missing value 'default_value'|[2]")
 	local d = merge(self.count, self.common, t, {
 		type           = "double-setting",
 		name           = getName(self, t.name or t[1]),
@@ -200,22 +234,25 @@ function SettingsData.extend:double_const(t)
 	data:extend{d}
 end
 
----@class KuxCorelib.StringSetting
----@field name string
----@field default_value string Defines the default value of the setting.
----@field allow_blank boolean Defines whether it's possible for the user to set the textfield to empty and apply the setting.
----@field auto_trim boolean Whether values that are input by the user should have whitespace removed from both ends of the string.
----@field allowed_values double[] Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.
+---@class KuxCorelib.StringSettingArguments
+---@field [1] string 'name'
+---@field [2] string 'default_value' Defines the default value of the setting.
+---@field [3] string[] 'allowed_values' Makes it possible to force the player to choose between the defined values, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.
+---@field name string?
+---@field default_value string? Defines the default value of the setting.
+---@field allow_blank boolean? Defines whether it's possible for the user to set the textfield to empty and apply the setting.
+---@field auto_trim boolean? Whether values that are input by the user should have whitespace removed from both ends of the string.
+---@field allowed_values string[]? Makes it possible to force the player to choose between the defined values, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.
 
 ---Adds string-setting
----@param t KuxCorelib.StringSetting|table StringSetting | {name, default_value, allowed_values}
+---@param t KuxCorelib.StringSettingArguments
 function SettingsData.extend:string(t)
 	self.count = self.count + 1
 	local d = merge(self.count, self.common, t, {
 		type           = "string-setting",
 		name           = getName(self, t.name or t[1]),
-		default_value  = t.default_value or t[2] or t.default or error("Missing value 'default_value'"),
-		allowed_values = t.allowed_values or t.allowed or t[3],
+		default_value  = t.default_value or t[2] or error("Missing value 'default_value'|[2]"),
+		allowed_values = t.allowed_values or t[3],
 		--allow_blank
 		--auto_trim
 	})
@@ -223,10 +260,10 @@ function SettingsData.extend:string(t)
 end
 
 ---Adds string-setting (hidden constant)
----@param t KuxCorelib.StringSetting|table StringSetting | {name, default_value, allowed_values}
+---@param t KuxCorelib.StringSettingArguments
 function SettingsData.extend:string_const(t)
 	self.count = self.count + 1
-	local value  = t.default_value or t[2] or t.default or error("Missing value 'default_value'")
+	local value  = t.default_value or t[2] or error("Missing value 'default_value'")
 	local d = merge(self.count, self.common, t, {
 		type           = "string-setting",
 		name           = getName(self, t.name or t[1]),
@@ -239,28 +276,30 @@ function SettingsData.extend:string_const(t)
 	data:extend{d}
 end
 
----@class KuxCorelib.ColorSetting
----@field name string
----@field default_value Color Defines the default value of the setting.
+---@class KuxCorelib.ColorSettingArguments
+---@field [1] string 'name'
+---@field [2] Color 'default_value' Defines the default value of the setting.
+---@field name string?
+---@field default_value Color? Defines the default value of the setting.
 
 ---Adds color-setting
----@param t KuxCorelib.ColorSetting|table ColorSetting | {name, default_value}
+---@param t KuxCorelib.ColorSettingArguments
 function SettingsData.extend:color(t)
 	self.count = self.count + 1
 	local d = merge(self.count, self.common, t, {
 		type          = "color-setting",
 		name          = getName(self, t.name or t[1]),
-		default_value = t.default_value or t[2] or t.default or error("default_value is mandatory"),
+		default_value = t.default_value or t[2] or error("default_value is mandatory"),
 	})
 	data:extent{d}
 end
 
 ---Adds color-setting (hidden constant)
 ---<br>NOTE: can not overide already set colors!
----@param t KuxCorelib.ColorSetting|table ColorSetting | {name, default_value}
+---@param t KuxCorelib.ColorSettingArguments
 function SettingsData.extend:color_const(t)
 	self.count = self.count + 1
-	local value = t.default_value or t[2] or t.default or error("default_value is mandatory")
+	local value = t.default_value or t[2] or error("default_value is mandatory")
 	local d = merge(self.count, self.common, t, {
 		type          = "color-setting",
 		name          = getName(self, t.name or t[1]),
