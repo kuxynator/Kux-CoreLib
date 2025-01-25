@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.15.8
+  Features:
+    - add EntityData.scale (support for furnace and assembling-machine, all oter WIP)
+  Changes:
+    - StringBuilder class hierarchy and docu improved (the use does not change)
+    - SettingsData.Extend x:int,x:double suporting more arguments
+  Bugfixes:
+    - fix a bug in StringBuilder.append
+---------------------------------------------------------------------------------------------------
 Version: 3.15.7
   Bugfixes:
     - Fix SettingsData

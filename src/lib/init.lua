@@ -63,7 +63,7 @@ end
 ---@field String KuxCoreLib.String
 ---@field Table KuxCoreLib.Table
 ---@field Technology KuxCoreLib.Technology
----@field StringBuilder KuxCoreLib.StringBuilder
+---@field StringBuilder KuxCoreLib.StringBuilder.static
 ---@field TestRunner KuxCoreLib.TestRunner
 ---@field That KuxCoreLib.That
 ---@field Version KuxCoreLib.Version

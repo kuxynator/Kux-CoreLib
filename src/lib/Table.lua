@@ -2,6 +2,7 @@ require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
 ---Provides table functions
 ---@class KuxCoreLib.Table : KuxCoreLib.Class
+---@field asGlobal fun(): KuxCoreLib.Table
 local Table = {
 	__class  = "Table",
 	__guid   = "{0a7a6b17-1d2a-4001-a105-2897c4d7f4e6}",

@@ -83,5 +83,12 @@ function EntityData.findType(entityName)
     end
 end
 
+EntityData.scale_util = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/data/entity-scale-util")
+
+---Scale an entity prototype
+---@param entity data.EntityPrototype
+---@param scale number The scale factor
+function EntityData.scale(entity, scale) EntityData.scale_util.scale(entity, scale) end
+
 ---------------------------------------------------------------------------------------------------
 return EntityData

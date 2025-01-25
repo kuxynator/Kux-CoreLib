@@ -24,6 +24,7 @@ RecipeData.clone = function(name, item, patch)
 	recipe.name = item.name
 	recipe.localised_name = {"recipe-name."..item.name}
 	RecipeData.setResults(recipe, {{amount = 1, name = item.name, type = "item"}})
+	if recipe.main_product then recipe.main_product = item.name end
 	recipe["base"]=base -- additional data, only for data stage
 	if(patch) then utils.patch(recipe, patch) end -- apply patch if any
 	return recipe

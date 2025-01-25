@@ -1,6 +1,7 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
----@class KuxCoreLib.Technology
+---@class KuxCoreLib.Technology : KuxCoreLib.Class
+---@field asGlobal fun(): KuxCoreLib.Technology
 Technology = {
 	__class  = "Technology",
 	__guid   = "eb2242d4-9547-45d1-b0a2-0e2528a43c70",
