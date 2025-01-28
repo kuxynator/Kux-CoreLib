@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.15.9
+  Features:
+    - add StageBridge a tool to transfgfer data between stages (settings -> data -> control)
+    - add EntityData.scale support for radar
+---------------------------------------------------------------------------------------------------
 Version: 3.15.8
   Features:
     - add EntityData.scale (support for furnace and assembling-machine, all oter WIP)

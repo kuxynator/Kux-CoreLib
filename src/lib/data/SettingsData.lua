@@ -323,10 +323,10 @@ end
 ---1. <code>x:string_const{name, const_value }</code>
 function SettingsData.extend:string_const(t)
 	self.count = self.count + 1
-	local value  = t.default_value or t[2] or error("Missing value 'default_value'")
+	local value  = t["default_value"] or t[2] or error("Missing value 'default_value'")
 	local d = merge(self.count, self.common, t, {
 		type           = "string-setting",
-		name           = getName(self, t.name or t[1]),
+		name           = getName(self, t["name"] or t[1]),
 		default_value  = value,
 		allowed_values = {value},
 		hidden = true

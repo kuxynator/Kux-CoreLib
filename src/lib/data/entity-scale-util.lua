@@ -55,6 +55,16 @@ local function scale_Animation4Way(animation, scale)
 	scale_Animation(animation.south_west, scale)
 end
 
+---@param sprite data.SpriteParameters
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/types/SpriteParameters.html)
+local function scale_SpriteParameters(sprite, scale)
+	if not sprite then return end
+
+	sprite.scale = (sprite.scale or 1) * scale
+	sprite.shift = scale_point(sprite.shift, scale)
+end
+
 ---@param sprite data.Sprite
 ---@param scale number
 ---[View Documentation](https://lua-api.factorio.com/latest/types/Sprite.html)
@@ -80,7 +90,7 @@ end
 ---[View Documentation](https://lua-api.factorio.com/latest/types/Sprite4Way.html)
 local function scale_Sprite4Way(sprite, scale)
 	if not sprite then return end
-	if not sprite.north then return scale_Sprite(sprite --[[@as data.Sprite]]) end
+	if not sprite.north then return scale_Sprite(sprite --[[@as data.Sprite]], scale) end
 	scale_Sprite(sprite.north, scale)
 	scale_Sprite(sprite.east, scale)
 	scale_Sprite(sprite.south, scale)
@@ -89,6 +99,20 @@ local function scale_Sprite4Way(sprite, scale)
 	for _, value in ipairs(sprite.sheets) do
 		scale_SpriteNWaySheet(value, scale)
 	end
+end
+
+---@param sprite data.RotatedSprite
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/types/RotatedSprite.html)
+local function scale_RotatedSprite(sprite, scale)
+	if sprite.layers then
+		for _, layer in ipairs(sprite.layers) do
+			scale_RotatedSprite(layer, scale)
+		end
+	else
+		scale_SpriteParameters(sprite, scale) -- base
+	end
+	--TODO: frames :: array[RotatedSpriteFrame]
 end
 
 ---@param value data.WorkingVisualisation
@@ -213,16 +237,26 @@ end
 
 ---@param pt data.FurnacePrototype
 ---@param scale number
----[View Documentation](https://lua-api.factorio.com/latest/types/FurnacePrototype.html)
+---[View Documentation](https://lua-api.factorio.com/latest/prototypes/FurnacePrototype.html)
 local function scale_Furnace(pt, scale)
 	scale_CraftingMachinePrototype(pt, scale) -- base
 end
 
 ---@param pt data.AssemblingMachinePrototype
 ---@param scale number
----[View Documentation](https://lua-api.factorio.com/latest/types/AssemblingMachinePrototype.html)
+---[View Documentation](https://lua-api.factorio.com/latest/prototypes/AssemblingMachinePrototype.html)
 local function scale_AssemblingMachine(pt, scale)
 	scale_CraftingMachinePrototype(pt, scale) -- base
+end
+
+---@param pt data.RadarPrototype
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/prototypes/RadarPrototype.html)
+local function scale_Radar(pt, scale)
+	scale_EntityWithOwnerPrototype(pt, scale) -- base
+
+	scale_RotatedSprite(pt.pictures, scale)
+	--TODO: scale_CircuitConnectorDefinition(pt.circuit_connector, scale)
 end
 
 -----------------------------------------------------------------------------------------------------------------------
@@ -237,6 +271,7 @@ local function scale(entity, scale)
 	---@diagnostic disable: param-type-mismatch
 	if     entity.type == "furnace"            then scale_Furnace(entity, scale)
 	elseif entity.type == "assembling-machine" then scale_AssemblingMachine(entity, scale)
+	elseif entity.type == "radar"              then scale_Radar(entity, scale)
 	else error("Unsupported entity type: " .. entity.type)
 	end
 	---@diagnostic enable: param-type-mismatch

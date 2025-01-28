@@ -93,6 +93,7 @@ end
 ---@field RadarData KuxCoreLib.RadarData
 ---@field Radar KuxCoreLib.Radar
 -- ---@field SelectionTool KuxCoreLib.SelectionTool
+---@field StageBridge KuxCoreLib.StageBridge
 
 ---Provides access to Kux-CoreLib modules<br>
 ---Usage: `local moduleName = KuxCoreLib.MODULENAME`<br>
@@ -188,6 +189,7 @@ local require_map = { --RUN (F5) to AUTOGENERATE
 		BigData = "data",
 		RadarData = "data",
 		SelectionTool = "data",
+		StageBridge = "data",
 
         Inserter = "entities",
 		Radar = "entities",
