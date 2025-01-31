@@ -1,4 +1,8 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.15.10
+  Changes:
+    - ElementBuilder: chidren are accepted directly in args
+---------------------------------------------------------------------------------------------------
 Version: 3.15.9
   Features:
     - add StageBridge a tool to transfgfer data between stages (settings -> data -> control)

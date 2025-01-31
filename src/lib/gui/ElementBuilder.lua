@@ -209,17 +209,24 @@ local function create_element_name(container)
 end
 
 local function prep_children(args)
-	if(args.children) then
-		local children = args.children
-		args.children = nil
-		return children
-	elseif(type(args[#args])=="table") then
-		local children = args[#args]
-		args[#args] = nil
-		return children
-	else
-		return nil
+	local children, i  = {}, 1
+	while i <= #args do
+		if type(args[i]) == "function" then
+			table.insert(children, args[i])
+			table.remove(args, i)
+		else i = i + 1 end
 	end
+	if(args.children) then
+		if #children > 0 then error("Duplicate definition of children.") end
+		children = args.children
+		args.children = nil
+	end
+	if(type(args[#args])=="table") then
+		if #children > 0 then error("Duplicate definition of children.") end
+		children = args[#args]
+		args[#args] = nil
+	end
+	return #children > 0 and children or nil
 end
 
 local function prep_name(args, container)
@@ -309,6 +316,7 @@ ElementBuilder.factory = element_factory
 ---A clickable element. Relevant event: on_gui_click
 ---@param args KuxCoreLib.ElementBuilder.parameter.button
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.button(args)
 	args["type"]="button"
 	return element_factory(args)
@@ -317,6 +325,7 @@ end
 ---A button that displays a sprite rather than text. Relevant event: on_gui_click
 ---@param args KuxCoreLib.ElementBuilder.parameter.sprite-button
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.spritebutton(args)
 	args["type"]="sprite-button"
 	return element_factory(args)
@@ -325,6 +334,7 @@ end
 ---A clickable element with a check mark that can be turned off or on. Relevant event: on_gui_checked_state_changed
 ---@param args KuxCoreLib.ElementBuilder.parameter.checkbox
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.checkbox(args)
 	args["type"]="checkbox"
 	return element_factory(args)
@@ -333,6 +343,7 @@ end
 ---An invisible container that lays out its children either horizontally or vertically.
 ---@param args KuxCoreLib.ElementBuilder.parameter.flow
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.flow(args)
 	args["type"]="flow"
 	return element_factory(args)
@@ -349,6 +360,7 @@ end
 ---A piece of text.
 ---@param args KuxCoreLib.ElementBuilder.parameter.label
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.label(args)
 	args["type"]="label"
 	return element_factory(args)
@@ -357,6 +369,7 @@ end
 ---A horizontal or vertical separation line.
 ---@param args KuxCoreLib.ElementBuilder.parameter.line
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.line(args)
 	args["type"]="line"
 	return element_factory(args)
@@ -365,6 +378,7 @@ end
 ---A partially filled bar that can be used to indicate progress.
 ---@param args KuxCoreLib.ElementBuilder.parameter.progressbar
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.progressbar(args)
 	args["type"]="progressbar"
 	return element_factory(args)
@@ -373,6 +387,7 @@ end
 ---An invisible container that lays out its children in a specific number of columns. The width of each column is determined by the widest element it contains.
 ---@param args KuxCoreLib.ElementBuilder.parameter.table
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.table(args)
 	args["type"]="table"
 	return element_factory(args)
@@ -381,6 +396,7 @@ end
 ---A single-line box the user can type into. Relevant events: on_gui_text_changed, on_gui_confirmed
 ---@param args KuxCoreLib.ElementBuilder.parameter.textfield
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.textfield(args)
 	args["type"]="textfield"
 	return element_factory(args)
@@ -389,6 +405,7 @@ end
 ---An element that is similar to a checkbox, but with a circular appearance. Clicking a selected radio button will not unselect it. Radio buttons are not linked to each other in any way. Relevant event: on_gui_checked_state_changed
 ---@param args KuxCoreLib.ElementBuilder.parameter.radiobutton
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.radiobutton(args)
 	args["type"]="radiobutton"
 	return element_factory(args)
@@ -397,6 +414,7 @@ end
 ---An element that shows an image.
 ---@param args KuxCoreLib.ElementBuilder.parameter.sprite
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.sprite(args)
 	args["type"]="sprite"
 	return element_factory(args)
@@ -405,6 +423,7 @@ end
 ---An invisible element that is similar to a flow, but has the ability to show and use scroll bars.
 ---@param args KuxCoreLib.ElementBuilder.parameter.scroll-pane
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.scrollpane(args)
 	args["type"]="scroll-pane"
 	return element_factory(args)
@@ -413,7 +432,7 @@ end
 ---A drop-down containing strings of text. Relevant event: on_gui_selection_state_changed
 ---@param args KuxCoreLib.ElementBuilder.parameter.drop-down
 ---@return function
----[View Documentation](https://lua-api.factorio.com/latest/LuaGuiElement.html#LuaGuiElement.add)
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.dropdown(args)
 	args["type"]="drop-down"
 	return element_factory(args)
@@ -422,6 +441,7 @@ end
 ---A list of strings, only one of which can be selected at a time. Shows a scroll bar if necessary. Relevant event: on_gui_selection_state_changed
 ---@param args KuxCoreLib.ElementBuilder.parameter.list-box
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.listbox(args)
 	args["type"]="list-box"
 	return element_factory(args)
@@ -430,6 +450,7 @@ end
 ---A camera that shows the game at the given position on the given surface. It can visually track an entity that is set after the element has been created.
 ---@param args KuxCoreLib.ElementBuilder.parameter.camera
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.camera(args)
 	args["type"]="camera"
 	return element_factory(args)
@@ -438,6 +459,7 @@ end
 ---A button that lets the player pick from a certain kind of prototype, with optional filtering. Relevant event: on_gui_elem_changed
 ---@param args KuxCoreLib.ElementBuilder.parameter.choose-elem-button
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.chooseelembutton(args)
 	args["type"]="choose-elem-button"
 	return element_factory(args)
@@ -446,6 +468,7 @@ end
 ---A multi-line textfield. Relevant event: on_gui_text_changed
 ---@param args KuxCoreLib.ElementBuilder.parameter.text-box
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.textbox(args)
 	args["type"]="text-box"
 	return element_factory(args)
@@ -454,6 +477,7 @@ end
 ---A horizontal number line which can be used to choose a number. Relevant event: on_gui_value_changed
 ---@param args KuxCoreLib.ElementBuilder.parameter.slider
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.slider(args)
 	args["type"]="slider"
 	return element_factory(args)
@@ -462,6 +486,7 @@ end
 ---A minimap preview, similar to the normal player minimap. It can visually track an entity that is set after the element has been created.
 ---@param args KuxCoreLib.ElementBuilder.parameter.minimap
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.minimap(args)
 	args["type"]="minimap"
 	return element_factory(args)
@@ -470,6 +495,7 @@ end
 ---A preview of an entity. The entity has to be set after the element has been created.
 ---@param args KuxCoreLib.ElementBuilder.parameter.entity-preview
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.entitypreview(args)
 	args["type"]="entity-preview"
 	return element_factory(args)
@@ -478,6 +504,7 @@ end
 ---An empty element that just exists. The root GUI elements screen and relative are empty-widgets.
 ---@param args KuxCoreLib.ElementBuilder.parameter.empty-widget
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.emptywidget(args)
 	args["type"]="empty-widget"
 	return element_factory(args)
@@ -486,6 +513,7 @@ end
 ---A collection of tabs and their contents. Relevant event: on_gui_selected_tab_changed
 ---@param args KuxCoreLib.ElementBuilder.parameter.tabbed-pane
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.tabbedpane(args)
 	args["type"]="tabbed-pane"
 	return element_factory(args)
@@ -494,6 +522,7 @@ end
 ---A tab for use in a tabbed-pane.
 ---@param args KuxCoreLib.ElementBuilder.parameter.tab
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.tab(args)
 	args["type"]="tab"
 	return element_factory(args)
@@ -502,6 +531,7 @@ end
 ---A switch with three possible states. Can have labels attached to either side. Relevant event: on_gui_switch_state_changed
 ---@param args KuxCoreLib.ElementBuilder.parameter.switch
 ---@return function
+---<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
 function ElementBuilder.switch(args)
 	args["type"]="switch"
 	return element_factory(args)
@@ -530,9 +560,11 @@ return ElementBuilder
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.label : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "label"?	Always "label".
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.button : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "button"?	Always "button".
 ---@field mouse_button_filter	MouseButtonFlags?	Which mouse buttons the button responds to. Defaults to "left-and-right".
 ---@field auto_toggle	boolean?	Whether the button will automatically toggle when clicked. Defaults to false.
 ---@field toggled	boolean?	The initial toggled state of the button. Defaults to false.
@@ -540,16 +572,19 @@ return ElementBuilder
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.flow : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "flow"?	Always "flow".
 ---@field direction	string?	The initial direction of the flow's layout. See LuaGuiElement::direction. Defaults to "horizontal".
 ---@field style string|KuxCoreLib.ElementBuilder.flow-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.frame : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "frame"?	Always "frame".
 ---@field direction	string?	The initial direction of the frame's layout. See LuaGuiElement::direction. Defaults to "horizontal".
 ---@field style string|KuxCoreLib.ElementBuilder.frame-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.table : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "table"?	Always "table".
 ---@field column_count	uint	Number of columns. This can't be changed after the table is created.
 ---@field draw_vertical_lines	boolean?	Whether the table should draw vertical grid lines. Defaults to false.
 ---@field draw_horizontal_lines	boolean?	Whether the table should draw horizontal grid lines. Defaults to false.
@@ -559,6 +594,7 @@ return ElementBuilder
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.textfield : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "textfield"?	Always "textfield".
 ---@field text	string?	The initial text contained in the textfield.
 ---@field numeric	boolean?	Defaults to false.
 ---@field allow_decimal	boolean?	Defaults to false.
@@ -570,21 +606,25 @@ return ElementBuilder
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.progressbar : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "progressbar"?	Always "progressbar".
 ---@field value	double?	The initial value of the progressbar, in the range [0, 1]. Defaults to 0.
 ---@field style string|KuxCoreLib.ElementBuilder.progressbar-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.checkbox : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "checkbox"?	Always "checkbox".
 ---@field state	boolean	The initial checked-state of the checkbox.
 ---@field style string|KuxCoreLib.ElementBuilder.checkbox-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.radiobutton : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "radiobutton"?	Always "radiobutton".
 ---@field state	boolean	The initial checked-state of the radiobutton.
 ---@field style string|KuxCoreLib.ElementBuilder.radiobutton-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.sprite-button : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "sprite-button"?	Always "sprite-button".
 ---@field sprite	SpritePath?	Path to the image to display on the button.
 ---@field hovered_sprite	SpritePath?	Path to the image to display on the button when it is hovered.
 ---@field clicked_sprite	SpritePath?	Path to the image to display on the button when it is clicked.
@@ -597,35 +637,41 @@ return ElementBuilder
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.sprite : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "sprite"?	Always "sprite".
 ---@field sprite	SpritePath?	Path to the image to display.
 ---@field resize_to_sprite	boolean?	Whether the widget should resize according to the sprite in it. Defaults to true.
 ---@field style string|KuxCoreLib.ElementBuilder.sprite-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.scroll-pane : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "scroll-pane"?	Always "scroll-pane".
 ---@field horizontal_scroll_policy	string?	Policy of the horizontal scroll bar. Possible values are "auto", "never", "always", "auto-and-reserve-space", "dont-show-but-allow-scrolling". Defaults to "auto".
 ---@field vertical_scroll_policy	string?	Policy of the vertical scroll bar. Possible values are "auto", "never", "always", "auto-and-reserve-space", "dont-show-but-allow-scrolling". Defaults to "auto".
 ---@field style string|KuxCoreLib.ElementBuilder.scroll-pane-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.drop-down : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "drop-down"?	Always "drop-down".
 ---@field items	LocalisedString[]?	The initial items in the dropdown.
 ---@field selected_index	uint?	The index of the initially selected item. Defaults to 0.
 ---@field style string|KuxCoreLib.ElementBuilder.drop-down-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.line : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "line"?	Always "line".
 ---@field direction	string?	The initial direction of the line. Defaults to "horizontal".
 ---@field style string|KuxCoreLib.ElementBuilder.line-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.list-box : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "list-box"?	Always "list-box".
 ---@field items	LocalisedString[]?	The initial items in the listbox.
 ---@field elected_index	uint?	The index of the initially selected item. Defaults to 0.
 ---@field style string|KuxCoreLib.ElementBuilder.list-box-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.camera : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "camera"?	Always "camera".
 ---@field position	MapPosition	The position the camera centers on.
 ---@field surface_index	uint?	The surface that the camera will render. Defaults to the player's current surface.
 ---@field zoom	double?	The initial camera zoom. Defaults to 0.75.
@@ -633,6 +679,7 @@ return ElementBuilder
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.choose-elem-button : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "choose-elem-button"?	Always "choose-elem-button".
 ---@field elem_type	string	The type of the button - one of the following values.
 ---@field item	string?	If type is "item" - the default value for the button.
 ---@field tile	string?	If type is "tile" - the default value for the button.
@@ -650,12 +697,14 @@ return ElementBuilder
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.text-box : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "text-box"?	Always "text-box".
 ---@field text	string?	The initial text contained in the text-box.
 ---@field clear_and_focus_on_right_click	boolean?	Defaults to false.
 ---@field style string|KuxCoreLib.ElementBuilder.text-box-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.slider : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "slider"?	Always "slider".
 ---@field minimum_value	double?	The minimum value for the slider. Defaults to 0.
 ---@field maximum_value	double?	The maximum value for the slider. Defaults to 30.
 ---@field value	double?	The initial value for the slider. Defaults to minimum_value.
@@ -666,6 +715,7 @@ return ElementBuilder
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.minimap : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "minimap"?	Always "minimap".
 ---@field position	MapPosition?	The position the minimap centers on. Defaults to the player's current position.
 ---@field surface_index	uint?	The surface the camera will render. Defaults to the player's current surface.
 ---@field chart_player_index	uint?	The player index the map should use. Defaults to the current player.
@@ -675,11 +725,13 @@ return ElementBuilder
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.tab : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "tab"?	Always "tab".
 ---@field badge_text	LocalisedString?	The text to display after the normal tab text (designed to work with numbers).
 ---@field style string|KuxCoreLib.ElementBuilder.tab-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.switch : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "switch"?	Always "switch".
 ---@field switch_state	string?	Possible values are "left", "right", or "none". If set to "none", allow_none_state must be true. Defaults to "left".
 ---@field allow_none_state	boolean?	Whether the switch can be set to a middle state. Defaults to false.
 ---@field left_label_caption	LocalisedString?
@@ -690,14 +742,17 @@ return ElementBuilder
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.entity-preview : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "entity-preview"?	Always "entity-preview".
 ---@field style string|KuxCoreLib.ElementBuilder.entity-preview-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.empty-widget : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "empty-widget"?	Always "empty-widget".
 ---@field style string|KuxCoreLib.ElementBuilder.empty-widget-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.parameter.tabbed-pane : KuxCoreLib.ElementBuilder.parameter.base
+---@field type "tabbed-pane"?	Always "tabbed-pane".
 ---@field style string|KuxCoreLib.ElementBuilder.tabbed-pane-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 
