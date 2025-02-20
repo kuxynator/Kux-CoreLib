@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.15.11
+  Features:
+    - get_1 ... get_9, get_n
+    - ElementBuilder.createView: add optional paramter all_names
+    - PrototypeData.SpritePrototype: add unnamed parameters
+    - EntityData.scale: add more cases in entity-scale-util
+    - PrototypeData.VirtualSignalPrototype: add unnamed parameters
+    - Table.replace
+  Changes:
+    - ElementBuilder.createView: add mode_name parameter
+---------------------------------------------------------------------------------------------------
 Version: 3.15.10
   Changes:
     - ElementBuilder: chidren are accepted directly in args

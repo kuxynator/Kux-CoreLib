@@ -162,12 +162,7 @@ function anypairs(t)
 end
 
 local function set_x(i,...)
-	local values = { ... }
-	if #values == 1 then
-		_G["_"..i] = values[1] -- Einzelner Wert direkt speichern
-	else
-		_G["_"..i] = values    -- Mehrere Werte in einer Tabelle speichern
-	end
+	_G["_"..i] = select(1, ...)
 	return ...
 end
 
@@ -187,6 +182,17 @@ function _G.set_n(...)
 	for i = 1, 9 do _G["_"..i] = values[i] end
 	return values
 end
+
+function _G.get_1() return _G["_1"] end
+function _G.get_2() return _G["_2"] end
+function _G.get_3() return _G["_3"] end
+function _G.get_4() return _G["_4"] end
+function _G.get_5() return _G["_5"] end
+function _G.get_6() return _G["_6"] end
+function _G.get_7() return _G["_7"] end
+function _G.get_8() return _G["_8"] end
+function _G.get_9() return _G["_9"] end
+function _G.get_n() return {_G["_1"],_G["_2"], _G["_3"], _G["_4"], _G["_5"], _G["_6"], _G["_7"], _G["_8"], _G["_9"]} end
 
 --[[
 if set_1(some_function()) == expected_value then

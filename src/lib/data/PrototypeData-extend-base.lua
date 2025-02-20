@@ -4858,16 +4858,22 @@ extendBase.trivial_smoke = extendBase.TrivialSmokePrototype
 ---@field type string?
 ---@field name string?
 ---@field [1] string name
+---@field [2] string icon
+---@field [3] int? icon_size
 ---[View documentation](https://lua-api.factorio.com/latest/prototypes/VirtualSignalPrototype.html)
 
 --- VirtualSignalPrototype - virtual-signal constructor <br>
 --- [1] name, [<parameters ...>](https://lua-api.factorio.com/latest/prototypes/VirtualSignalPrototype.html) <br>
 ---@param t KuxCoreLib.PrototypeData.Extent.VirtualSignalPrototype
 function extendBase:VirtualSignalPrototype(t)
+	local path = (self["common"] and self["common"].path) or "";
 	local d = utils.merge(self["common"], t, {
-		type          = "virtual-signal",
-		name          = utils.getName(self, t.name or t[1]),
+		type       = "virtual-signal",
+		name       = utils.getName(self, t.name or t[1]),
+		icon       = path..(t[2] or t.icon or (t.icons == nil and error("filename is required"))),
+		icon_size  = self["common"].icon_size or t[3],-- or 64,
 	})
+	d.path = nil --clear auxiliary field from common
 	data:extend{d}
 	return d
 end
@@ -5038,16 +5044,20 @@ extendBase.spectator_controller = extendBase.SpectatorControllerPrototype
 ---@field type string?
 ---@field name string?
 ---@field [1] string name
+---@field [2] string filename
 ---[View documentation](https://lua-api.factorio.com/latest/prototypes/SpritePrototype.html)
 
 --- SpritePrototype - sprite constructor <br>
 --- [1] name, [<parameters ...>](https://lua-api.factorio.com/latest/prototypes/SpritePrototype.html) <br>
 ---@param t KuxCoreLib.PrototypeData.Extent.SpritePrototype
 function extendBase:SpritePrototype(t)
+	local path = (self["common"] and self["common"].path) or "";
 	local d = utils.merge(self["common"], t, {
 		type          = "sprite",
 		name          = utils.getName(self, t.name or t[1]),
+		filename      = path..(t[2] or t.filename or error("filename is required")),
 	})
+	d.path = nil --clear auxiliary field from common
 	data:extend{d}
 	return d
 end

@@ -15,11 +15,5 @@
             "luaVersion": "lua52",
             "stopOnEntry": false,
         },
-		{
-			"type": "factoriomod",
-			"request": "launch",
-			"name": "Factorio Mod Debug",
-		}
-
     ]
 }

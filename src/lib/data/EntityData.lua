@@ -17,12 +17,12 @@ local utils = KuxCoreLib.PrototypeData.extend.utils
 ---@param type string
 ---@param name string
 ---@param newName string
----@param patch table
+---@param patch {[string]:any}?
 ---@return data.EntityPrototype
  function EntityData.clone(type, name, newName, patch)
 	local base = data.raw[type][name]
 	if(not base) then error("Prototype not found: "..name.." (type: "..type..")") end
-	local entity = table.deepcopy(base) or {} --[[@as data.EntityPrototype]]
+	local entity = table.deepcopy(base)--[[@as data.EntityPrototype]]
 	entity.name = newName
 	if(entity.minable) then
 		if entity.minable.results then

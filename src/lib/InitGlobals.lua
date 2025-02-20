@@ -86,6 +86,20 @@ if(script)then
 	---@param returnNilOnError boolean?
 	---@return any
 	local function getLuaObject(var, object_name, prop, returnNilOnError)
+		if is_obj(var, "LuaEntity") then ---@cast var LuaEntity
+			var =  object_name == "LuaSurface" and var.surface
+				or object_name == "LuaForce"   and var.force
+				or object_name == "LuaPlayer"  and var.last_user
+				or error("Invalid parameter")
+		elseif is_obj(var, "LuaPlayer") then ---@cast var LuaPlayer
+			var =  object_name == "LuaSurface" and var.surface
+				or object_name == "LuaForce"   and var.force
+				or var
+		elseif is_obj(var, "LuaPlanet") then ---@cast var LuaPlanet
+			var =  object_name == "LuaSurface" and var.surface
+				or error("Invalid parameter")
+		end
+
 		local type = type(var)
 		local list = object_name == "LuaPlayer" and game.players
 			or object_name == "LuaSurface" and game.surfaces
@@ -124,28 +138,27 @@ if(script)then
 	---@return LuaPlayer?
 	function _G.getPlayerOrNil(var) return getLuaObject(var, "LuaPlayer", nil, true)--[[@as LuaPlayer?]] end
 
-
-	---@param var LuaSurfaceId
+	---@param var LuaSurfaceId|LuaEntity|LuaPlayer|LuaPlanet
 	---@return string
 	function _G.getSurfaceName(var) return getLuaObject(var, "LuaSurface", "name")--[[@as string]] end
 
-	---@param var LuaSurfaceId
+	---@param var LuaSurfaceId|LuaEntity|LuaPlayer|LuaPlanet
 	---@return LuaSurface
 	function _G.getSurface(var) return getLuaObject(var, "LuaSurface", nil)--[[@as LuaSurface]] end
 
-	---@param var LuaSurfaceId
+	---@param var LuaSurfaceId|LuaEntity|LuaPlayer|LuaPlanet
 	---@return LuaSurface?
 	function _G.getSurfaceOrNil(var) return getLuaObject(var, "LuaSurface", nil, true)--[[@as LuaSurface?]] end
 
-	---@param var LuaForceId
+	---@param var LuaForceId|LuaEntity|LuaPlayer
 	---@return string
 	function _G.getForceName(var) return getLuaObject(var, "LuaForce", "name")--[[@as string]] end
 
-	---@param var LuaForceId
+	---@param var LuaForceId|LuaEntity|LuaPlayer
 	---@return LuaForce
 	function _G.getForce(var) return getLuaObject(var, "LuaForce", nil)--[[@as LuaForce]] end
 
-	---@param var LuaForceId
+	---@param var LuaForceId|LuaEntity|LuaPlayer
 	---@return LuaForce?
 	function _G.getForceOrNil(var) return getLuaObject(var, "LuaForce", nil, true)--[[@as LuaForce?]] end
 end

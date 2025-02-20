@@ -292,12 +292,15 @@ function Table.remove(t, value)
 	return false
 end
 
+---
+---@param t any[]
+---@param index integer
 function Table.removeAt(t, index)
 	-- BUGFIX subsequent entries will not be moved if next entry is nil
 	local w = t[index+1]==nil
 	if(w) then t[index+1]="dummy" end
 	table.remove(t, index)
-	if(w) then t[index+1]=nil end
+	if(w) then t[index]=nil end
 end
 
 ---Moves entries
@@ -330,6 +333,22 @@ function Table.move(source, startIdx, endIdx, targetIdx, destination)
 	end
 
 	return destination
+end
+
+---Replaces all value in the table
+---@param t table The table
+---@param oldValue any|any[]|nil The value(s) to replace
+---@param newValue any|nil The new value
+---<p> Comparing table values is not supported. An table is handled as multiple values to replace.</p>
+function Table.replace(t, oldValue, newValue)
+	local many =  type(oldValue) == "table"
+	for k, v in pairs(t) do
+		if v == oldValue then
+			t[k] = newValue
+		elseif many and Table.contains(oldValue --[[@as table]], v) then
+			t[k] = newValue
+		end
+	end
 end
 
 ---Gets the unique values.

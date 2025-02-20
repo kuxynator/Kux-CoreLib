@@ -4,7 +4,7 @@ local ElementBuilder = {}
 -- automatic handling of style parameters (moved to style and assigned after creation)
 -- automatic handling of non add parameters (assigned after creation)
 
---TODO adapt for Factorio 2.0
+--adapted for Factorio 2.0 ( no changes )
 
 local _add_fields = {"achievement", "allow_decimal", "allow_negative", "allow_none_state",
 	"anchor", "auto_toggle", "badge_text", "caption", "chart_player_index",
@@ -58,11 +58,15 @@ function ElementBuilder.validateChildren(children)
 	return true
 end
 
+---@class KuxCoreLib.ElementBuilder.create.parameters
+---@field all_names {string: LuaGuiElement}?
+---@field mod_name string?
+
 ---@param container LuaGuiElement
 ---@param create_children_fnc  function
----@param names_dic {string: LuaGuiElement}?
+---@param parameters KuxCoreLib.ElementBuilder.create.parameters
 ---@return LuaGuiElement
-local function create(container, create_children_fnc, names_dic)
+local function create(container, create_children_fnc, parameters)
 	assert(container~=nil, "Invalid Argument. 'container' must not be nil.")
 	assert(type(create_children_fnc)=="function", "Invalid Argument. 'create_children_fnc' must be a function but is '"..type(create_children_fnc).."'.")
 	trace("ElementBuilder.create in "..container.name.." from "..type(create_children_fnc))
@@ -71,10 +75,9 @@ local function create(container, create_children_fnc, names_dic)
 		type(create_children_fnc) == "table" and create_children_fnc or
 		error("Invalid Argument. 'create_children_fnc' must be a function or a table of functions.")
 	local results = {}
-	for _, f in ipairs(list) do
-		assert(type(f)=="function", "Invalid Argument. 'create_children_fnc' must be a function or a table of functions. but is "..type(f)..": "..serpent.line(f).." container: "..container.name)
-		local elmt = f(container)
-		if(names_dic and not names_dic[elmt.name]) then names_dic[elmt.name]=elmt end -- store first name only
+	for _, fnc in ipairs(list) do
+		assert(type(fnc)=="function", "Invalid Argument. 'create_children_fnc' must be a function or a table of functions. but is "..type(fnc)..": "..serpent.line(fnc).." container: "..container.name)
+		local elmt = fnc(container, parameters)
 		table.insert(results, elmt)
 	end
 	return type(create_children_fnc) == "function" and results[1] or results
@@ -82,9 +85,9 @@ end
 
 ---@param container LuaGuiElement
 ---@param create_children_fnc function[]
----@param names_dic {string: LuaGuiElement}
+---@param parameters KuxCoreLib.ElementBuilder.create.parameters
 ---@return LuaGuiElement[]
-local function create_multi(container, create_children_fnc, names_dic)
+local function create_multi(container, create_children_fnc, parameters)
 	assert(container~=nil, "Invalid Argument. 'container' must not be nil.")
 	trace("ElementBuilder.create in "..container.name.." from "..type(create_children_fnc))
 
@@ -105,10 +108,9 @@ local function create_multi(container, create_children_fnc, names_dic)
 		type(create_children_fnc) == "table" and flatten(create_children_fnc) or
 		error("Invalid Argument. 'create_children_fnc' must be a function or a table of functions.")
 	local results = {}
-	for _, f in ipairs(list) do
-		assert(type(f)=="function", "Invalid Argument. 'create_children_fnc' must be a function or a table of functions. but is "..type(f)..": "..serpent.line(f).." container: "..container.name)
-		local elmt = f(container)
-		if(names_dic and not names_dic[elmt.name]) then names_dic[elmt.name]=elmt end -- store first name only
+	for _, fnc in ipairs(list) do
+		assert(type(fnc)=="function", "Invalid Argument. 'create_children_fnc' must be a function or a table of functions. but is "..type(fnc)..": "..serpent.line(fnc).." container: "..container.name)
+		local elmt = fnc(container, parameters)
 		table.insert(results, elmt)
 	end
 	return results
@@ -117,17 +119,19 @@ end
 ---@param container LuaGuiElement
 ---@param create_children_fnc function
 ---@return LuaGuiElement
+---@deprecated I no longer know what it was intended for
 function ElementBuilder.create(container, create_children_fnc)
-	return create(container, create_children_fnc, {})
+	return create(container, create_children_fnc, {all_names={}, mod_name=nil})
 end
 
 ---@param root_container LuaGuiElement
 ---@param create_children_fnc function
+---@param all_names {[string]:LuaGuiElement|LuaGuiElement[]}?  --filled with all named elements for the complete tree
+---@param mod_name string? --name of the mod for the elements. stored in tags.mod_name
 ---@return LuaGuiElement
-function ElementBuilder.createView(root_container, create_children_fnc)
-	return create(root_container, create_children_fnc, nil)
+function ElementBuilder.createView(root_container, create_children_fnc, all_names, mod_name)
+	return create(root_container, create_children_fnc, {all_names=all_names, mod_name=mod_name})
 end
-
 
 local function isInteger(value) return type(value)=="number" and math.floor(value)==value end
 
@@ -283,14 +287,14 @@ local function apply_post(element, post_args)
 end
 
 ---Base function to create a gui element creation function
----@param args table
+---@param args table the arguments for the element as specified in then designer
 local function element_factory(args)
 	assert(args~=nil, "Invalid Argument. 'args' must not be nil.")
 
-	return function(container)
+	return function(container, parameters)
 		assert(container~=nil, "Invalid Argument. 'container' must not be nil.")
 		log("ElementBuilder.element_factory "..tostring(container.name).." "..tostring(args.name))
-		local names_dic = args.names_dic or {}; args.names_dic = nil
+		local all_names = parameters.all_names or error("Invalid Argument. 'parameters.all_names' must not be nil.")
 		prep_name(args, container)
 		prep_caption(args)
 		local style    = prep_style(args)
@@ -302,12 +306,21 @@ local function element_factory(args)
 		--[[TRACE]]--trace.append("  style: "..serpent.line(style))
 		--[[TRACE]]--trace.append("  extra: "..serpent.line(extra))
 		local element = container.add(args)
-		if(names_dic and not names_dic[element.name]) then names_dic[element.name]=element end -- store first name only
+		if all_names then
+			if not all_names[element.name] then all_names[element.name] = element
+			elseif type(all_names[element.name]) == "table" then table.insert(all_names[element.name], element)
+			else all_names[element.name] = {all_names[element.name], element} end
+		end
 		if(style) then apply_style(element, style) end
 		if(extra) then apply_extra(element, extra) end
 		if(post ) then apply_post (element, post ) end
 
-		if(children) then create_multi(element, children, names_dic) end
+		local tags = element.tags
+		tags.mod_name = parameters.mod_name
+		element.tags = tags
+
+
+		if(children) then create_multi(element, children, parameters) end
 		return element
 	end
 end

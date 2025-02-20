@@ -27,6 +27,24 @@ local function scale_rect(rect, scale)
 	else error("Invalid rect") end
 end
 
+---@param sprite data.SpriteParameters
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/types/SpriteParameters.html)
+local function scale_SpriteParameters(sprite, scale)
+	if not sprite then return end
+
+	sprite.scale = (sprite.scale or 1) * scale
+	sprite.shift = scale_point(sprite.shift, scale)
+end
+
+---@param animation data.AnimationParameters
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/types/AnimationParameters.html)
+local function scale_AnimationParameters(animation, scale)
+	if not animation then return end
+	scale_SpriteParameters(animation, scale) -- base
+end
+
 ---@param animation data.Animation
 ---@param scale number
 ---[View Documentation](https://lua-api.factorio.com/latest/types/Animation.html)
@@ -55,14 +73,33 @@ local function scale_Animation4Way(animation, scale)
 	scale_Animation(animation.south_west, scale)
 end
 
----@param sprite data.SpriteParameters
+---@param animation data.RotatedAnimation
 ---@param scale number
----[View Documentation](https://lua-api.factorio.com/latest/types/SpriteParameters.html)
-local function scale_SpriteParameters(sprite, scale)
-	if not sprite then return end
+---[View Documentation](https://lua-api.factorio.com/latest/types/RotatedAnimation.html)
+local function scale_RotatedAnimation(animation, scale)
+	if not animation then return end
+	scale_AnimationParameters(animation, scale) -- base
+	for _, value in ipairs(animation.layers or {}) do
+		scale_RotatedAnimation(value, scale)
+	end
+end
 
-	sprite.scale = (sprite.scale or 1) * scale
-	sprite.shift = scale_point(sprite.shift, scale)
+---@param animation data.RotatedAnimation|data.RotatedAnimation8Way.struct
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/types/RotatedAnimation8Way.html)
+local function scale_RotatedAnimation8Way(animation, scale)
+	if not animation then return end
+	if not animation.north then return scale_RotatedAnimation(animation --[[@as data.RotatedAnimation]], scale)
+	else
+		scale_RotatedAnimation(animation.north, scale)
+		scale_RotatedAnimation(animation.east, scale)
+		scale_RotatedAnimation(animation.south, scale)
+		scale_RotatedAnimation(animation.west, scale)
+		scale_RotatedAnimation(animation.north_east, scale)
+		scale_RotatedAnimation(animation.north_west, scale)
+		scale_RotatedAnimation(animation.south_east, scale)
+		scale_RotatedAnimation(animation.south_west, scale)
+	end
 end
 
 ---@param sprite data.Sprite
@@ -115,6 +152,31 @@ local function scale_RotatedSprite(sprite, scale)
 	--TODO: frames :: array[RotatedSpriteFrame]
 end
 
+local function scale_SpriteSheet(sheet, scale)
+	if not sheet then return end
+	scale_SpriteParameters(sheet, scale) -- base
+
+	for _, value in ipairs(sheet.layers or {}) do
+		scale_SpriteSheet(value, scale)
+	end
+end
+
+---@param sprite data.SpriteVariations
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/types/SpriteVariations.html)
+local function scale_SpriteVariations(sprite, scale)
+	if sprite.sheet then
+		scale_SpriteSheet(sprite.sheet, scale)
+	elseif #sprite>0 then
+		for _, value in ipairs(sprite) do
+			scale_Sprite(value, scale)
+		end
+	else
+		scale_Sprite(sprite --[[@as data.Sprite]], scale)
+	end
+	--TODO: frames :: array[RotatedSpriteFrame]
+end
+
 ---@param value data.WorkingVisualisation
 ---@param scale number
 ---[View Documentation](https://lua-api.factorio.com/latest/types/WorkingVisualisation.html)
@@ -125,6 +187,18 @@ local function scale_WorkingVisualisation(value, scale)
 	scale_Animation(value.north_animation, scale)
 	scale_Animation(value.south_animation, scale)
 	scale_Animation(value.west_animation, scale)
+end
+
+---@param value data.TurretBaseVisualisation|data.TurretBaseVisualisation[]
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/types/WorkingVisualisation.html)
+local function scale_TurretBaseVisualisation(value, scale)
+	if not value then return end
+	if #value>0 then
+		for _, v in ipairs(value) do scale_TurretBaseVisualisation(v, scale) end
+	else
+		scale_Animation4Way(value.animation, scale)
+	end
 end
 
 ---
@@ -140,6 +214,41 @@ local function scale_CraftingMachineGraphicsSet(graphics_set, scale)
 	end
 end
 
+---
+---@param graphics_set data.TurretGraphicsSet
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/types/TurretGraphicsSet.html)
+local function scale_TurretGraphicsSet(graphics_set, scale)
+	if not graphics_set then return end
+	scale_TurretBaseVisualisation(graphics_set.base_visualisation, scale)
+end
+
+---@param graphics data.ChargableGraphics
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/types/ChargableGraphics.html)
+local function scale_ChargableGraphics(graphics, scale)
+	if not graphics then return end
+
+	scale_Sprite(graphics.picture, scale)
+	scale_Animation(graphics.charge_animation, scale)
+	scale_Animation(graphics.discharge_animation, scale)
+end
+
+---@param ccd data.CircuitConnectorDefinition
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/types/CircuitConnectorDefinition.html)
+local function scale_CircuitConnectorDefinition(ccd, scale)
+	--TODO: scale_CircuitConnectorDefinition
+end
+
+---@param ccd data.CircuitConnectorDefinition[]
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/types/CircuitConnectorDefinition.html)
+local function scale_CircuitConnectorDefinitions(ccd, scale)
+	for _, value in ipairs(ccd) do
+		scale_CircuitConnectorDefinition(value, scale)
+	end
+end
 -----------------------------------------------------------------------------------------------------------------------
 
 local function calculate_fraction(decimal)
@@ -233,6 +342,28 @@ local function scale_CraftingMachinePrototype(pt, scale)
 	scale_CraftingMachineGraphicsSet(pt.graphics_set_flipped, scale)
 end
 
+---@param pt data.TurretPrototype
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/prototypes/TurretPrototype.html)
+local function scale_TurretPrototype(pt, scale)
+	scale_EntityWithOwnerPrototype(pt, scale) --base
+
+	scale_TurretGraphicsSet(pt.graphics_set, scale)
+	scale_RotatedAnimation8Way(pt.folded_animation, scale)
+	scale_RotatedAnimation8Way(pt.preparing_animation, scale)
+	scale_RotatedAnimation8Way(pt.prepared_animation, scale)
+	scale_RotatedAnimation8Way(pt.prepared_alternative_animation, scale)
+	scale_RotatedAnimation8Way(pt.starting_attack_animation, scale)
+	scale_RotatedAnimation8Way(pt.attacking_animation, scale)
+	scale_RotatedAnimation8Way(pt.energy_glow_animation, scale)
+	scale_RotatedAnimation8Way(pt.resource_indicator_animation, scale)
+	scale_RotatedAnimation8Way(pt.ending_attack_animation, scale)
+	scale_RotatedAnimation8Way(pt.folding_animation, scale)
+
+	scale_CircuitConnectorDefinitions(pt.circuit_connector, scale)
+
+end
+
 -----------------------------------------------------------------------------------------------------------------------
 
 ---@param pt data.FurnacePrototype
@@ -256,8 +387,51 @@ local function scale_Radar(pt, scale)
 	scale_EntityWithOwnerPrototype(pt, scale) -- base
 
 	scale_RotatedSprite(pt.pictures, scale)
-	--TODO: scale_CircuitConnectorDefinition(pt.circuit_connector, scale)
+	scale_CircuitConnectorDefinition(pt.circuit_connector, scale)
 end
+
+
+---@param pt data.ElectricTurretPrototype
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/prototypes/ElectricTurretPrototype.html)
+local function scale_ElectricTurret(pt, scale)
+	scale_TurretPrototype(pt, scale) -- base
+end
+
+---@param pt data.AmmoTurretPrototype
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/prototypes/AmmoTurretPrototype.html)
+local function scale_AmmoTurret(pt, scale)
+	scale_TurretPrototype(pt, scale) -- base
+end
+
+---@param pt data.FluidTurretPrototype
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/prototypes/FluidTurretPrototype.html)
+local function scale_FluidTurret(pt, scale)
+	scale_TurretPrototype(pt, scale) -- base
+	scale_Animation(pt.muzzle_animation, scale)
+end
+
+---@param pt data.SolarPanelPrototype
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/prototypes/SolarPanelPrototype.html)
+local function scale_SolarPanel(pt, scale)
+	scale_EntityWithOwnerPrototype(pt, scale) -- base
+	scale_SpriteVariations(pt.picture, scale)
+	scale_SpriteVariations(pt.overlay, scale)
+end
+
+---@param pt data.AccumulatorPrototype
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/prototypes/AccumulatorPrototype.html)
+local function scale_Accumulator(pt, scale)
+	scale_EntityWithOwnerPrototype(pt, scale) -- base
+
+	scale_ChargableGraphics(pt.chargable_graphics, scale)
+	scale_CircuitConnectorDefinition(pt.circuit_connector, scale)
+end
+
 
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -272,6 +446,14 @@ local function scale(entity, scale)
 	if     entity.type == "furnace"            then scale_Furnace(entity, scale)
 	elseif entity.type == "assembling-machine" then scale_AssemblingMachine(entity, scale)
 	elseif entity.type == "radar"              then scale_Radar(entity, scale)
+	elseif entity.type == "electric-turret"    then scale_ElectricTurret(entity, scale)
+	elseif entity.type == "ammo-turret"        then scale_AmmoTurret(entity, scale)
+	elseif entity.type == "fluid-turret"       then scale_FluidTurret(entity, scale)
+	-- elseif entity.type == "mining-drill"        then scale_MiningDrill(entity, scale)
+	elseif entity.type == "solar-pane"         then scale_SolarPanel(entity, scale)
+	elseif entity.type == "accumulator"        then scale_Accumulator(entity, scale)
+
+
 	else error("Unsupported entity type: " .. entity.type)
 	end
 	---@diagnostic enable: param-type-mismatch
