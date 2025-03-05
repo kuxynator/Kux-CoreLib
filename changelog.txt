@@ -1,4 +1,19 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.15.12
+  Changes:
+    - add pipe-connection-util
+    - change entity-scale-util
+    - ElementBuilder.createView optional all_names
+    - StageBridge.hasData: add support for data stage
+    - StageBridge.hasSettings: add support for data stage
+    - SettingsData.extend:string: add named 3rd parameter 'allowed'
+    - add EntityData.unpackBoundingBox4
+    - add EntityData.getSize
+    - Table.removeAt: remove old workaround
+    - EventDistributor.register: add support for event array
+    - DataRaw.entityTypes Factorio 2.0 space-age support
+    - DataRaw.itemTypes Factorio 2.0 space-age support
+---------------------------------------------------------------------------------------------------
 Version: 3.15.11
   Features:
     - get_1 ... get_9, get_n

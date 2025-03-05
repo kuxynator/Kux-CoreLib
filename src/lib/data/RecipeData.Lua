@@ -134,5 +134,36 @@ function RecipeData.find_result(recipe, result)
 	return result_entry
 end
 
+--- Remove an ingredient from an ingredients table.
+--- @param ingredients Ingredient[]
+--- @param name string Name of the ingredient to remove
+function RecipeData.remove_ingredient(ingredients, name)
+    for i, ingredient in pairs(ingredients or {}) do
+        if ingredient[1] == name or ingredient.name == name then
+            table.remove(ingredients, i)
+            return true
+        end
+    end
+end
+
+--- Replace an ingredient.
+--- @param ingredients Ingredient[]
+--- @param find string ingredient to replace
+--- @param replace Ingredient|string
+function RecipeData.replace_ingredient(ingredients, find, replace)
+    for i, ingredient in pairs(ingredients or {}) do
+        if ingredient.name == find then
+            if type(replace)=="string" then
+				ingredient.name = replace
+			else
+				ingredient.type = replace.type and replace.type or ingredient.type
+				ingredient.name = replace.name and replace.name or ingredient.name
+                ingredient.amount = replace.amount and replace.amount or ingredient.amount
+            end
+            return true
+        end
+    end
+end
+
 ---------------------------------------------------------------------------------------------------
 return RecipeData

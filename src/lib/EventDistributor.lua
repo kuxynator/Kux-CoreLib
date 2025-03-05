@@ -321,7 +321,7 @@ local function register_artifical_event(key, fnc)
 end
 
 ---Registers an event
----@param eventIdentifier integer|uint|string|defines.events
+---@param eventIdentifier integer|uint|string|defines.events|table
 ---@param fnc function
 ---@param arg any Optional parameter, depends on eventIdentifier (filter)
 ---@return boolean #true if succesfully registered else false

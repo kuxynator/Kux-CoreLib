@@ -1,5 +1,9 @@
+---@class EntityData.scale_util
+local scale_util = {}
 
-
+local EntityData = KuxCoreLib.EntityData
+local pipe_util = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/data/pipe-connection-util") --[[@as EntityData.PipeConnectionUtil]]
+scale_util.pipes = pipe_util
 
 local function scale_point(point, scale)
 	if not point then return nil end
@@ -14,6 +18,11 @@ local function scale_point(point, scale)
 	else error("Invalid point") end
 end
 
+---Vector :: struct or {double, double}
+---@param vector Vector
+---@param scale double
+local function scale_Vector(vector, scale) return scale_point(vector, scale) end
+
 local function scale_rect(rect, scale)
 	if not rect then return nil end
 	if rect.left_top then
@@ -25,6 +34,19 @@ local function scale_rect(rect, scale)
 		local br = rect[2] or error("Invalid rect")
 		return {scale_point(tl, scale), scale_point(br, scale)}
 	else error("Invalid rect") end
+end
+
+---@param rect data.SimpleBoundingBox
+---@return data.SimpleBoundingBox
+---[View Documentation](https://lua-api.factorio.com/latest/types/SimpleBoundingBox.html)
+local function scale_SimpleBoundingBox(rect, scale) return scale_rect(rect, scale) --[[@as data.SimpleBoundingBox]] end
+
+---@param obj data.FogMaskShapeDefinition
+---@param scale number
+---[View Documentation](https://lua-api.factorio.com/latest/types/FogMaskShapeDefinition.html)
+local function scale_FogMaskShapeDefinition(obj, scale)
+	if not obj then return end
+	obj.rect = scale_SimpleBoundingBox(obj.rect)
 end
 
 ---@param sprite data.SpriteParameters
@@ -182,11 +204,23 @@ end
 ---[View Documentation](https://lua-api.factorio.com/latest/types/WorkingVisualisation.html)
 local function scale_WorkingVisualisation(value, scale)
 	if not value then return end
+
 	scale_Animation(value.animation, scale)
+
 	scale_Animation(value.east_animation, scale)
 	scale_Animation(value.north_animation, scale)
 	scale_Animation(value.south_animation, scale)
 	scale_Animation(value.west_animation, scale)
+
+	value.north_position = scale_Vector(value.north_position, scale)
+	value.east_position = scale_Vector(value.east_position, scale)
+	value.south_position = scale_Vector(value.south_position, scale)
+	value.west_position = scale_Vector(value.west_position, scale)
+
+	value.north_fog_mask = scale_FogMaskShapeDefinition(value.north_fog_mask, scale)
+	value.east_fog_mask = scale_FogMaskShapeDefinition(value.east_fog_mask, scale)
+	value.south_fog_mask = scale_FogMaskShapeDefinition(value.south_fog_mask, scale)
+	value.west_fog_mask = scale_FogMaskShapeDefinition(value.west_fog_mask, scale)
 end
 
 ---@param value data.TurretBaseVisualisation|data.TurretBaseVisualisation[]
@@ -265,51 +299,11 @@ local function f(a, b)
     return a * (numerator - 1 / denominator - 1)
 end
 
----@param pt data.CraftingMachinePrototype
----@param pos TilePosition
----@return data.PipeConnectionDefinition?
----@return integer?
----@return data.FluidBox?
-local function get_pipe_connection_by_pos(pt, pos)
-	if not pt.fluid_boxes then return end
-	for _, box in pairs(pt.fluid_boxes) do
-		if not box.pipe_connections then goto next_box end
-		for i, connection in pairs(box.pipe_connections) do
-			local p = connection.position or {0,0}
-			local px = p.x or p[1] or 0
-			local py = p.y or p[2] or 0
-			local posx = pos.x or pos[1] or 0
-			local posy = pos.y or pos[2] or 0
-			if px == posx and py == posy then
-				return box.pipe_connections[i], i, box
-			end
-		end
-		::next_box::
-	end
-end
-
----
----@param pt data.CraftingMachinePrototype
----@param pos TilePosition
-local function remove_pipe_connection(pt, pos)
-	local con, i, box = get_pipe_connection_by_pos(pt, pos)
-	if not con or not box then return end
-	table.remove(box.pipe_connections, i)
-end
-
----
----@param pt data.CraftingMachinePrototype
----@param pos TilePosition
-local function move_pipe_connection(pt, pos, new_pos)
-	local con, i, box = get_pipe_connection_by_pos(pt, pos)
-	if not con or not box then return end
-	con.position = new_pos
-end
-
 
 ---
 ---@param pt data.CraftingMachinePrototype
 local function scale_pipe_connections(pt, original_size, target_size)
+	error("Not implemented")
 	--       5                   4                3            2        1
 	-- -2 -1 0 1 2  ->  -1.5 -0.5 0.5 1.5  ->  -1 0 1  ->  -0.5 0.5  ->
 	--  O    O   O                              O O O        O   O      O
@@ -459,12 +453,6 @@ local function scale(entity, scale)
 	---@diagnostic enable: param-type-mismatch
 end
 
-return {
-	scale = scale,
-	pipes = {
-		get_pipe_connection_by_pos = get_pipe_connection_by_pos,
-		remove_pipe_connection = remove_pipe_connection,
-		move_pipe_connection = move_pipe_connection,
-		scale_pipe_connections = scale_pipe_connections,
-	},
-}
+scale_util.scale = scale
+-----------------------------------------------------------------------------------------------------------------------
+return scale_util

@@ -13,6 +13,9 @@ local Table= KuxCoreLib.Table
 local DataRaw = KuxCoreLib.DataRaw
 local utils = KuxCoreLib.PrototypeData.extend.utils
 
+---@type EntityData.scale_util
+EntityData.scale_util = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/data/entity-scale-util")
+
 ---Clone an entity prototype
 ---@param type string
 ---@param name string
@@ -76,14 +79,80 @@ function EntityData.find(entityName, throwOnError)
     return nil
 end
 
+
 function EntityData.findType(entityName)
     for _,typeName in ipairs(DataRaw.entityTypes) do
-        local entity = data.raw[typeName][entityName]
-        if(entity) then return typeName end
+		if data.raw[typeName] then
+			local entity = data.raw[typeName][entityName]
+			if(entity) then return typeName end
+		end
     end
 end
 
-EntityData.scale_util = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/data/entity-scale-util")
+---
+---@param value BoundingBox
+---@return number? x1,number? y1,number? x2,number? y2
+---<p>Usage: <code>local x1,y1,x2,y2 = splitBoundingBox4(entity.collision_box)</code></p>
+function EntityData.unpackBoundingBox4(value)
+	if not value then return nil end
+	local lt = value[1] or value.left_top or error("left_top missing")
+	local rb = value[2] or value.right_bottom or error("right_bottom missing")
+	local x1 = lt[1] or lt.x or error("left_top.x missing")
+	local y1 = lt[2] or lt.y or error("left_top.y missing")
+	local x2 = rb[1] or rb.x or error("right_bottom.x missing")
+	local y2 = rb[2] or rb.y or error("right_bottom.y missing")
+	return x1,y1,x2,y2
+end
+local unpackBoundingBox4 = EntityData.unpackBoundingBox4
+
+---Get the size of an entity
+---@param entity data.EntityPrototype|LuaEntity
+---@return number,number
+function EntityData.getSize(entity)
+	---@diagnostic disable-next-line: param-type-mismatch, cast-local-type
+	if entity.object_name then entity = entity.prototype end ---@cast entity data.EntityPrototype
+
+	-- tile_width, tile_height is rarely used anymore, as it is only used for alignment (tile-edge or tile center)
+	if entity.collision_box then
+		local x1,y1,x2,y2 = unpackBoundingBox4(entity.collision_box)
+		local w, h = x2 - x1, y2 - y1
+
+		if w < 0.5 and entity.tile_width == 0 then w = 0 end
+		if h < 0.5 and entity.tile_height == 0 then h = 0 end
+
+		return math.ceil(w), math.ceil(h)
+	end
+	if entity.tile_width and entity.tile_height then
+		return entity.tile_width, entity.tile_height
+	end
+	return 0,0 --???
+end
+
+---Get tile offset of an entity
+---@param entity data.EntityPrototype|LuaEntity
+---@param revert boolean
+---@return Vector
+function EntityData.getTileOffset(entity, revert)
+	local w,h
+    ---@diagnostic disable-next-line: param-type-mismatch, cast-local-type
+	if entity.object_name then entity = entity.prototype end ---@cast entity data.EntityPrototype
+
+	if entity.tile_width then w = entity.tile_width
+	elseif entity.collision_box then w = math.ceil(entity.collision_box.right_bottom.x - entity.collision_box.left_top.x)
+	elseif entity.selection_box then w = math.ceil(entity.selection_box.right_bottom.x - entity.selection_box.left_top.x)
+	end
+
+	if entity.tile_height then h = entity.tile_height
+	elseif entity.collision_box then h = math.ceil(entity.collision_box.right_bottom.y - entity.collision_box.left_top.y)
+	elseif entity.selection_box then h = math.ceil(entity.selection_box.right_bottom.y - entity.selection_box.left_top.y)
+	end
+
+	local xOffset = (w % 2 == 0) and 0 or (revert and -0.5 or 0.5)
+	local yOffset = (h % 2 == 0) and 0 or (revert and -0.5 or 0.5)
+
+	return {x = xOffset, y = yOffset}
+end
+
 
 ---Scale an entity prototype
 ---@param entity data.EntityPrototype

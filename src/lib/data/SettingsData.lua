@@ -310,7 +310,7 @@ function SettingsData.extend:string(t)
 		type           = "string-setting",
 		name           = getName(self, t.name or t[1]),
 		default_value  = t.default_value or t[2] or error("Missing value 'default_value'|[2]"),
-		allowed_values = t.allowed_values or t[3],
+		allowed_values = t.allowed_values or t.allowed or t[3],
 		--allow_blank
 		--auto_trim
 	})

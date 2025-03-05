@@ -296,11 +296,27 @@ end
 ---@param t any[]
 ---@param index integer
 function Table.removeAt(t, index)
+	table.remove(t, index);
+	if true then return end -- In factorio 2.0 the workaround is not needed anymore
+
 	-- BUGFIX subsequent entries will not be moved if next entry is nil
 	local w = t[index+1]==nil
-	if(w) then t[index+1]="dummy" end
+	if w then t[index+1]="b3d62745-c1f7-4bb7-bccb-e9f9a109f203" end -- set dummy value
 	table.remove(t, index)
-	if(w) then t[index]=nil end
+	if w then t[index]=nil end
+	if w and t[index+1]=="b3d62745-c1f7-4bb7-bccb-e9f9a109f203" then t[index+1]=nil end
+	--       ^--  subsequent entries has not been moved!
+end
+
+do --
+	local a = {1,2,3}
+	Table.removeAt(a, 5); assert(a[5]==nil)
+	local a = {1,2,3,4,5,nil,7,8,9,10}
+	Table.removeAt(a, 5); assert(a[5]==nil); assert(a[6]==7)
+	local a = {1,2,3,4,5,nil,nil,8,9,10}
+	Table.removeAt(a, 5); assert(a[5]==nil); assert(a[7]==8)
+	local a = {1,2,3,4,5}
+	Table.removeAt(a, 5); assert(a[5]==nil)
 end
 
 ---Moves entries

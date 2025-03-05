@@ -25,6 +25,34 @@ LuaControl={
     fields={"build_distance", "character_additional_mining_categories", "character_build_distance_bonus", "character_crafting_speed_modifier", "character_health_bonus", "character_inventory_slots_bonus", "character_item_drop_distance_bonus", "character_item_pickup_distance_bonus", "character_loot_pickup_distance_bonus", "character_maximum_following_robot_count_bonus", "character_mining_progress", "character_mining_speed_modifier", "character_personal_logistic_requests_enabled", "character_reach_distance_bonus", "character_resource_reach_distance_bonus", "character_running_speed", "character_running_speed_modifier", "character_trash_slot_count_bonus", "cheat_mode", "crafting_queue", "crafting_queue_progress", "crafting_queue_size", "cursor_ghost", "cursor_stack", "driving", "drop_item_distance", "following_robots", "force", "force_index", "in_combat", "item_pickup_distance", "loot_pickup_distance", "mining_state", "opened", "opened_gui_type", "picking_state", "position", "reach_distance", "repair_state", "resource_reach_distance", "riding_state", "selected", "shooting_state", "surface", "surface_index", "vehicle", "vehicle_logistic_requests_enabled", "walking_state"}
 }
 
+--Events.on_loaded(function ()
+	--[[
+	local entity_types = {}
+	for _, entity in pairs(prototypes.entity) do
+		entity_types[entity.type] = true
+	end
+	local entity_types_list = {}
+	for entity_type, _ in pairs(entity_types) do
+		table.insert(entity_types_list, entity_type)
+	end
+	table.sort(entity_types_list)
+	print("Entity types: ".. serpent.line(entity_types_list))
+	--]]
+
+	--[[
+	local item_types = {}
+	for _, item in pairs(prototypes.item) do
+		item_types[item.type] = true
+	end
+	local item_types_list = {}
+	for item_type, _ in pairs(item_types) do
+		table.insert(item_types_list, item_type)
+	end
+	table.sort(item_types_list)
+	print("Item types: ".. serpent.line(item_types_list))
+	--]]
+--end)
+
 -- local function size(entoyt_prototype)
 --     math.max(math.ceil(entity_prototype.collision_box.left_top.x),math.ceil(entity_prototype.selection_box.left_top.x))
 -- end

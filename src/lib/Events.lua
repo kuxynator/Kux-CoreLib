@@ -52,7 +52,7 @@ function Events.on_configuration_changed(fnc) return EventDistributor.register("
 ---@return boolean
 function Events.on_runtime_mod_setting_changed(fnc) return EventDistributor.register("on_runtime_mod_setting_changed", fnc) end
 
----@param event integer|string|defines.events event
+---@param event integer|string|defines.events|table event
 ---@param fnc function
 ---@param filters EventFilter?
 ---@return boolean

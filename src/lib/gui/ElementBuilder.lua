@@ -130,7 +130,7 @@ end
 ---@param mod_name string? --name of the mod for the elements. stored in tags.mod_name
 ---@return LuaGuiElement
 function ElementBuilder.createView(root_container, create_children_fnc, all_names, mod_name)
-	return create(root_container, create_children_fnc, {all_names=all_names, mod_name=mod_name})
+	return create(root_container, create_children_fnc, {all_names=all_names or {}, mod_name=mod_name})
 end
 
 local function isInteger(value) return type(value)=="number" and math.floor(value)==value end

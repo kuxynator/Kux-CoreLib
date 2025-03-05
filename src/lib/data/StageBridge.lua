@@ -170,11 +170,14 @@ end
 
 function StageBridge.hasData(name)
 	assert(type(name) == "string", "missing name!")
-	return prototypes[runtime_category][name] ~= nil
+	if prototypes then return prototypes[runtime_category][name] ~= nil end
+	return data.raw[data_category][name] ~= nil
 end
+
 function StageBridge.hasSettings(name)
 	assert(type(name) == "string", "missing name!")
-	return settings.startup[name] ~= nil
+	if settings then return settings.startup[name] ~= nil end
+	return data.raw["string-setting"][name] ~= nil
 end
 
 -----------------------------------------------------------------------------------------------------------------------
