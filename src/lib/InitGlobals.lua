@@ -81,35 +81,46 @@ if(script)then
 	end
 
 	---@param var any
-	---@param object_name "LuaPlayer"|"LuaSurface"|"LuaForce"
+	---@param object_name "LuaPlayer"|"LuaSurface"|"LuaForce"|"LuaRecipe"
 	---@param prop string?
 	---@param returnNilOnError boolean?
 	---@return any
 	local function getLuaObject(var, object_name, prop, returnNilOnError)
 		if is_obj(var, "LuaEntity") then ---@cast var LuaEntity
-			var =  object_name == "LuaSurface" and var.surface
+			var =  object_name == "LuaEntity"  and var
+			    or object_name == "LuaSurface" and var.surface
 				or object_name == "LuaForce"   and var.force
 				or object_name == "LuaPlayer"  and var.last_user
 				or error("Invalid parameter")
 		elseif is_obj(var, "LuaPlayer") then ---@cast var LuaPlayer
-			var =  object_name == "LuaSurface" and var.surface
+			var =  object_name == "LuaPlayer"  and var
+				or object_name == "LuaSurface" and var.surface
 				or object_name == "LuaForce"   and var.force
 				or var
 		elseif is_obj(var, "LuaPlanet") then ---@cast var LuaPlanet
-			var =  object_name == "LuaSurface" and var.surface
+			var =  object_name == "LuaPlanet"  and var
+				or object_name == "LuaSurface" and var.surface
+				or error("Invalid parameter")
+		elseif is_obj(var, "LuaRecipe") then ---@cast var LuaRecipe
+			var =  object_name == "LuaRecipe"  and var
 				or error("Invalid parameter")
 		end
 
-		local type = type(var)
 		local list = object_name == "LuaPlayer" and game.players
 			or object_name == "LuaSurface" and game.surfaces
 			or object_name == "LuaForce" and game.forces
+			or object_name == "LuaRecipe" and prototypes.recipe
 			or error("Invalid object_name: "..object_name)
+		local type = type(var)
 
 		local obj = type=="string" and list[var]
-			or type=="number" and list[var]
-			or type=="userdata" and var["object_name"]==object_name and var
-			or nil
+			     or type=="number" and list[var]
+			     or type=="userdata" and var["object_name"]==object_name and var
+			     or nil
+		if not obj and type=="table" and object_name =="LuaPlayer" then
+			local field_var = var.player_index or var.player
+			if field_var then return getLuaObject(field_var, object_name, prop, returnNilOnError) end
+		end
 		if obj == nil then
 			if returnNilOnError then return nil end
 			error("Invalid input: "..serpent.block(var))
@@ -161,6 +172,18 @@ if(script)then
 	---@param var LuaForceId|LuaEntity|LuaPlayer
 	---@return LuaForce?
 	function _G.getForceOrNil(var) return getLuaObject(var, "LuaForce", nil, true)--[[@as LuaForce?]] end
+
+		---@param var LuaRecipe|string
+	---@return string
+	function _G.getRecipeName(var) return getLuaObject(var, "LuaRecipe", "name")--[[@as string]] end
+
+	---@param var LuaRecipe|string
+	---@return LuaRecipe
+	function _G.getRecipe(var) return getLuaObject(var, "LuaRecipe", nil)--[[@as LuaRecipe]] end
+
+	---@param var LuaRecipe|string|nil
+	---@return LuaRecipe?
+	function _G.getRecipeOrNil(var) return getLuaObject(var, "LuaRecipe", nil, true)--[[@as LuaRecipe?]] end
 end
 
 

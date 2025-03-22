@@ -2,6 +2,7 @@ require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
 --- Log module
 ---@class KuxCoreLib.Log : KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.Log
 local Log = {
 	__class  = "Log",
 	__guid   = "{93D539EB-D2F8-41C8-9BAB-44CFDFE67F00}",
@@ -75,13 +76,13 @@ function Log.onSettingsChanged()
 	update(data)
 end
 
-function Log.on_runtime_mod_setting_changed(e)
+function Log.on_runtime_mod_setting_changed()
 	--log("Kux-Corelib.Log.on_runtime_mod_setting_changed")
 	storage.moduleData = storage.moduleData or {}
 	data = Table.migrate(storage.moduleData.Log or {}, data_prototype)
 	update(data)
 	storage.moduleData.Log = data
-	Log.onSettingsChanged(e)
+	Log.onSettingsChanged()
 end
 
 function Log.joinArgs(...)
@@ -199,10 +200,6 @@ function Log.LNP(name,s)
 end
 
 ---------------------------------------------------------------------------------------------------
-
----Provides Log in the global namespace
----@return KuxCoreLib.Log
-function Log.asGlobal(mode) return KuxCoreLib.__classUtils.asGlobal(Log, mode) end
 return KuxCoreLib.__classUtils.finalize(Log)
 
 -- if Log then

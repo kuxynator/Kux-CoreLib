@@ -10,7 +10,7 @@ local GuiElementCache = {
 if KuxCoreLib.__classUtils.cache(GuiElementCache) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
 
-local GuiHelper = KuxCoreLib.GuiHelper
+local GuiHelper = KuxCoreLib.require.GuiHelper
 
 ---@class KuxCoreLib.GuiElementCache.Instance : table<string, LuaGuiElement>
 ---@field __missing table<string, boolean>

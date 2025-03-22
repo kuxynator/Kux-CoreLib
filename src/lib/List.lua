@@ -1,223 +1,193 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
----Provides a true List
+---Provides a true list which supports ipairs with nil elements
 ---@class KuxCoreLib.List
----@field length integer Gets the number if items in this List (including nil)
+---@field asGlobal fun():KuxCoreLib.List
 local List = {
 	__class  = "List",
-	__guid   = "{C8A1AC2B-DAF8-4A2C-8C4E-A20B500EE576}",
+	__guid   = "aeb0658f-4c33-4a61-a689-49741a5e8fff",
 	__origin = "Kux-CoreLib/lib/List.lua",
-
-    ---@type integer The number of entries in the list
-    count = 0
 }
 if KuxCoreLib.__classUtils.cache(List) then return KuxCoreLib.__classUtils.cached end
+-----------------------------------------------------------------------------------------------------------------------
+---@class KuxCoreLib.List.instance
+---@field private __length integer
+---@field [integer] any
+local instance_impl = {}
 
--- to avoid circular references, the class MUST be definied before require other modules
+---@class KuxCoreLib.List.instance.metatable
+local mt = {__class = "KuxCoreLib.List.instance.metatable"}
 
-local Assert= KuxCoreLib.That
-local String = KuxCoreLib.String
-local Table = KuxCoreLib.Table
-
-local function createMetatable(t)
-	local mt = {
-		__index = function(table, key)
-			if key == "count" then
-				return table.count
-			else
-				return List[key]
-			end
-	  	end,
-		__newindex = function(table, key, value)
-			if key == "count" then
-				error("Cannot modify read-only property 'count'", 2)
-			else
-				-- self[key]=value
-				-- rawset(table, key, value)
-				error("List can not be modified!")
-			end
-		end,
-		count = 0
-	}
-	setmetatable(t, mt)
+function mt.__index(t,k)
+	if type(k)=="number" then return nil
+	elseif instance_impl[k] then return instance_impl[k]
+	else error("Unknown member: " .. tostring(k)) end
 end
 
----Creates a new list
----@param data table?
----@param ownsData boolean?
----@return KuxCoreLib.List
-function List:new(data, ownsData)
-	local instance = {}
-	local mt = {}
-	if(ownsData == false and data) then
-		data=Table.shallowCopy(data)
+function mt.__newindex(t,k,v)
+	if type(k)=="number" then
+		rawset(t,k,v)
+		rawset(t,"__length", math.max(rawget(t,"__length") or 0, k))
+	else error("Unknown member: " .. tostring(k)) end
+end
+
+function mt.__len(t)
+	return rawget(t, "__length") or 0
+end
+
+function mt.__ipairs(t)
+	local i = 0
+	return function()
+		i = i + 1
+		while rawget(t, i) == nil and i <= rawget(t, "__length") do i = i + 1 end
+		if i > rawget(t, "__length") then return nil end
+		return i, rawget(t, i)
+	end
+end
+
+-----------------------------------------------------------------------------------------------------------------------
+--#region: instance implementation
+-----------------------------------------------------------------------------------------------------------------------
+
+function instance_impl:add(value)
+	local len = rawget(self, "__length")
+	if rawlen(self) == len then
+		table.insert(self, value)
 	else
-		mt.data = data or {}
+		rawset(self, len+1, value)
 	end
-	mt.length=Table.getMaxIndex(mt.data)
-
-	function mt.isInteger(v)
-		return type(v)=="number" and v == math.floor(v)
-	end
-
-	function mt.__index(table, key)
-		if(mt.isInteger(key)) then return mt.data[key]
-		elseif key=="length" then return mt.length
-		elseif(List[key]) then return List[key]
-		else error("Invalid argument. Name: 'index'. Integer expected got "..type(key))
-		end
-	end
-
-	function mt.__newindex(table, key, value)
-		if(mt.isInteger(key)) then
-			mt.data[key] = value
-			if(key>mt.length) then mt.length = key end
-		else
-			error("Invalid argument. Name: 'index'. Integer expected got "..type(key))
-		end
-	end
-
-	function mt.__len(table)
-		return mt.length
-	end
-
-	function mt.__pairs(t)
-		return function(table, lastIndex)
-			lastIndex = lastIndex or 0
-			local index = lastIndex + 1
-			while index <= mt.length do
-				local value = table[index]
-				if(value~=nil) then return index, value end
-				index = index + 1
-			end
-		end, t, nil
-	end
-
-	function mt.__ipairs(t)
-		return function(table, lastIndex)
-			lastIndex = lastIndex or 0
-			local index = lastIndex + 1
-			if index <= mt.length then
-				local value = table[index]
-				return index, value
-			end
-		end, t, nil
-	end
-
-	function mt.__call(_,_,lastIndex)
-		local index = lastIndex or 0
-		index = index + 1
-		if index <= mt.length then
-			local value = mt.data[index]
-			return index, value
-		end
-	end
-
-	-- function mt:__call(...)
-	-- 	local additionalParams = {...} -- zusätzliche Parameter erhalten als Tabelle
-	-- 	local startIndex = additionalParams[1] -- Beispiel: erster zusätzlicher Parameter als Startindex
-	-- 	local function iterator(_,_,lastIndex)
-	-- 		local index = lastIndex or 0
-	-- 		index = index + 1
-	-- 		if index <= mt.length then
-	-- 			local value = data[index]
-	-- 			return index, value
-	-- 		end
-	-- 	end
-	-- 	return iterator, nil, startIndex
-	-- end
-
-	setmetatable(instance, mt)
-	return instance
+	rawset(self, "__length", len+1)
 end
 
-function List:add(item)
-	local mt=getmetatable(self)
-	mt.length = mt.length + 1
-	mt.data[mt.length] = item;
+function instance_impl:addRange(t)
+	local len = rawget(self, "__length")
+	if rawlen(self) == len then
+		for _, v in ipairs(t) do
+			table.insert(self, v)
+			len = len + 1
+		end
+	else
+		for _, v in ipairs(t) do
+			rawset(self, len+1, v);
+			len = len + 1
+		end
+	end
+	rawset(self, "__length", len)
 end
 
-function List:addRange(t)
-	local mt=getmetatable(self)
-	for _, v in ipairs(t) do
-		mt.length = mt.length + 1
-		mt.data[mt.length]=v;
+function instance_impl:insert(index, v)
+	local len = rawget(self, "__length")
+	if index < 1 then error("index out of range") end
+	if index > len then self[index] = v return end
+
+	if rawlen(self) == len then
+		table.insert(self, index, v)
+	else
+		for i = len, index, -1 do rawset(self, i+1, rawget(self, i)) end
+		rawset(self, index, v)
 	end
+	rawset(self, "__length", len+1)
 end
 
-function List:insert(index, v)
-	local mt=getmetatable(self)
-	mt.length = mt.length + 1
-	for i = mt.length, index+1, -1 do
-		mt.data[i]=mt.data[i-1];
+function instance_impl:removeAt(index)
+	local len = rawget(self, "__length")
+	if index < 1 or index > len then error("index out of range") end
+	if rawlen(self) == len then table.remove(self, index)
+	else
+		for i = index+1, len, 1 do rawset(self, i-1, rawget(self, i)) end
+		rawset(self, len, nil)
 	end
+	rawset(self, "__length", len - 1)
 end
 
 ---Removes the specified item
 ---@param item any
 ---@return boolean #true if the item has been found and removed; elsewhere false
-function List:remove(item)
-	local mt=getmetatable(self)
-	local index = Table.indexOf(self,item)
-	if index == 0 then return false end
-	mt.length = mt.length - 1
-	for i = index, mt.length, 1 do
-		mt.data[i]=mt.data[i+1];
-	end
+function instance_impl:remove(item)
+	local index = instance_impl.indexOf(self, item)
+	if index then return false end
+	instance_impl.removeAt(self, index)
 	return true
 end
 
----Remove an item at the specified index
----@param index integer
-function List:removeAt(index)
-	local mt=getmetatable(self)
-	mt.length = mt.length - 1
-	for i = index, mt.length, 1 do
-		mt.data[i]=mt.data[i+1];
-	end
-end
-
----Clears the the list
-function List:clear()
-	local mt=getmetatable(self)
-	for i = 1, mt.length, 1 do
-		mt.data[i] = nil
-	end
-	mt.length = 0
-end
-
----Gets the index of the item
+---Gets the index of the specified item
 ---@param item any
----@return integer # The index or 0
-function List:indexOf(item)
-	for i, v in self do
-		if v == item then return i end
+---@return integer #the index of the item; 0 if the item is not found
+function instance_impl:indexOf(item)
+	for i = 1, rawget(self, "__length"), 1 do
+		if self[i] == item then return i end
 	end
 	return 0
 end
 
+
 ---Removes all nil items
-function List:compress()
-	local mt=getmetatable(self)
+function instance_impl:compress()
+	local len = rawget(self, "__length")
 	local shift=0
-	for i = 1, mt.length do
-		if(mt.data[i]) == nil then
+	for i = 1, len do
+		local v = rawget(self, i)
+		if(v) == nil then
 			shift = shift + 1
 		elseif(shift > 0) then
-			mt.data[i-shift] = mt.data[i]
-			mt.data[i]=nil
+			rawset(self, i-shift, v)
+			rawset(self, i, nil)
 		end
 	end
-	mt.length = mt.length - shift
+	rawset(self, "__length", len-shift)
 	return self
 end
 
+-----------------------------------------------------------------------------------------------------------------------
+--#region: static implementation
+-----------------------------------------------------------------------------------------------------------------------
+
+function List.new()
+	local obj = {__length=0}
+	setmetatable(obj, mt)
+	return obj
+end
+
+function List.setmetatable(t)
+	setmetatable(t, mt)
+	if rawget(t, "__length") == nil then
+		rawset(t, "__length", 0)
+		local max = 0
+		for k, _ in pairs(t) do if type(k) == "number" and k>max then max = k end end
+		rawset(t, "__length", max)
+	end
+	return t
+end
+
+---Returns true if the list is nil or empty
 function List.isNilOrEmpty(t) return not t or #t==0 end
 
----------------------------------------------------------------------------------------------------
+if KuxCoreLib.ModInfo.current_stage=="control" then
+	script.register_metatable(mt.__class, mt)
+end
 
----Provides List in the global namespace
----@return KuxCoreLib.List
-function List.asGlobal() return KuxCoreLib.__classUtils.asGlobal(List) end
+-----------------------------------------------------------------------------------------------------------------------
+if mods["debugadapter"] then --test removeAt
+	local list = List.new()
+	for i = 1, 5, 1 do list:add(i) end
+	list[2] = nil list[4] = nil
+	list:removeAt(3)
+	assert(#list == 4)
+	assert(list[3] == nil)
+	assert(list[4] == 5)
+	assert(list[5] == nil)
+end
 
+if mods["debugadapter"] then --test compress
+	local list = List.new()
+	for i = 1, 5, 1 do list:add(i) end
+	list[2] = nil list[4] = nil
+	list:compress()
+	assert(#list == 3)
+	assert(list[1] == 1)
+	assert(list[2] == 3)
+	assert(list[3] == 5)
+	assert(rawlen(list) == 3)
+end
+-----------------------------------------------------------------------------------------------------------------------
 return List

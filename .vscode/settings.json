@@ -38,7 +38,7 @@
 		"__DebugAdapter",
 		"mod"
 	],
-	
+
 
     "Lua.diagnostics.libraryFiles": "Opened",
     "Lua.workspace.ignoreDir": [
@@ -49,4 +49,11 @@
     ],
     "Lua.diagnostics.workspaceEvent": "OnChange",
 	"editor.insertSpaces": false,
+	"Lua.diagnostics.disable": [
+		"lowercase-global"
+	],
+	"Lua.runtime.plugin": "c:/Users/Kay/AppData/Roaming/Code/User/workspaceStorage/a1a80c7d620f92d2957ae578dcb41e36/justarandomgeek.factoriomod-debug/sumneko-3rd/factorio/plugin.lua",
+	"Lua.workspace.library": [
+		"c:/Users/Kay/AppData/Roaming/Code/User/workspaceStorage/a1a80c7d620f92d2957ae578dcb41e36/justarandomgeek.factoriomod-debug/sumneko-3rd/factorio/library"
+	],
 }

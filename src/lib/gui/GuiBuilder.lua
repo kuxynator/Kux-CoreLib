@@ -8,24 +8,24 @@ local GuiBuilder = {
 }
 if KuxCoreLib.__classUtils.cache(GuiBuilder) then return KuxCoreLib.__classUtils.cached end
 ---------------------------------------------------------------------------------------------------
-local Table= KuxCoreLib.Table
-local Debug= KuxCoreLib.Debug
+local Table= KuxCoreLib.require.Table
+local Debug= KuxCoreLib.require.Debug
 local StoragePlayers = KuxCoreLib.StoragePlayers
-local Player = KuxCoreLib.Player
+local Player = KuxCoreLib.require.Player
 
 function GuiBuilder.generateName(name)
-	return Debug.getCallingMod(true).."_"..name
+	return Debug.getCallingMod().."_"..name
 end
 
 ---createRelativeToGui
----@param player LuaPlayer|integer
+---@param player PlayerIdentification
 ---@param name string
 ---@param caption string
----@param gui integer defines.relative_gui_type
----@param position integer defines.relative_gui_position
+---@param gui defines.relative_gui_type
+---@param position defines.relative_gui_position
 ---@return LuaGuiElement
 function GuiBuilder.createRelativeToGui(player, name, caption, gui, position)
-	player = Player.toLuaPlayer(player)
+	local player = Player.toLuaPlayer(player) or error("Invalid player")
 	name = GuiBuilder.generateName(name)
 	print("createRelativeToGui '"..name.."'")
 	if(not gui) then error("Argument must not nil! Name: 'gui'"); end
@@ -49,10 +49,10 @@ function GuiBuilder.createRelativeToGui(player, name, caption, gui, position)
 end
 
 ---destroyFrame
----@param player LuaPlayer|integer
+---@param player PlayerIdentification
 ---@param name string
 function GuiBuilder.destroyFrame(player, name)
-	player = Player.toLuaPlayer(player)
+	local player = Player.toLuaPlayer(player) or error("Invalid player")
 	name = GuiBuilder.generateName(name)
 	print("destroyFrame '"..name.."'")
 

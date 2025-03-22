@@ -4,48 +4,8 @@ local ElementBuilder = {}
 -- automatic handling of style parameters (moved to style and assigned after creation)
 -- automatic handling of non add parameters (assigned after creation)
 
---adapted for Factorio 2.0 ( no changes )
-
-local _add_fields = {"achievement", "allow_decimal", "allow_negative", "allow_none_state",
-	"anchor", "auto_toggle", "badge_text", "caption", "chart_player_index",
-	"clear_and_focus_on_right_click", "clicked_sprite", "column_count", "decorative", "direction",
-	"discrete_slider", "discrete_values", "draw_horizontal_line_after_headers",
-	"draw_horizontal_lines", "draw_vertical_lines", "elem_filters", "elem_type", "enabled",
-	"entity", "equipment", "fluid", "force", "game_controller_interaction",
-	"horizontal_scroll_policy", "hovered_sprite", "ignored_by_interaction", "index", "is_password",
-	"item", "item-group", "items", "left_label_caption", "left_label_tooltip",
-	"lose_focus_on_confirm", "maximum_value", "minimum_value", "mouse_button_filter", "name",
-	"number", "numeric", "position", "raise_hover_events", "recipe", "resize_to_sprite",
-	"right_label_caption", "right_label_tooltip", "selected_index",
-	"show_percent_for_small_numbers", "signal", "sprite", "state", "style", "surface_index",
-	"switch_state", "tags", "technology", "text", "tile", "toggled", "tooltip", "type", "value",
-	"value_step", "vertical_centering", "vertical_scroll_policy", "visible", "zoom"}
-local _style_writable_fields = {"badge_font", "badge_horizontal_spacing", "bar_width",
-	"bottom_cell_padding", "bottom_margin", "bottom_padding", "cell_padding", "clicked_font_color",
-	"clicked_vertical_offset", "color", "default_badge_font_color", "disabled_badge_font_color",
-	"disabled_font_color", "draw_grayscale_picture", "extra_bottom_margin_when_activated",
-	"extra_bottom_padding_when_activated", "extra_left_margin_when_activated",
-	"extra_left_padding_when_activated", "extra_margin_when_activated",
-	"extra_padding_when_activated", "extra_right_margin_when_activated",
-	"extra_right_padding_when_activated", "extra_top_margin_when_activated",
-	"extra_top_padding_when_activated", "font", "font_color", "height", "horizontal_align",
-	"horizontal_spacing", "horizontally_squashable", "horizontally_stretchable",
-	"hovered_font_color", "left_cell_padding", "left_margin", "left_padding", "margin",
-	"maximal_height", "maximal_width", "minimal_height", "minimal_width", "natural_height",
-	"natural_width", "padding", "pie_progress_color", "rich_text_setting", "right_cell_padding",
-	"right_margin", "right_padding", "selected_badge_font_color", "selected_clicked_font_color",
-	"selected_font_color", "selected_hovered_font_color", "single_line", "size",
-	"stretch_image_to_widget_size", "strikethrough_color", "top_cell_padding", "top_margin",
-	"top_padding", "use_header_filler", "vertical_align", "vertical_spacing",
-	"vertically_squashable", "vertically_stretchable", "width"}
-
-local isAddField = {}; for _,n in ipairs(_add_fields) do isAddField[n]=true end
-local isWriteableStyleField = {}; for _,n in ipairs(_style_writable_fields) do isWriteableStyleField[n]=true end
-
--- check for names which can be used as add field and as style field
-for _,name in ipairs(_style_writable_fields) do
-	assert(isAddField[name]==nil, "Style field '"..name.."' is also an add field.")
-end
+local trace = trace or function() end
+local add_cache_element = KuxCoreLib.require.GuiElementCache2.add_cache_element
 
 function ElementBuilder.validateChildren(children)
 	if(children==nil) then return true end
@@ -58,18 +18,49 @@ function ElementBuilder.validateChildren(children)
 	return true
 end
 
+function ElementBuilder.patch_tags(args, name, value)
+	if args.tags == nil then args.tags = {} end
+	args.tags[name] = value
+end
+
+function ElementBuilder.patch(args, changes)
+	if changes==nil then return end
+	for k,v in pairs(changes) do
+		if k == "tags" then
+			local tags = args.tags or {}                                     --:: RW simple table
+			for k,v in pairs(v) do tags[k] = v end
+			args.tags = tags
+		elseif k == "column_alignments" then                                 --:: R LuaCustomTable[uint → Alignment]
+			for k,v in pairs(v) do args.column_alignments[k] = v end
+		else
+			args[k] = v
+		end
+	end
+end
+
+function ElementBuilder.replace_ui_element(args)
+	--{gui.elements.SearchView.elem_type, elem_type = elem_type}
+end
+
 ---@class KuxCoreLib.ElementBuilder.create.parameters
----@field all_names {string: LuaGuiElement}?
----@field mod_name string?
+---@field container LuaGuiElement? The container element to add the new element to
+---@field mod_name string? The current mod name
+---@field view_name string? The current view name
+---@field all_names {string: LuaGuiElement|LuaGuiElement[]}?
+---@field view_names {string: LuaGuiElement|LuaGuiElement[]}?
+---@field [1] function|nil child
+
 
 ---@param container LuaGuiElement
----@param create_children_fnc  function
+---@param create_children_fnc function
 ---@param parameters KuxCoreLib.ElementBuilder.create.parameters
 ---@return LuaGuiElement
 local function create(container, create_children_fnc, parameters)
 	assert(container~=nil, "Invalid Argument. 'container' must not be nil.")
 	assert(type(create_children_fnc)=="function", "Invalid Argument. 'create_children_fnc' must be a function but is '"..type(create_children_fnc).."'.")
 	trace("ElementBuilder.create in "..container.name.." from "..type(create_children_fnc))
+	if parameters.all_names == nil then parameters.all_names = {} end
+	if parameters.view_names == nil then parameters.view_names = {} end
 	local list =
 		type(create_children_fnc) == "function" and {create_children_fnc} or
 		type(create_children_fnc) == "table" and create_children_fnc or
@@ -124,6 +115,14 @@ function ElementBuilder.create(container, create_children_fnc)
 	return create(container, create_children_fnc, {all_names={}, mod_name=nil})
 end
 
+---createView
+---@param args KuxCoreLib.ElementBuilder.create.parameters
+---@return LuaGuiElement
+---<p>-> createView{container, mod_name, view_name, all_names, children}</p>
+function ElementBuilder.createView_v2(args)
+	return create(args.container, args[1], args)
+end
+
 ---@param root_container LuaGuiElement
 ---@param create_children_fnc function
 ---@param all_names {[string]:LuaGuiElement|LuaGuiElement[]}?  --filled with all named elements for the complete tree
@@ -133,192 +132,82 @@ function ElementBuilder.createView(root_container, create_children_fnc, all_name
 	return create(root_container, create_children_fnc, {all_names=all_names or {}, mod_name=mod_name})
 end
 
-local function isInteger(value) return type(value)=="number" and math.floor(value)==value end
-
----Prepares the style attribute
----@param args table
----@return table|nil #The style table or nil
-local function prep_style(args)
-	local style
-	if(not args.style) then
-		--do nothing
-	elseif(type(args.style)=="string") then
-		--do nothing, optional check if style exists
-	elseif(type(args.style)=="table") then
-		style = args.style
-		args.style = style.base or args.base_style
-		args.base_style = nil
+---@param el LuaGuiElement
+---@param all_elements {[string]:LuaGuiElement|LuaGuiElement[]}
+---@param view_elements {[string]:LuaGuiElement|LuaGuiElement[]}
+function ElementBuilder.destroy_element(el, all_elements, view_elements)
+	assert(el~=nil, "Invalid Argument. 'el' must not be nil.")
+	assert(type(all_elements)=="table", "Invalid Argument. 'all_elements' must be a table but is "..type(all_elements)..": "..serpent.line(all_elements))
+	assert(type(view_elements)=="table", "Invalid Argument. 'view_elements' must be a table but is "..type(view_elements)..": "..serpent.line(view_elements))
+	local t = all_elements[el.name]
+	if type(t) == "table" then
+		Table.remove(t, el)
+		if     #t == 0 then all_elements[el.name] = nil
+		elseif #t == 1 then all_elements[el.name] = t[1]
+		end
 	else
-		error("Invalid Parameter. 'style' must be a string or a table but is "..type(args.style)..": "..serpent.line(args.style))
+		all_elements[el.name] = nil
 	end
 
-	-- handle style fields
-	for k,v in pairs(args) do
-		if(not isInteger(k) and isWriteableStyleField[k]) then
-			style = style or {}
-			style[k] = v
-			args[k] = nil
-			--[[TRACE]]--trace.append("  prep_style '"..k.."' moved to style")
+	t = view_elements[el.name]
+	if type(t) == "table" then
+		Table.remove(t, el)
+		if     #t == 0 then view_elements[el.name] = nil
+		elseif #t == 1 then view_elements[el.name] = t[1]
 		end
-	end
-
-	return style
-end
-
----Prepares all fields for `LuaGuiElement.add` and returns a table with the remaining fields
----@param args table
----@return table #The extra table
-local function prep_add(args)
-	local extra = {}
-	for k,v in pairs(args) do
-		if(not isInteger(k) and not isAddField[k]) then
-			extra[k] = v
-			args[k] = nil
-		end
-	end
-	return extra
-end
-
----Applies the style to the element
----@param element LuaGuiElement
----@param style table
-local function apply_style(element, style)
-	if( not style) then return end
-	for k,v in pairs(style) do
-		element.style[k] = v
-	end
-end
-
----Applies the extra properties to the element
----@param element LuaGuiElement
----@param extra table
-local function apply_extra(element, extra)
-	if( not extra) then return end
-	for k,v in pairs(extra) do
-		-- Given object is not a LuaGuiElement.
-		-- on drag_target = "%parent%"
-		element[k] = v
-	end
-end
-
----@param container LuaGuiElement
-local function create_element_name(container)
-	--("elmt_"..#container.children)
-	local hn=0
-	for _, name in pairs(container.children_names) do
-		local sn=tonumber(name:match("^elmt_(%d+)$"))
-		if(sn and sn>hn) then hn=sn end
-	end
-	return "elmt_"..(hn+1)
-end
-
-local function prep_children(args)
-	local children, i  = {}, 1
-	while i <= #args do
-		if type(args[i]) == "function" then
-			table.insert(children, args[i])
-			table.remove(args, i)
-		else i = i + 1 end
-	end
-	if(args.children) then
-		if #children > 0 then error("Duplicate definition of children.") end
-		children = args.children
-		args.children = nil
-	end
-	if(type(args[#args])=="table") then
-		if #children > 0 then error("Duplicate definition of children.") end
-		children = args[#args]
-		args[#args] = nil
-	end
-	return #children > 0 and children or nil
-end
-
-local function prep_name(args, container)
-	if(args.name) then
-		return
-	elseif(args[1] and type(args[1])=="string") then
-		args.name = args[1]
 	else
-		args.name = create_element_name(container)
+		view_elements[el.name] = nil
 	end
+	local p = el.parent
+	el.destroy()
 end
 
-local function prep_caption(args)
-	-- https://lua-api.factorio.com/latest/concepts.html#LocalisedString
-	-- LocalisedString :: string or number or boolean or LuaObject or nil or array[LocalisedString]
-	if(args.caption) then return
-	elseif(type(args[2])=="function") then return
-	elseif(type(args[2])=="nil") then return
-	elseif(type(args[2])=="table" and #args[2]>0 and type(args[2][1])=="function") then	return
-	else
-		args.caption = args[2]
-		args[2] = nil
-	end
-end
+-------------------------------------------------------------------------------
+--#region: element_factory
+-------------------------------------------------------------------------------
 
-local t = {"%self%","%parent%","%parent.parent%"}
-local supported_variables = {}; for _,v in ipairs(t) do supported_variables[v]=true end
 
-local function prep_post(args)
-	local post_args = {}
 
-	for k,v in pairs(args) do
-		-- TODO: make this more generic
-		if(supported_variables[v]) then
-			post_args[k] = v
-			args[k] = nil
-		end
-	end
-	-- trace("ElementBuilder.prep_post "..tostring(args.name))
-	-- trace.append(serpent.block(post_args))
-	return post_args
-end
-
-local function apply_post(element, post_args)
-	for k,v in pairs(post_args) do
-		if(v == "%parent%") then -- drag_target = "%parent%"
-			element[k] = element.parent
-		elseif(v == "%parent.parent%") then
-			element[k] = element.parent.parent
-		elseif(v == "%self%") then
-			element[k] = element
-		end
-	end
-end
+local element_factory_utils = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/gui/element_factory_utils")
+local prep = element_factory_utils.prep
+local apply = element_factory_utils.apply
 
 ---Base function to create a gui element creation function
 ---@param args table the arguments for the element as specified in then designer
 local function element_factory(args)
 	assert(args~=nil, "Invalid Argument. 'args' must not be nil.")
 
+	                 prep.caption(args) --[2]
+	local style    = prep.style(args)
+	local children = prep.children(args)
+	local post     = prep.post(args) -- execute before prep_add
+	local extra    = prep.add(args)
+	--[[TRACE]]--trace("ElementBuilder.element_base "..tostring(container.name).." "..tostring(args.name))
+	--[[TRACE]]--trace.append("  args:  "..serpent.line(args))
+	--[[TRACE]]--trace.append("  style: "..serpent.line(style))
+	--[[TRACE]]--trace.append("  extra: "..serpent.line(extra))
+
+	---@param container LuaGuiElement
+	---@param parameters KuxCoreLib.ElementBuilder.create.parameters
 	return function(container, parameters)
 		assert(container~=nil, "Invalid Argument. 'container' must not be nil.")
 		log("ElementBuilder.element_factory "..tostring(container.name).." "..tostring(args.name))
 		local all_names = parameters.all_names or error("Invalid Argument. 'parameters.all_names' must not be nil.")
-		prep_name(args, container)
-		prep_caption(args)
-		local style    = prep_style(args)
-		local children = prep_children(args)
-		local post     = prep_post(args) -- execute before prep_add
-		local extra    = prep_add(args)
-		--[[TRACE]]--trace("ElementBuilder.element_base "..tostring(container.name).." "..tostring(args.name))
-		--[[TRACE]]--trace.append("  args:  "..serpent.line(args))
-		--[[TRACE]]--trace.append("  style: "..serpent.line(style))
-		--[[TRACE]]--trace.append("  extra: "..serpent.line(extra))
+		local view_names = parameters.view_names or error("Invalid Argument. 'parameters.view_names' must not be nil.")
+		prep.name(args, container) --[1]
+
 		local element = container.add(args)
-		if all_names then
-			if not all_names[element.name] then all_names[element.name] = element
-			elseif type(all_names[element.name]) == "table" then table.insert(all_names[element.name], element)
-			else all_names[element.name] = {all_names[element.name], element} end
-		end
-		if(style) then apply_style(element, style) end
-		if(extra) then apply_extra(element, extra) end
-		if(post ) then apply_post (element, post ) end
+		if all_names then add_cache_element(all_names, element) end
+		if view_names then add_cache_element(view_names, element) end
+
+		if(style) then apply.style(element, style) end
+		if(extra) then apply.extra(element, extra) end
+		if(post ) then apply.post (element, post ) end
 
 		local tags = element.tags
 		tags.mod_name = parameters.mod_name
+		tags.view_name = parameters.view_name
 		element.tags = tags
-
 
 		if(children) then create_multi(element, children, parameters) end
 		return element
@@ -326,44 +215,51 @@ local function element_factory(args)
 end
 ElementBuilder.factory = element_factory
 
+
+-------------------------------------------------------------------------------
+---#region: elements
+-------------------------------------------------------------------------------
+
 ---A clickable element. Relevant event: on_gui_click
----@param args KuxCoreLib.ElementBuilder.parameter.button
+---@param args KuxCoreLib.ElementBuilder.button.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.button(args)
 	args["type"]="button"
 	return element_factory(args)
 end
 
 ---A button that displays a sprite rather than text. Relevant event: on_gui_click
----@param args KuxCoreLib.ElementBuilder.parameter.sprite-button
+---@param args KuxCoreLib.ElementBuilder.spritebutton.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.spritebutton(args)
 	args["type"]="sprite-button"
 	return element_factory(args)
 end
 
+---@type Decorative
+
 ---A clickable element with a check mark that can be turned off or on. Relevant event: on_gui_checked_state_changed
----@param args KuxCoreLib.ElementBuilder.parameter.checkbox
+---@param args KuxCoreLib.ElementBuilder.checkbox.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.checkbox(args)
 	args["type"]="checkbox"
 	return element_factory(args)
 end
 
 ---An invisible container that lays out its children either horizontally or vertically.
----@param args KuxCoreLib.ElementBuilder.parameter.flow
+---@param args KuxCoreLib.ElementBuilder.flow.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.flow(args)
 	args["type"]="flow"
 	return element_factory(args)
 end
 
 ---A non-transparent box that contains other elements. It can have a title (set via the caption attribute). Just like a flow, it lays out its children either horizontally or vertically. Relevant event: on_gui_location_changed
----@param args KuxCoreLib.ElementBuilder.parameter.frame
+---@param args KuxCoreLib.ElementBuilder.frame.args
 ---@return function
 function ElementBuilder.frame(args)
 	args["type"]="frame"
@@ -371,180 +267,180 @@ function ElementBuilder.frame(args)
 end
 
 ---A piece of text.
----@param args KuxCoreLib.ElementBuilder.parameter.label
+---@param args KuxCoreLib.ElementBuilder.label.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.label(args)
 	args["type"]="label"
 	return element_factory(args)
 end
 
 ---A horizontal or vertical separation line.
----@param args KuxCoreLib.ElementBuilder.parameter.line
+---@param args KuxCoreLib.ElementBuilder.line.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.line(args)
 	args["type"]="line"
 	return element_factory(args)
 end
 
 ---A partially filled bar that can be used to indicate progress.
----@param args KuxCoreLib.ElementBuilder.parameter.progressbar
+---@param args KuxCoreLib.ElementBuilder.progressbar.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.progressbar(args)
 	args["type"]="progressbar"
 	return element_factory(args)
 end
 
 ---An invisible container that lays out its children in a specific number of columns. The width of each column is determined by the widest element it contains.
----@param args KuxCoreLib.ElementBuilder.parameter.table
+---@param args KuxCoreLib.ElementBuilder.table.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.table(args)
 	args["type"]="table"
 	return element_factory(args)
 end
 
 ---A single-line box the user can type into. Relevant events: on_gui_text_changed, on_gui_confirmed
----@param args KuxCoreLib.ElementBuilder.parameter.textfield
+---@param args KuxCoreLib.ElementBuilder.textfield.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.textfield(args)
 	args["type"]="textfield"
 	return element_factory(args)
 end
 
 ---An element that is similar to a checkbox, but with a circular appearance. Clicking a selected radio button will not unselect it. Radio buttons are not linked to each other in any way. Relevant event: on_gui_checked_state_changed
----@param args KuxCoreLib.ElementBuilder.parameter.radiobutton
+---@param args KuxCoreLib.ElementBuilder.radiobutton.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.radiobutton(args)
 	args["type"]="radiobutton"
 	return element_factory(args)
 end
 
 ---An element that shows an image.
----@param args KuxCoreLib.ElementBuilder.parameter.sprite
+---@param args KuxCoreLib.ElementBuilder.sprite.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.sprite(args)
 	args["type"]="sprite"
 	return element_factory(args)
 end
 
 ---An invisible element that is similar to a flow, but has the ability to show and use scroll bars.
----@param args KuxCoreLib.ElementBuilder.parameter.scroll-pane
+---@param args KuxCoreLib.ElementBuilder.scrollpane.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.scrollpane(args)
 	args["type"]="scroll-pane"
 	return element_factory(args)
 end
 
 ---A drop-down containing strings of text. Relevant event: on_gui_selection_state_changed
----@param args KuxCoreLib.ElementBuilder.parameter.drop-down
+---@param args KuxCoreLib.ElementBuilder.dropdown.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.dropdown(args)
 	args["type"]="drop-down"
 	return element_factory(args)
 end
 
 ---A list of strings, only one of which can be selected at a time. Shows a scroll bar if necessary. Relevant event: on_gui_selection_state_changed
----@param args KuxCoreLib.ElementBuilder.parameter.list-box
+---@param args KuxCoreLib.ElementBuilder.listbox.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.listbox(args)
 	args["type"]="list-box"
 	return element_factory(args)
 end
 
 ---A camera that shows the game at the given position on the given surface. It can visually track an entity that is set after the element has been created.
----@param args KuxCoreLib.ElementBuilder.parameter.camera
+---@param args KuxCoreLib.ElementBuilder.camera.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.camera(args)
 	args["type"]="camera"
 	return element_factory(args)
 end
 
 ---A button that lets the player pick from a certain kind of prototype, with optional filtering. Relevant event: on_gui_elem_changed
----@param args KuxCoreLib.ElementBuilder.parameter.choose-elem-button
+---@param args KuxCoreLib.ElementBuilder.chooseelembutton.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.chooseelembutton(args)
 	args["type"]="choose-elem-button"
 	return element_factory(args)
 end
 
 ---A multi-line textfield. Relevant event: on_gui_text_changed
----@param args KuxCoreLib.ElementBuilder.parameter.text-box
+---@param args KuxCoreLib.ElementBuilder.textbox.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.textbox(args)
 	args["type"]="text-box"
 	return element_factory(args)
 end
 
 ---A horizontal number line which can be used to choose a number. Relevant event: on_gui_value_changed
----@param args KuxCoreLib.ElementBuilder.parameter.slider
+---@param args KuxCoreLib.ElementBuilder.slider.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.slider(args)
 	args["type"]="slider"
 	return element_factory(args)
 end
 
 ---A minimap preview, similar to the normal player minimap. It can visually track an entity that is set after the element has been created.
----@param args KuxCoreLib.ElementBuilder.parameter.minimap
+---@param args KuxCoreLib.ElementBuilder.minimap.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.minimap(args)
 	args["type"]="minimap"
 	return element_factory(args)
 end
 
 ---A preview of an entity. The entity has to be set after the element has been created.
----@param args KuxCoreLib.ElementBuilder.parameter.entity-preview
+---@param args KuxCoreLib.ElementBuilder.entitypreview.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.entitypreview(args)
 	args["type"]="entity-preview"
 	return element_factory(args)
 end
 
 ---An empty element that just exists. The root GUI elements screen and relative are empty-widgets.
----@param args KuxCoreLib.ElementBuilder.parameter.empty-widget
+---@param args KuxCoreLib.ElementBuilder.emptywidget.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.emptywidget(args)
 	args["type"]="empty-widget"
 	return element_factory(args)
 end
 
 ---A collection of tabs and their contents. Relevant event: on_gui_selected_tab_changed
----@param args KuxCoreLib.ElementBuilder.parameter.tabbed-pane
+---@param args KuxCoreLib.ElementBuilder.tabbedpane.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.tabbedpane(args)
 	args["type"]="tabbed-pane"
 	return element_factory(args)
 end
 
 ---A tab for use in a tabbed-pane.
----@param args KuxCoreLib.ElementBuilder.parameter.tab
+---@param args KuxCoreLib.ElementBuilder.tab.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.tab(args)
 	args["type"]="tab"
 	return element_factory(args)
 end
 
 ---A switch with three possible states. Can have labels attached to either side. Relevant event: on_gui_switch_state_changed
----@param args KuxCoreLib.ElementBuilder.parameter.switch
+---@param args KuxCoreLib.ElementBuilder.switch.args
 ---@return function
----<p>[View Documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)</p>
+---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.switch(args)
 	args["type"]="switch"
 	return element_factory(args)
@@ -556,7 +452,7 @@ return ElementBuilder
 --TODO: ---@field style
 --TODO: ---@field children
 
----@class KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.base.args : KuxCoreLib.LuaGuiStyle.writable_members
 ---@field type	GuiElementType	The kind of element to add, which potentially has its own attributes as listed below.
 ---@field name	string?	Name of the child element. It must be unique within the parent element.
 ---@field caption	LocalisedString?	Text displayed on the child element. For frames, this is their title. For other elements, like buttons or labels, this is the content. Whilst this attribute may be used on all elements, it doesn't make sense for tables and flows as they won't display it.
@@ -572,11 +468,11 @@ return ElementBuilder
 ---@field raise_hover_events	boolean?	Whether this element will raise on_gui_hover and on_gui_leave. Defaults to false.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.label : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.label.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "label"?	Always "label".
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.button : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.button.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "button"?	Always "button".
 ---@field mouse_button_filter	MouseButtonFlags?	Which mouse buttons the button responds to. Defaults to "left-and-right".
 ---@field auto_toggle	boolean?	Whether the button will automatically toggle when clicked. Defaults to false.
@@ -584,19 +480,19 @@ return ElementBuilder
 ---@field style string|KuxCoreLib.ElementBuilder.button-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.flow : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.flow.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "flow"?	Always "flow".
 ---@field direction	string?	The initial direction of the flow's layout. See LuaGuiElement::direction. Defaults to "horizontal".
 ---@field style string|KuxCoreLib.ElementBuilder.flow-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.frame : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.frame.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "frame"?	Always "frame".
 ---@field direction	string?	The initial direction of the frame's layout. See LuaGuiElement::direction. Defaults to "horizontal".
 ---@field style string|KuxCoreLib.ElementBuilder.frame-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.table : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.table.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "table"?	Always "table".
 ---@field column_count	uint	Number of columns. This can't be changed after the table is created.
 ---@field draw_vertical_lines	boolean?	Whether the table should draw vertical grid lines. Defaults to false.
@@ -606,7 +502,7 @@ return ElementBuilder
 ---@field style string|KuxCoreLib.ElementBuilder.table-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.textfield : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.textfield.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "textfield"?	Always "textfield".
 ---@field text	string?	The initial text contained in the textfield.
 ---@field numeric	boolean?	Defaults to false.
@@ -618,25 +514,25 @@ return ElementBuilder
 ---@field style string|KuxCoreLib.ElementBuilder.textfield-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.progressbar : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.progressbar.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "progressbar"?	Always "progressbar".
 ---@field value	double?	The initial value of the progressbar, in the range [0, 1]. Defaults to 0.
 ---@field style string|KuxCoreLib.ElementBuilder.progressbar-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.checkbox : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.checkbox.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "checkbox"?	Always "checkbox".
 ---@field state	boolean	The initial checked-state of the checkbox.
 ---@field style string|KuxCoreLib.ElementBuilder.checkbox-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.radiobutton : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.radiobutton.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "radiobutton"?	Always "radiobutton".
 ---@field state	boolean	The initial checked-state of the radiobutton.
 ---@field style string|KuxCoreLib.ElementBuilder.radiobutton-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.sprite-button : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.spritebutton.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "sprite-button"?	Always "sprite-button".
 ---@field sprite	SpritePath?	Path to the image to display on the button.
 ---@field hovered_sprite	SpritePath?	Path to the image to display on the button when it is hovered.
@@ -649,41 +545,41 @@ return ElementBuilder
 ---@field style string|KuxCoreLib.ElementBuilder.sprite-button-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.sprite : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.sprite.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "sprite"?	Always "sprite".
 ---@field sprite	SpritePath?	Path to the image to display.
 ---@field resize_to_sprite	boolean?	Whether the widget should resize according to the sprite in it. Defaults to true.
 ---@field style string|KuxCoreLib.ElementBuilder.sprite-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.scroll-pane : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.scrollpane.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "scroll-pane"?	Always "scroll-pane".
 ---@field horizontal_scroll_policy	string?	Policy of the horizontal scroll bar. Possible values are "auto", "never", "always", "auto-and-reserve-space", "dont-show-but-allow-scrolling". Defaults to "auto".
 ---@field vertical_scroll_policy	string?	Policy of the vertical scroll bar. Possible values are "auto", "never", "always", "auto-and-reserve-space", "dont-show-but-allow-scrolling". Defaults to "auto".
 ---@field style string|KuxCoreLib.ElementBuilder.scroll-pane-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.drop-down : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.dropdown.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "drop-down"?	Always "drop-down".
 ---@field items	LocalisedString[]?	The initial items in the dropdown.
 ---@field selected_index	uint?	The index of the initially selected item. Defaults to 0.
 ---@field style string|KuxCoreLib.ElementBuilder.drop-down-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.line : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.line.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "line"?	Always "line".
 ---@field direction	string?	The initial direction of the line. Defaults to "horizontal".
 ---@field style string|KuxCoreLib.ElementBuilder.line-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.list-box : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.listbox.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "list-box"?	Always "list-box".
 ---@field items	LocalisedString[]?	The initial items in the listbox.
 ---@field elected_index	uint?	The index of the initially selected item. Defaults to 0.
 ---@field style string|KuxCoreLib.ElementBuilder.list-box-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.camera : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.camera.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "camera"?	Always "camera".
 ---@field position	MapPosition	The position the camera centers on.
 ---@field surface_index	uint?	The surface that the camera will render. Defaults to the player's current surface.
@@ -691,7 +587,7 @@ return ElementBuilder
 ---@field style string|KuxCoreLib.ElementBuilder.camera-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.choose-elem-button : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.chooseelembutton.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "choose-elem-button"?	Always "choose-elem-button".
 ---@field elem_type	string	The type of the button - one of the following values.
 ---@field item	string?	If type is "item" - the default value for the button.
@@ -709,14 +605,14 @@ return ElementBuilder
 ---@field style string|KuxCoreLib.ElementBuilder.choose-elem-button-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.text-box : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.textbox.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "text-box"?	Always "text-box".
 ---@field text	string?	The initial text contained in the text-box.
 ---@field clear_and_focus_on_right_click	boolean?	Defaults to false.
 ---@field style string|KuxCoreLib.ElementBuilder.text-box-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.slider : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.slider.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "slider"?	Always "slider".
 ---@field minimum_value	double?	The minimum value for the slider. Defaults to 0.
 ---@field maximum_value	double?	The maximum value for the slider. Defaults to 30.
@@ -727,7 +623,7 @@ return ElementBuilder
 ---@field style string|KuxCoreLib.ElementBuilder.slider-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.minimap : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.minimap.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "minimap"?	Always "minimap".
 ---@field position	MapPosition?	The position the minimap centers on. Defaults to the player's current position.
 ---@field surface_index	uint?	The surface the camera will render. Defaults to the player's current surface.
@@ -737,13 +633,13 @@ return ElementBuilder
 ---@field style string|KuxCoreLib.ElementBuilder.minimap-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.tab : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.tab.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "tab"?	Always "tab".
 ---@field badge_text	LocalisedString?	The text to display after the normal tab text (designed to work with numbers).
 ---@field style string|KuxCoreLib.ElementBuilder.tab-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.switch : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.switch.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "switch"?	Always "switch".
 ---@field switch_state	string?	Possible values are "left", "right", or "none". If set to "none", allow_none_state must be true. Defaults to "left".
 ---@field allow_none_state	boolean?	Whether the switch can be set to a middle state. Defaults to false.
@@ -754,17 +650,17 @@ return ElementBuilder
 ---@field style string|KuxCoreLib.ElementBuilder.switch-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.entity-preview : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.entitypreview.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "entity-preview"?	Always "entity-preview".
 ---@field style string|KuxCoreLib.ElementBuilder.entity-preview-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.empty-widget : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.emptywidget.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "empty-widget"?	Always "empty-widget".
 ---@field style string|KuxCoreLib.ElementBuilder.empty-widget-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
----@class KuxCoreLib.ElementBuilder.parameter.tabbed-pane : KuxCoreLib.ElementBuilder.parameter.base
+---@class KuxCoreLib.ElementBuilder.tabbedpane.args : KuxCoreLib.ElementBuilder.base.args
 ---@field type "tabbed-pane"?	Always "tabbed-pane".
 ---@field style string|KuxCoreLib.ElementBuilder.tabbed-pane-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
 

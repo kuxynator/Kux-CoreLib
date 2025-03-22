@@ -16,7 +16,7 @@ if KuxCoreLib.__classUtils.cache(Debug) then return KuxCoreLib.__classUtils.cach
 
 ---------------------------------------------------------------------------------------------------
 Debug.util = require((KuxCoreLibPath or "__Kux-CoreLib__/").."modules/debug_util") --[[@as KuxCoreLib.debug_util]]
-local Path = KuxCoreLib.Path
+local Path = KuxCoreLib.require.Path
 
 function Debug.onSettingsChanged()
 	--

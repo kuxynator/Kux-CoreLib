@@ -204,6 +204,17 @@ if set_n(some_function())[2] == expected_value then
 end
 ]]
 
+---Alias for print(string.format(s,...))
+---@param s string
+---@vararg any
+function _G.printf(s,...) print(string.format(s,...)) end
+
+function _G.dprintf(s,...)
+	local args = {...}
+	for i = 1, #args do args[i] = str(args[i]) end
+	print(string.format(s,...))
+end
+
 ---@class KuxCoreLib.lua
 local lua = {
 	asGlobal=function () end -- dummy, beacause lua like methods are always global

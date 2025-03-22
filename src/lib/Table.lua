@@ -418,6 +418,34 @@ function Table.shallowCopyPath(t, props)
     return t
 end
 
+---@class KuxCoreLib.table.mergeDictionary.options
+---@field mode "reference"|"shallow"|"deep"|nil "reference"|"shallow"|"deep" default is "reference"
+---@field createNew boolean|nil default is false
+
+---Merges two tables
+---@param dic table The main dictionary
+---@param merge_dic table The dictionary to merge
+---@param options KuxCoreLib.table.mergeDictionary.options?
+---@return table # The main dictionary
+---<p> by default the merge dictionary will be merged into the main dictionary. If a key already exists, the value will be overwritten. Tables are copied as reference.</p>
+function Table.mergeDictionary(dic, merge_dic, options)
+	options = options or {} -- Falls nil, Standardwerte nutzen
+	local mode = options.mode or "reference" -- Standard: Referenz-Kopie
+	local createNew = options.createNew or false -- Standard: dic wird verändert
+	local result = createNew and Table.deepCopy(dic) or dic
+	for k, v in pairs(merge_dic) do
+		if type(v) == "table" then
+			if     mode == "shallow" then result[k] = Table.shallowCopy(v)
+			elseif mode == "deep"    then result[k] = Table.deepCopy(v)
+			else                          result[k] = v -- Reference
+			end
+		else
+			result[k] = v
+		end
+	end
+	return result
+end
+
 --[[ -- this is only a quick and dirty implementation
 function Table.deepCopy(t)
     local orig_type = type(t)
@@ -861,16 +889,88 @@ function Table.overlaps(a,b)
 	-- abc   ab     bc    b    abc   abc    bce   abc       def
 end
 
+
+---@param t string[]
+---@return table<string, true>
 function Table.toFlagsDictionary(t)
 	local flags = {}
-	for _, v in ipairs(t) do
-		flags[v] = true
-	end
+	for _, v in ipairs(t) do flags[v] = true end
 	return flags
+end
+
+---Clears all elements of the table
+---@param t table
+function Table.clear(t)
+	for k, _ in pairs(t) do t[k] = nil end
+	table.remove(t)
+	assert(#t == 0, "ERROR Table is not empty.")
+end
+
+do -- clear_test()
+	local t = {1,2,3}
+	t["foo"]="bar"
+	t[5]="5"
+	Table.clear(t)
 end
 
 function Table.__setGlobals()
 	table_size = table_size or table_size_mock
+end
+
+---
+---@param t table
+---@param fields string|string[]|table<string, string>
+---@param isPath boolean?
+---@return table
+function Table.select(t, fields, isPath)
+    local result = {}
+
+    if type(fields) == "string" then
+        for _, row in ipairs(t) do
+			local value = isPath and safeget(row, fields) or row[fields]
+            table.insert(result, value)
+        end
+    else
+		local isArray = #fields > 0
+		for _, row in ipairs(t) do
+			local tuple = {}
+			if isArray then
+				for _, field in ipairs(fields) do
+					local value = isPath and safeget(row, field) or row[field]
+					tuple[field] = value
+				end
+			else
+				for key, field in pairs(fields) do
+					local value = isPath and safeget(row, field) or row[field]
+					tuple[key] = value
+				end
+			end
+			table.insert(result, tuple)
+        end
+    end
+
+    return result
+end
+
+do --select-test
+	local t = {
+		{a=1, b=2, c=3},
+		{a=4, b=5, c=6},
+		{a=7, b=8, c=9},
+	}
+
+	local result = Table.select(t, "a")
+	assert(result[1] == 1)
+	assert(result[2] == 4)
+	assert(result[3] == 7)
+
+	local result = Table.select(t, {["a"]="a", ["b"]="b"})
+	assert(result[1].a == 1)
+	assert(result[1].b == 2)
+	assert(result[2].a == 4)
+	assert(result[2].b == 5)
+	assert(result[3].a == 7)
+	assert(result[3].b == 8)
 end
 
 ---------------------------------------------------------------------------------------------------

@@ -38,6 +38,7 @@ end
 
 
 ---@class KuxCoreLib.__modules
+--- --------------------------
 ---@field AsyncTask KuxCoreLib.AsyncTask
 ---@field Array KuxCoreLib.Array
 ---@field ColorConverter KuxCoreLib.ColorConverter
@@ -88,12 +89,15 @@ end
 ---@field DataGrid KuxCoreLib.DataGrid
 ---@field GuiHelper KuxCoreLib.GuiHelper
 ---@field GuiElementCache KuxCoreLib.GuiElementCache
+---@field GuiElementCache2 KuxCoreLib.GuiElementCache2
 ---@field Timer KuxCoreLib.Timer
 ---@field PlayerStorage KuxCoreLib.PlayerStorage
 ---@field RadarData KuxCoreLib.RadarData
 ---@field Radar KuxCoreLib.Radar
+---@field Vector KuxCoreLib.Vector.static
 -- ---@field SelectionTool KuxCoreLib.SelectionTool
 ---@field StageBridge KuxCoreLib.StageBridge
+
 
 ---Provides access to Kux-CoreLib modules<br>
 ---Usage: `local moduleName = KuxCoreLib.MODULENAME`<br>
@@ -107,6 +111,8 @@ end
 ---@field requireAll function
 ---@field Data table
 ---@field __version string
+---@field require KuxCoreLib.__modules
+
 
 ---@type KuxCoreLib
 ---@diagnostic disable-next-line: missing-fields
@@ -115,10 +121,11 @@ KuxCoreLib = {
 	__guid   = "7c4df965-a929-4f58-92e6-4cfa6a60f4b8",
 	__origin = "Kux-CoreLib/init.lua",
 
-	--[[@diagnostic disable-next-line: missing-fields]]
-	__modules = {},
+	__modules = {},--[[@diagnostic disable-line: missing-fields]]
 	__classUtils = nil,
 	__version = (mods or script.active_mods)["Kux-CoreLib"],
+
+	require = {},--[[@diagnostic disable-line: missing-fields]]
 }
 
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/__classUtils")
@@ -137,9 +144,7 @@ end
 
 ---------------------------------------------------------------------------------------------------
 --NOTE: We must not 'require' lib modules! circular reference!
--- e.g. local Debug = require(KuxCoreLibPath.."lib/Debug")
-
---require(KuxCoreLibPath.."modules/require-override")
+-- e.g. local Debug = require(KuxCoreLibPath.."lib/Debug") is not allowed
 
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/InitGlobals")
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/Factorio20Migrations")
@@ -176,6 +181,7 @@ local require_map = { --RUN (F5) to AUTOGENERATE
 		DataGrid = "",
 		ErrorHandler = "",
 		Timer = "",
+		Vector = "",
 
 		CollisionMaskData = "data",
         DataRaw = "data",
@@ -203,6 +209,7 @@ local require_map = { --RUN (F5) to AUTOGENERATE
 		ElementBuilder = "gui",
 		GuiHelper = "gui",
 		GuiElementCache = "gui",
+		GuiElementCache2 = "gui",
 
 		PickerDollies = "mods",
 		Factorissimo = "mods",
@@ -216,12 +223,17 @@ function KuxCoreLib_metatable.__index(self, key)
 	local path = rootpath..key
 	--print("KuxCoreLib require "..path)
 	local result = require(path)
-	assert(type(result)=="table", "require returns not a table. "..path)
+	assert(type(result)=="table", "require() returns not a table. "..path)
 	return result
 end
 function KuxCoreLib_metatable.__newindex()
 	error("KuxCoreLib is protected.")
 end
+
+setmetatable(KuxCoreLib.require,{
+	__index = KuxCoreLib_metatable.__index,
+	__newindex = function() error("KuxCoreLib.require is protected.") end
+})
 
 ---Requires all modules as global
 function KuxCoreLib.requireAll()
