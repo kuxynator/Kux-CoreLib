@@ -67,6 +67,37 @@ end
 
 if(script)then
 
+	local RecipeWithQuality = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/RecipeWithQuality")
+
+	---@param entity LuaEntity
+	---@return KuxCoreLib.RecipeWithQuality?
+	function __getRecipe(entity)
+		-- 'get_recipe' can only be used if this is crafting-machine
+		-- 'previous_recipe' can only be used if this is Furnace
+
+		-- try get_recipe for (crafting-machine->) assembling-machine|furnace|rocket-silo
+		if entity.type == "assembling-machine" or entity.type == "furnace"  or entity.type == "rocket-silo" then
+			local r,qp = entity.get_recipe();
+			if r then return RecipeWithQuality.new(r,qp) end
+		end
+
+		--fallback: try previous_recipe for furnace
+		if entity.type == "furnace" then
+			local pri = entity.previous_recipe --> RecipeIDAndQualityIDPair?
+			if not pri then return nil end
+			local force = getForce(entity.force)
+			local r = entity.previous_recipe.name -- RecipeIDAndQualityIDPair.name ->  RecipeID:LuaRecipePrototype|LuaRecipe|string
+			if type(r) == "string" then r = force.recipes[r]
+			elseif type(r) ~= "userdata" then r = force.recipes[r.name]
+			end
+			local q = pri.quality
+			if type(q) == "string" then q = prototypes.quality[q] end
+
+			return RecipeWithQuality.new(r,q)
+		end
+		return nil
+	end
+
 	---Gets a value indicating wether `value` is a table or userdata
 	---@param value any
 	---@param object_name string? The object_name to check for
@@ -87,11 +118,12 @@ if(script)then
 	---@return any
 	local function getLuaObject(var, object_name, prop, returnNilOnError)
 		if is_obj(var, "LuaEntity") then ---@cast var LuaEntity
-			var =  object_name == "LuaEntity"  and var
-			    or object_name == "LuaSurface" and var.surface
-				or object_name == "LuaForce"   and var.force
-				or object_name == "LuaPlayer"  and var.last_user
-				or error("Invalid parameter")
+			if     object_name == "LuaEntity"  then var = var
+			elseif object_name == "LuaSurface" then var = var.surface
+			elseif object_name == "LuaForce"   then var = var.force
+			elseif object_name == "LuaPlayer"  then var = var.last_user
+			elseif object_name == "LuaRecipe"  then var = __getRecipe(var)
+			else error("Invalid parameter") end
 		elseif is_obj(var, "LuaPlayer") then ---@cast var LuaPlayer
 			var =  object_name == "LuaPlayer"  and var
 				or object_name == "LuaSurface" and var.surface
@@ -173,17 +205,20 @@ if(script)then
 	---@return LuaForce?
 	function _G.getForceOrNil(var) return getLuaObject(var, "LuaForce", nil, true)--[[@as LuaForce?]] end
 
-		---@param var LuaRecipe|string
+
+	---@param var LuaRecipe|string|LuaEntity
 	---@return string
 	function _G.getRecipeName(var) return getLuaObject(var, "LuaRecipe", "name")--[[@as string]] end
 
-	---@param var LuaRecipe|string
+	---@param var LuaRecipe|string|LuaEntity
 	---@return LuaRecipe
 	function _G.getRecipe(var) return getLuaObject(var, "LuaRecipe", nil)--[[@as LuaRecipe]] end
 
-	---@param var LuaRecipe|string|nil
+	---@param var LuaRecipe|string|nil|LuaEntity
 	---@return LuaRecipe?
 	function _G.getRecipeOrNil(var) return getLuaObject(var, "LuaRecipe", nil, true)--[[@as LuaRecipe?]] end
+
+	-- getRecipe can not work in all case (string -> LuaRecipe) Which force is used?
 end
 
 
