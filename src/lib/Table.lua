@@ -491,26 +491,41 @@ end
 ---Migrates values of a prototype with higher version into a (outdated) table
 ---@param t table The table to update
 ---@param prototype table The prototype
----@param versionField string? name of version field. default = "dataVersion"
+---@param versionField "none"|string|nil override name of version field. "none" to skip version number check, and migrate always. defaults to "_migrationVersion"
 ---@return table
+---<p><pre>prototype = {
+---    _migrationVersion = 1,
+---    _migrationDeleteUndefined = true,
+---    my_field = 42, _migrationUpdate_my_field = true, -- force upodate "my_field"
+---    _migrationDelete_my_old_field = true,   -- explicitly delete this field "my_old_field"
+---    my_new_field = 42, -- update only if not exists
+---}</pre></p>
 function Table.migrate(t, prototype, versionField)
-	assert(That.Argument.IsNotNil(t,"t"))
-	assert(t~=prototype, "Argument 'prototype' must not be the same value as 't'!")
-	versionField = "dataVersion"
-	if(not prototype.dataVersion and prototype.version) then versionField = "version" end -- for compatibility
-	if t[versionField] == prototype[versionField] then return t end
+	assert(That.Argument.IsNotNil(t, "t"))
+	assert(t ~= prototype, "Argument 'prototype' must not be the same value as 't'!")
+	versionField = versionField or "_migrationVersion"
 
-	-- remove orphaned members
-	for n, v in pairs(t) do if prototype[n] == nil then t[n] = nil end end
+	if versionField ~= "none" then
+		assert(prototype[versionField] ~= nil, "Missing value for "..versionField.." in prototype")
+		if t[versionField] == prototype[versionField] then return t end         -- no update needed
+	end
+
+	local updateSet = Table.toFlagsDictionary(prototype._migrationUpdate or {})
+	local deleteSet = Table.toFlagsDictionary(prototype._migrationDelete or {})
+
+	if prototype._migrationDeleteUndefined then
+		for n in pairs(t) do if prototype[n] == nil then t[n] = nil end end
+	end
 
 	for n, v in pairs(prototype) do
-		if string.find(n,"_migrationUpdate$") then goto next end
-		if v == nil and t[n] ~=nil then t[n] = nil
-		elseif t[n] == nil or prototype[n.."_migrationUpdate"] then t[n] = prototype[n] -- create or update
-		end
+		if deleteSet[n] or string.find(n, "^_migrationDelete_") then t[n] = nil goto next end
+		if string.find(n, "^_migration") then goto next end
+		if t[n] == nil or updateSet[n] or prototype["_migrationUpdate_"..n]
+			then t[n] = (type(v) == "table" and Table.deepCopy(v) or v) end
 		::next::
 	end
-	t[versionField] = prototype[versionField]
+
+	if versionField ~= "none" then t[versionField] = prototype[versionField] end
 	return t
 end
 
@@ -950,6 +965,20 @@ function Table.select(t, fields, isPath)
     end
 
     return result
+end
+
+---Gets the first key of the table
+---@param t table
+---@return any
+function Table.firstKey(t)
+	for key, _ in pairs(t) do return key end
+end
+
+---Gets the first value of the table
+---@param t table
+---@return any
+function Table.firstValue(t)
+	for _, value in pairs(t) do return value end
 end
 
 do --select-test

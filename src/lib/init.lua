@@ -95,8 +95,12 @@ end
 ---@field RadarData KuxCoreLib.RadarData
 ---@field Radar KuxCoreLib.Radar
 ---@field Vector KuxCoreLib.Vector.static
--- ---@field SelectionTool KuxCoreLib.SelectionTool
+---@field LuaGenericPrototype KuxCoreLib.LuaGenericPrototype.static
+-- @field SelectionTool KuxCoreLib.SelectionTool
 ---@field StageBridge KuxCoreLib.StageBridge
+---@field GuiElemenRef KuxCoreLib.GuiElementRef.static
+---@field GuiView KuxCoreLib.GuiView.static
+---@field VGuiElement KuxCoreLib.VGuiElement.static
 
 
 ---Provides access to Kux-CoreLib modules<br>
@@ -182,6 +186,8 @@ local require_map = { --RUN (F5) to AUTOGENERATE
 		ErrorHandler = "",
 		Timer = "",
 		Vector = "",
+		LuaGenericPrototype = "",
+		RecipeWithQuality = "",
 
 		CollisionMaskData = "data",
         DataRaw = "data",
@@ -210,6 +216,9 @@ local require_map = { --RUN (F5) to AUTOGENERATE
 		GuiHelper = "gui",
 		GuiElementCache = "gui",
 		GuiElementCache2 = "gui",
+		GuiElemenRef = "gui",
+		GuiView = "gui",
+		VGuiElement = "gui",
 
 		PickerDollies = "mods",
 		Factorissimo = "mods",

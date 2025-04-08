@@ -1,4 +1,5 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
+local utf8 = require(KuxCoreLibPath.."lib/utils/utf8")
 
 local String = KuxCoreLib.String
 
@@ -215,8 +216,13 @@ function _G.dprintf(s,...)
 	print(string.format(s,...))
 end
 
+--string.lower=utf8.lower
+rawset(string, "lower", utf8.tolower)
+assert(string.lower~=nil,"string.lower is nil")
+
 ---@class KuxCoreLib.lua
 local lua = {
-	asGlobal=function () end -- dummy, beacause lua like methods are always global
+	asGlobal=function () end -- dummy, because lua like methods are always global
 }
+
 return lua

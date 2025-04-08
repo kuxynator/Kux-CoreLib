@@ -168,6 +168,19 @@ function Dictionary.getKeys(t)
 	return keys
 end
 
+---Gets the first key of the dictionary
+---@param t table
+---@return any
+function Dictionary.firstKey(t)
+	for key, _ in pairs(t) do return key end
+end
+
+---Gets the first value of the dictionary
+---@param t table
+---@return any
+function Dictionary.firstValue(t)
+	for _, value in pairs(t) do return value end
+end
 -----------------------------------------------------------------------------------------------------------------------
 return Dictionary
 

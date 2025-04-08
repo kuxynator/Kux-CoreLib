@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.15.16 WIP
+  Features:
+    - Dictionary: add firstKey,firstValue
+    - add classes LuaGenericPrototype, GuiElemenRef, GuiView, VGuiElement
+    - List: add sort
+    - lua: lower add utf8 support
+    - GuiHelper: getPath, getElementKey
+  Changes:
+    - Table.migrate
+    - ElementBuilder
+---------------------------------------------------------------------------------------------------
 Version: 3.15.15
   Changes:
     - Dictionary
@@ -8,7 +19,7 @@ Version: 3.15.15
 ---------------------------------------------------------------------------------------------------
 Version: 3.15.14
   Changes:
-    - many changes for Factorium WIP
+    - many changes for Factorium
 ---------------------------------------------------------------------------------------------------
 Version: 3.15.13
   Changes:

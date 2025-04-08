@@ -27,6 +27,10 @@ That             = KuxCoreLib.That            .asGlobal()
 Technology       = KuxCoreLib.Technology      .asGlobal()
 StringBuilder    = KuxCoreLib.StringBuilder   .asGlobal()
 
+if not script then return KuxCoreLib end
+
+--[ runtime only ]--
+
 KuxCoreLib.Player          .asGlobal()
 
 -- entities --
@@ -40,6 +44,5 @@ KuxCoreLib.Player          .asGlobal()
 
 -- gui --
 GuiBuilder      = KuxCoreLib.GuiBuilder       .asGlobal()
-
 
 return KuxCoreLib

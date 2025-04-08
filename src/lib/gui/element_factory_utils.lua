@@ -46,6 +46,33 @@ for _,name in ipairs(_style_writable_fields) do
 	assert(isAddField[name]==nil, "Style field '"..name.."' is also an add field.")
 end
 
+local t = {"%self%","%parent%","%parent.parent%"}
+local supported_variables = {}; for _,v in ipairs(t) do supported_variables[v]=true end
+
+---@param container LuaGuiElement
+local function create_element_name(container)
+	--("elmt_"..#container.children)
+	local hn=0
+	for _, name in pairs(container.children_names) do
+		local sn=tonumber(name:match("^elmt_(%d+)$"))
+		if(sn and sn>hn) then hn=sn end
+	end
+	return "elmt_"..(hn+1)
+end
+
+local function prep_caption(args)
+	-- https://lua-api.factorio.com/latest/concepts.html#LocalisedString
+	-- LocalisedString :: string or number or boolean or LuaObject or nil or array[LocalisedString]
+	if(args.caption) then return
+	elseif(type(args[2])=="function") then return
+	elseif(type(args[2])=="nil") then return
+	elseif(type(args[2])=="table" and #args[2]>0 and type(args[2][1])=="function") then	return
+	else
+		args.caption = args[2]
+		args[2] = nil
+	end
+end
+
 ---Cleans up args by removing all style parameters and returning them as style table. args.style:string is retained or created
 ---@param args table
 ---@return table|nil #The style table or nil
@@ -56,9 +83,9 @@ local function prep_style(args)
 	elseif(type(args.style)=="string") then
 		--keep "style" in args, as add paramter
 	elseif(type(args.style)=="table") then
-		style = args.style
-		args.style = style.base or args.base_style --set "style" in args, as add paramter
-		style.base = nil
+		style = table.deepcopy(args.style)
+		args.style = style.base or style.parent or args.base_style --set "style" in args, as add paramter
+		style.base = nil; style.parent = nil; style.type = nil
 		args.base_style = nil
 	else
 		error("Invalid Parameter. 'style' must be a string or a table but is "..type(args.style)..": "..serpent.line(args.style))
@@ -81,6 +108,45 @@ local function prep_style(args)
 	return style
 end
 
+local function prep_children(args)
+	local children= {}
+	for i = 1, #args, 1 do
+		if type(args[i]) == "function" then
+			table.insert(children, args[i])
+			args[i] = nil
+		end
+	end
+	if(args.children) then
+		if #children > 0 then error("Duplicate definition of children.") end
+		children = args.children
+		args.children = nil
+	end
+	if(type(args[#args])=="table") then
+		if #children > 0 then error("Duplicate definition of children.") end
+		children = args[#args]
+		args[#args] = nil
+	end
+
+	return #children > 0 and children or nil
+end
+
+---filters args and returns a table with fields that are not supported by LuaGuiElement.add
+local function prep_post(args)
+	local post_args = {}
+
+	for k,v in pairs(args) do
+		-- TODO: make this more generic
+		if(supported_variables[v]) then
+			post_args[k] = v
+			args[k] = nil
+		end
+	end
+	-- trace("ElementBuilder.prep_post "..tostring(args.name))
+	-- trace.append(serpent.block(post_args))
+	return post_args
+end
+
+
 ---Prepares all fields for `LuaGuiElement.add` and returns a table with the remaining fields
 ---@param args table
 ---@return table #The extra table
@@ -94,6 +160,18 @@ local function prep_add(args)
 	end
 	return extra
 end
+
+local function prep_name(args, container)
+	if(args.name) then
+		return
+	elseif(args[1] and type(args[1])=="string") then
+		args.name = args[1]
+		args[1] = nil
+	else
+	--	args.name = create_element_name(container) --TODO: why do we need a name?
+	end
+end
+
 
 ---Applies the style to the element
 ---@param element LuaGuiElement
@@ -127,81 +205,6 @@ local function apply_extra(element, extra)
 			-- on drag_target = "%parent%"
 		end
 	end
-end
-
----@param container LuaGuiElement
-local function create_element_name(container)
-	--("elmt_"..#container.children)
-	local hn=0
-	for _, name in pairs(container.children_names) do
-		local sn=tonumber(name:match("^elmt_(%d+)$"))
-		if(sn and sn>hn) then hn=sn end
-	end
-	return "elmt_"..(hn+1)
-end
-
-local function prep_children(args)
-	local children= {}
-	for i = 1, #args, 1 do
-		if type(args[i]) == "function" then
-			table.insert(children, args[i])
-			args[i] = nil
-		end
-	end
-	if(args.children) then
-		if #children > 0 then error("Duplicate definition of children.") end
-		children = args.children
-		args.children = nil
-	end
-	if(type(args[#args])=="table") then
-		if #children > 0 then error("Duplicate definition of children.") end
-		children = args[#args]
-		args[#args] = nil
-	end
-
-	return #children > 0 and children or nil
-end
-
-local function prep_name(args, container)
-	if(args.name) then
-		return
-	elseif(args[1] and type(args[1])=="string") then
-		args.name = args[1]
-		args[1] = nil
-	else
-		args.name = create_element_name(container)
-	end
-end
-
-local function prep_caption(args)
-	-- https://lua-api.factorio.com/latest/concepts.html#LocalisedString
-	-- LocalisedString :: string or number or boolean or LuaObject or nil or array[LocalisedString]
-	if(args.caption) then return
-	elseif(type(args[2])=="function") then return
-	elseif(type(args[2])=="nil") then return
-	elseif(type(args[2])=="table" and #args[2]>0 and type(args[2][1])=="function") then	return
-	else
-		args.caption = args[2]
-		args[2] = nil
-	end
-end
-
-local t = {"%self%","%parent%","%parent.parent%"}
-local supported_variables = {}; for _,v in ipairs(t) do supported_variables[v]=true end
-
-local function prep_post(args)
-	local post_args = {}
-
-	for k,v in pairs(args) do
-		-- TODO: make this more generic
-		if(supported_variables[v]) then
-			post_args[k] = v
-			args[k] = nil
-		end
-	end
-	-- trace("ElementBuilder.prep_post "..tostring(args.name))
-	-- trace.append(serpent.block(post_args))
-	return post_args
 end
 
 local function apply_post(element, post_args)

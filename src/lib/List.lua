@@ -120,6 +120,35 @@ function instance_impl:indexOf(item)
 	return 0
 end
 
+---Sorts the list by the specified keys oder function
+---@overload fun(self: KuxCoreLib.List.instance, comparator: fun(a: table, b: table): boolean)
+---@param self KuxCoreLib.List.instance
+---@param ... string Sort keys like "name" or "order:desc"
+---<p>a) Sort with keys <code>sort("name", "order:desc") </code></p>
+---<p>b) Sort with function <code>sort(my_sort_fnc) </code></p>
+function instance_impl:sort(...)
+	local args = { ... }
+
+	if type(args[1]) == "function" then
+		table.sort(self, args[1]--[[@as fun(a: table, b: table)]] )
+		return
+	end
+
+	table.sort(self, function(a, b)
+		for _, key in ipairs(args) do
+			local field, desc = key:match("([^:]+):?(desc)?")
+			local av = a[field]
+			local bv = b[field]
+			if av ~= bv then
+				if desc then return av > bv
+				else return av < bv
+				end
+			end
+		end
+		return false
+	end)
+end
+
 
 ---Removes all nil items
 function instance_impl:compress()
@@ -142,6 +171,8 @@ end
 --#region: static implementation
 -----------------------------------------------------------------------------------------------------------------------
 
+---Creates a new List
+---@return KuxCoreLib.List.instance
 function List.new()
 	local obj = {__length=0}
 	setmetatable(obj, mt)

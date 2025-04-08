@@ -1,19 +1,16 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
 ---Provides GUI helper functions
----@class KuxCoreLib.GuiHelper
+---@class KuxCoreLib.GuiHelper : KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.GuiHelper
 local GuiHelper = {
 	__class  = "GuiHelper",
 	__guid   = "490ea051-dc17-465b-9234-ccf654eb3e10",
 	__origin = "Kux-CoreLib/lib/gui/GuiHelper.lua",
 }
 if KuxCoreLib.__classUtils.cache(GuiHelper) then return KuxCoreLib.__classUtils.cached end
----------------------------------------------------------------------------------------------------
----Provides GuiHelper in the global namespace
----@return KuxCoreLib.GuiHelper
-function GuiHelper.asGlobal() return KuxCoreLib.__classUtils.asGlobal(GuiHelper) end
+-----------------------------------------------------------------------------------------------------------------------
 
----------------------------------------------------------------------------------------------------
 
 ---
 ---@param parent LuaGuiElement|LuaGui
@@ -50,6 +47,47 @@ function GuiHelper.findElementRecursive(parent, name, prefix)
 	return R(parent,0)
 end
 
+---@param el LuaGuiElement
+---@return string|integer key
+function GuiHelper.getElementKey(el)
+	if el.name then return el.name end
 
----------------------------------------------------------------------------------------------------
-return KuxCoreLib.__classUtils.finalize(GuiHelper)
+	if el.parent == nil then
+		for name, child in pairs(game.players[el.player_index].gui) do
+			if child == el then return name end
+		end
+		error("get_element_key: element not found at GUI root")
+	end
+	return el.get_index_in_parent()
+end
+
+-- player_index -> LuaGuiElement -> path
+local cache = {} ---@type {[number]: {[LuaGuiElement]: table<string|number>}}
+setmetatable(cache, { __index = function(t, k) local v = {}; t[k] = v; return v end })
+
+---@param el LuaGuiElement
+---@return (number|string)[] path
+function GuiHelper.getPath(el)
+	assert(el, "getPath: element is nil")
+	assert(el.valid, "getPath: element is not valid")
+
+	local player_index = el.player_index
+	local cache = cache[player_index]
+	local cached = cache[el]; if cached then return cached end
+
+	local parent = el.parent
+	if not parent then
+		cached = {player_index, GuiHelper.getElementKey(el)}
+		cache[el] = cached
+		return cached
+	end
+	local parent_path = GuiHelper.getPath(parent)
+	local path = {} ---@type (number|string)[]
+	for i = 1, #parent_path, 1 do path[i] = parent_path[i] end
+	path[#path+1] = GuiHelper.getElementKey(el)
+	cache[el] = path
+	return path
+end
+
+-----------------------------------------------------------------------------------------------------------------------
+return GuiHelper

@@ -166,4 +166,20 @@ function __classUtils.finalize(obj)
 	return obj
 end
 
+---
+---@param impl {[string]:any} The class implementation. This is the object that will be used as a prototype for the new object.
+---@param init {[string]:any} The initial values for the new object. This is a table that will be merged with the prototype.
+---@param mt {[string]:any}?  The metatable for the new object. This is an optional parameter that can be used to set a custom metatable for the new object.
+---@return {[string]:any}
+function __classUtils.new(impl, init, mt)
+	if not impl then error("Argument 'impl' must not be nil!") end
+	if not init then error("Argument 'init' must not be nil!") end
+	--if not mt then error("Argument 'mt' must not be nil!") end
+
+	local obj = table.deepcopy(impl)
+	for k, v in pairs(init) do obj[k] = v end
+	obj = mt and setmetatable(obj, mt) or obj
+	return obj
+end
+
 ---------------------------------------------------------------------------------------------------

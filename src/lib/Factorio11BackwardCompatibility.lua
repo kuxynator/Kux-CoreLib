@@ -4,17 +4,16 @@
 --]]---------------------------------------------------------------------------
 
 if not isV1 then return end
-
+--[[
 _G.storage = storage
 
 -- https://lua-api.factorio.com/latest/classes/LuaHelpers.html
 _G.helpers = helpers or {
-	--[[
-	* Moved LuaGameScript::table_to_json, json_to_table, write_file, remove_path, direction_to_string,
-	  evaluate_expression, encode_string, decode_string, parse_map_exchange_string,
-	  check_prototype_translations, is_valid_sound_path, is_valid_sprite_path to LuaHelpers.
-	* Removed LuaGui::is_valid_sprite_path. Use LuaHelpers::is_valid_sprite_path instead.
-	]]
+--	* Moved LuaGameScript::table_to_json, json_to_table, write_file, remove_path, direction_to_string,
+--	  evaluate_expression, encode_string, decode_string, parse_map_exchange_string,
+--	  check_prototype_translations, is_valid_sound_path, is_valid_sprite_path to LuaHelpers.
+--	* Removed LuaGui::is_valid_sprite_path. Use LuaHelpers::is_valid_sprite_path instead.
+
 	table_to_json = game.table_to_json,
 	json_to_table = game.json_to_table,
 	write_file = game.write_file,
@@ -31,6 +30,7 @@ _G.helpers = helpers or {
 	create_profiler = nil, --new in 2.0
 	object_name	= "LuaHelpers"
 }
+
 
 -- https://lua-api.factorio.com/latest/classes/LuaPrototypes.html
 _G.prototypes = prototypes or {
@@ -100,7 +100,7 @@ _G.prototypes = prototypes or {
 	--max_pipe_to_ground_distance	:: R uint8
 	--max_underground_belt_distance	:: R uint8
 }
-
+]]
 _G.bcu = {}
 _G.bcu.player = {}
 bcu.player.clear_cursor = function(player)
