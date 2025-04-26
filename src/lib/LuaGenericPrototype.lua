@@ -18,25 +18,36 @@ local mt = {}
 ---#region: instance implementation
 -----------------------------------------------------------------------------------------------------------------------
 
+
+---A generic prototype wrapper for all LuaXYZPrototype objects. with additional properties and methods.
 ---@class KuxCoreLib.LuaGenericPrototype : LuaEntityPrototype, LuaItemPrototype, LuaFluidPrototype, LuaEquipmentPrototype, LuaTilePrototype, LuaDecorativePrototype, LuaVirtualSignalPrototype
 ---@field public __class "KuxCoreLib.LuaGenericPrototype"
----@field public tags table<string, string|number|boolean|table>
+---@field public tags table<string, AnyBasic> [CUSTOM PROPERTY]
+---@field public category string gets the category of the prototype (e.g. "item", "entity", "fluid", etc.) [CUSTOM PROPERTY]
+---@field public is_craftable boolean? gets if the prototype is craftable. [CUSTOM PROPERTY]
+---@field public is_hand_craftable boolean? gets if the prototype is craftable by hand. [CUSTOM PROPERTY]
 ---@field private __base LuaEntityPrototype|LuaItemPrototype|LuaFluidPrototype|LuaEquipmentPrototype|LuaTilePrototype|LuaDecorativePrototype|LuaVirtualSignalPrototype
+---@field private __is_prototype boolean gets if the object is a prototype (e.g. LuaEntityPrototype, LuaItemPrototype, etc.)
 local instance_impl = {
 	__class = "KuxCoreLib.LuaGenericPrototype",
 	__base = nil,
-	category = nil, ---@type string|nil gets the category of the prototype (e.g. "item", "entity", "fluid", etc.)
+	category = "",
 }
 
 -----------------------------------------------------------------------------------------------------------------------
 ---#region: meta table implementation
 -----------------------------------------------------------------------------------------------------------------------
 
+local custom_fields = Table.toFlagsDictionary{"tags", "is_craftable"}
+
 mt.__index = function(t, k)
-	return instance_impl[k] or t.__base[k]
+	if custom_fields[k] then return nil end
+	if k == "prototype" then return rawget(t,"__is_prototype") and rawget(t,"__base") or rawget(t,"__base").prototype end
+	return instance_impl[k] or rawget(t,"__base")[k]
 end
 
 mt.__newindex = function(t, k, v)
+	if custom_fields[k] then rawset(t,k,v) return end
 	if k == "__class" then error("Member access violation. Field '..k..' is write-protected.") end
 	t.__base[k] = v
 end
@@ -110,6 +121,7 @@ end
 function LuaGenericPrototype.new(pt, category)
 	local obj = {
 		__base = pt,
+		__is_prototype = pt.object_name:match("Prototype$") ~= nil,
 		category = category or get_category(pt),
 		tags = {}
 	}

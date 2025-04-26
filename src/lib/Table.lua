@@ -48,12 +48,12 @@ end
 ---Gets the index of the value
 ---@param t any[] The array
 ---@param value any
----@return integer # The index or 0
+---@return integer? # The index or nil
 function Table.indexOf(t, value)
 	for i, v in ipairs(t) do
 		if v == value then return i end
 	end
-	return 0
+	return nil --[BREAKING CHANGE in 3.15.16]
 end
 
 ---Gets the first key which has the value

@@ -68,6 +68,7 @@ end
 ---@field parent_view_name string? The parent view name
 ---@field all_names {string: LuaGuiElement|LuaGuiElement[]}?
 ---@field mode "new"|"append"|nil defaults to "new"
+---@field localization_prefix string? The prefix for the localization string
 ---@field [1] function|nil child
 
 
@@ -209,7 +210,7 @@ end
 --#region: element_factory
 -------------------------------------------------------------------------------
 
-local element_factory_utils = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/gui/element_factory_utils")
+local element_factory_utils = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/gui/element_factory_utils") --[[@as KuxCoreLib.internal.ElementFactoryUtils]]
 local prep = element_factory_utils.prep
 local apply = element_factory_utils.apply
 
@@ -250,7 +251,8 @@ local function element_factory(args)
 			end
 		else
 			local all_names = parameters.all_names or error("Invalid Argument. 'parameters.all_names' must not be nil.")
-							 prep.caption(args) --[2]
+			                 prep.name(args, container) --[1]
+							 prep.caption(args, parameters) --[2]
 			local style    = prep.style(args)
 			      children = prep.children(args)
 			local post     = prep.post(args) -- execute before prep_add
@@ -259,7 +261,6 @@ local function element_factory(args)
 			--[[TRACE]]--trace.append("  args:  "..serpent.line(args))
 			--[[TRACE]]--trace.append("  style: "..serpent.line(style))
 			--[[TRACE]]--trace.append("  extra: "..serpent.line(extra))
-			prep.name(args, container) --[1]
 
 			element = container.add(args)
 			--if all_names then add_cache_element(all_names, element) end
@@ -312,6 +313,7 @@ end
 ---<p><a href="https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add">View Documentation</a></p>
 function ElementBuilder.spritebutton(args)
 	args["type"]="sprite-button"
+	if not args.caption then args.caption = "" end -- to avoid automatic caption
 	return element_factory(args)
 end
 
@@ -340,6 +342,7 @@ end
 ---@return function
 function ElementBuilder.frame(args)
 	args["type"]="frame"
+	if not args.caption then args.caption = "" end -- to avoid automatic caption
 	return element_factory(args)
 end
 

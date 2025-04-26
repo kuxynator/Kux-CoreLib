@@ -9,6 +9,7 @@
 ---@field name	string?	Name of the child element. It must be unique within the parent element.
 ---@field caption	LocalisedString?	Text displayed on the child element. For frames, this is their title. For other elements, like buttons or labels, this is the content. Whilst this attribute may be used on all elements, it doesn't make sense for tables and flows as they won't display it.
 ---@field tooltip	LocalisedString?	Tooltip of the child element.
+---@field elem_tooltip ElemID?           Elem tooltip of the child element. Will be displayed above tooltip.
 ---@field enabled	boolean?	Whether the child element is enabled. Defaults to true.
 ---@field visible	boolean?	Whether the child element is visible. Defaults to true.
 ---@field ignored_by_interaction	boolean?	Whether the child element is ignored by interaction. Defaults to false.
@@ -113,7 +114,6 @@
 ---@field auto_toggle	boolean?	Whether the button will automatically toggle when clicked. Defaults to false.
 ---@field toggled	boolean?	The initial toggled state of the button. Defaults to false.
 ---@field style string|KuxCoreLib.ElementBuilder.sprite-button-style-parameter|nil The name of the style prototype or a LuaStyle to apply to the new element.
-
 
 ---[View documentation](https://lua-api.factorio.com/latest/classes/LuaGuiElement.html#add)
 ---@class KuxCoreLib.ElementBuilder.sprite.args : KuxCoreLib.ElementBuilder.sprite-style-parameter, KuxCoreLib.ElementBuilder.base.args

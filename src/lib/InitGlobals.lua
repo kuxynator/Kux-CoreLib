@@ -169,15 +169,17 @@ if(script)then
 	---@alias LuaSurfaceId integer|string|LuaSurface
 	---@alias LuaForceId integer|string|LuaForce
 
-	---@param var LuaPlayerId
+	---@param var LuaPlayerId --{player_index:number}|{player:LuaPlayer}
 	---@return string
 	function _G.getPlayerName(var) return getLuaObject(var, "LuaPlayer", "name")--[[@as string]] end
 
 	---@param var LuaPlayerId
 	---@return LuaPlayer
+	---@overload fun(var:{player_index:number}):LuaPlayer
+	---@overload fun(var:{player:LuaPlayer}):LuaPlayer
 	function _G.getPlayer(var) return getLuaObject(var, "LuaPlayer", nil)--[[@as LuaPlayer]] end
 
-	---@param var LuaPlayerId
+	---@param var LuaPlayerId --{player_index:number}|{player:LuaPlayer}
 	---@return LuaPlayer?
 	function _G.getPlayerOrNil(var) return getLuaObject(var, "LuaPlayer", nil, true)--[[@as LuaPlayer?]] end
 

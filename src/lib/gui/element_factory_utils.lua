@@ -60,16 +60,23 @@ local function create_element_name(container)
 	return "elmt_"..(hn+1)
 end
 
-local function prep_caption(args)
+---
+---@param args table
+---@param parameters KuxCoreLib.ElementBuilder.create.parameters
+local function prep_caption(args, parameters)
 	-- https://lua-api.factorio.com/latest/concepts.html#LocalisedString
 	-- LocalisedString :: string or number or boolean or LuaObject or nil or array[LocalisedString]
 	if(args.caption) then return
-	elseif(type(args[2])=="function") then return
-	elseif(type(args[2])=="nil") then return
-	elseif(type(args[2])=="table" and #args[2]>0 and type(args[2][1])=="function") then	return
+	elseif(type(args[2])=="function") then ;
+	elseif(type(args[2])=="nil") then ;
+	elseif(type(args[2])=="table" and #args[2]>0 and type(args[2][1])=="function") then	;
 	else
 		args.caption = args[2]
 		args[2] = nil
+	end
+	if not args.caption and args.name and parameters.localization_prefix then
+		--IDEA: local keys = {parameters.localization_prefix..args.name, parameters.localization_prefix.."-caption"..args.name,parameters.localization_prefix..args.name.."-caption"}
+		args.caption = {parameters.localization_prefix..args.name}
 	end
 end
 
@@ -221,23 +228,29 @@ local function apply_post(element, post_args)
 	end
 end
 
+---[ EXPORT ] ---------------------------------------------------------------------------------------------------------
+
+---@class KuxCoreLib.internal.ElementFactoryUtils.prep
+local prep = {
+	style = prep_style,
+	add = prep_add,
+	children = prep_children,
+	name = prep_name,
+	caption = prep_caption,
+	post = prep_post
+}
+
+---@class KuxCoreLib.internal.ElementFactoryUtils.apply
+local apply = {
+	style = apply_style,
+	extra = apply_extra,
+	post = apply_post
+}
+
 ---@class KuxCoreLib.internal.ElementFactoryUtils
 local element_factory_utils = {
-	---@class KuxCoreLib.internal.ElementFactoryUtils.prep
-	prep = {
-		style = prep_style,
-		add = prep_add,
-		children = prep_children,
-		name = prep_name,
-		caption = prep_caption,
-		post = prep_post
-	},
-	---@class KuxCoreLib.internal.ElementFactoryUtils.apply
-	apply = {
-		style = apply_style,
-		extra = apply_extra,
-		post = apply_post
-	}
+	prep = prep,
+	apply = apply,
 }
 
 return element_factory_utils

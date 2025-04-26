@@ -1,14 +1,17 @@
 ---------------------------------------------------------------------------------------------------
-Version: 3.15.16 WIP
+Version: 3.16.0
   Features:
     - Dictionary: add firstKey,firstValue
     - add classes LuaGenericPrototype, GuiElemenRef, GuiView, VGuiElement
     - List: add sort
     - lua: lower add utf8 support
     - GuiHelper: getPath, getElementKey
+    - add FunctionUtils
   Changes:
     - Table.migrate
     - ElementBuilder
+    - Table.indexOf returns nil if not found instead of 0 [BREAKING CHANGE]
+    - add missing elem_tootip for ElementBuilder
 ---------------------------------------------------------------------------------------------------
 Version: 3.15.15
   Changes:

@@ -101,6 +101,7 @@ end
 ---@field GuiElemenRef KuxCoreLib.GuiElementRef.static
 ---@field GuiView KuxCoreLib.GuiView.static
 ---@field VGuiElement KuxCoreLib.VGuiElement.static
+---@field FunctionUtils KuxCoreLib.FunctionUtils
 
 
 ---Provides access to Kux-CoreLib modules<br>
@@ -188,6 +189,7 @@ local require_map = { --RUN (F5) to AUTOGENERATE
 		Vector = "",
 		LuaGenericPrototype = "",
 		RecipeWithQuality = "",
+		FunctionUtils = "",
 
 		CollisionMaskData = "data",
         DataRaw = "data",
