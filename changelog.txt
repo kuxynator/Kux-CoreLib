@@ -1,4 +1,8 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.16.2
+  Changes:
+    - add global locstring, a global function that returns a LocalisedString always as a table.
+---------------------------------------------------------------------------------------------------
 Version: 3.16.1
   Bugfixes:
     - fix for mussing 'supertype' field

@@ -220,6 +220,14 @@ end
 rawset(string, "lower", utf8.tolower)
 assert(string.lower~=nil,"string.lower is nil")
 
+---Receives values of any type and converts it to a table in a human-readable format.
+function locstring(...)
+	local t = { ... }
+	if #t == 1 and type(t[1]) == "table" then t = t[1] end
+	if #t>1 and type(t[1]) == "table" then table.insert(t, 1, "") end
+	return t
+end
+
 ---@class KuxCoreLib.lua
 local lua = {
 	asGlobal=function () end -- dummy, because lua like methods are always global

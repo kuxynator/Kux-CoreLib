@@ -39,6 +39,7 @@ local instance_impl = {
 -----------------------------------------------------------------------------------------------------------------------
 
 local custom_fields = Table.toFlagsDictionary{"tags", "is_craftable", "is_hand_craftable", "supertype"}
+local readonly_custom_fields = Table.toFlagsDictionary{"supertype"}
 
 mt.__index = function(t, k)
 	if custom_fields[k] then return nil end
