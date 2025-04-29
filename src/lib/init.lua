@@ -102,6 +102,8 @@ end
 ---@field GuiView KuxCoreLib.GuiView.static
 ---@field VGuiElement KuxCoreLib.VGuiElement.static
 ---@field FunctionUtils KuxCoreLib.FunctionUtils
+---@field LocalizationUtils KuxCoreLib.LocalizationUtils
+---@field TranslationService KuxCoreLib.TranslationService
 
 
 ---Provides access to Kux-CoreLib modules<br>
@@ -190,6 +192,8 @@ local require_map = { --RUN (F5) to AUTOGENERATE
 		LuaGenericPrototype = "",
 		RecipeWithQuality = "",
 		FunctionUtils = "",
+		LocalizationUtils = "",
+		TranslationService = "",
 
 		CollisionMaskData = "data",
         DataRaw = "data",

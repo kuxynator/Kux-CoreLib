@@ -12,7 +12,7 @@ local Array = {
     length = 0
 }
 if KuxCoreLib.__classUtils.cache(Array) then return KuxCoreLib.__classUtils.cached end
----------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
 -- to avoid circular references, the class is defined before require other modules
 local Table= KuxCoreLib.Table
 local Assert= KuxCoreLib.That

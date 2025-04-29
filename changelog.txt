@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.16.3
+  Features:
+    - add LocalizationUtils
+    - add TranslationService
+---------------------------------------------------------------------------------------------------
 Version: 3.16.2
   Changes:
     - add global locstring, a global function that returns a LocalisedString always as a table.
