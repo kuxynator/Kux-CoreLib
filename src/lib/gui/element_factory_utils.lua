@@ -1,5 +1,7 @@
 -- This file is reqired by ElementBuilder.element_builder only
 
+local TranslationService = KuxCoreLib.TranslationService
+
 --adapted for Factorio 2.0 ( no changes )
 
 local _add_fields = {"achievement", "allow_decimal", "allow_negative", "allow_none_state",
@@ -49,8 +51,20 @@ end
 local t = {"%self%","%parent%","%parent.parent%"}
 local supported_variables = {}; for _,v in ipairs(t) do supported_variables[v]=true end
 
----@param container LuaGuiElement
-local function create_element_name(container)
+
+local elem3 = {
+	["tab"]   = "tab",  ["button"]   = "btn",  ["checkbox"]    = "chk",  ["progressbar"]        = "pro",
+	["flow"]  = "flo",  ["slider"]   = "sld",  ["textfield"]   = "txt",  ["empty-widget"]       = "emw",
+	["line"]  = "lin",  ["camera"]   = "cam",  ["drop-down"]   = "dro",  ["sprite-button"]      = "sbn",
+	["label"] = "lbl",  ["sprite"]   = "spr",  ["scroll-pane"] = "scp",  ["entity-preview"]     = "pre",
+	["frame"] = "fra",  ["minimap"]  = "map",  ["tabbed-pane"] = "tpn",  ["choose-elem-button"] = "cho",
+	["table"] = "tbl",  ["text-box"] = "tbx",  ["radiobutton"] = "rad",
+}
+
+---@param elem_type GuiElementType The type of the element to be created
+---@param container LuaGuiElement The container in which the element will be created
+local function create_element_name(elem_type, container)
+	--[[
 	--("elmt_"..#container.children)
 	local hn=0
 	for _, name in pairs(container.children_names) do
@@ -58,6 +72,10 @@ local function create_element_name(container)
 		if(sn and sn>hn) then hn=sn end
 	end
 	return "elmt_"..(hn+1)
+	]]
+	local n = #container.children+1
+	while container["@"..elem3[elem_type]..n] do n = n + 1 end
+	return "@"..elem3[elem_type]..n
 end
 
 ---
@@ -74,9 +92,25 @@ local function prep_caption(args, parameters)
 		args.caption = args[2]
 		args[2] = nil
 	end
-	if not args.caption and args.name and parameters.localization_prefix then
-		--IDEA: local keys = {parameters.localization_prefix..args.name, parameters.localization_prefix.."-caption"..args.name,parameters.localization_prefix..args.name.."-caption"}
-		args.caption = {parameters.localization_prefix..args.name}
+	if not args.caption and args.name and parameters.localization_section and parameters.locale then
+		if TranslationService.hasTranslation(parameters.localization_section.."."..args.name,  parameters.locale) then
+			--IDEA: local keys = {parameters.localization_section..args.name, parameters.localization_section.."-caption"..args.name,parameters.localization_section..args.name.."-caption"}
+			args.caption = {parameters.localization_section.."."..args.name}
+		end
+	end
+end
+
+---
+---@param args table
+---@param parameters KuxCoreLib.ElementBuilder.create.parameters
+local function prep_tooltip(args, parameters)
+	if(args.tooltip) then return end
+	if not args.tooltip and args.name and parameters.localization_section and parameters.locale then
+		local key = {parameters.localization_section.."-tooltip."..args.name}
+		if TranslationService.hasTranslation(key,  parameters.locale) then
+			--IDEA: local keys = {parameters.localization_section..args.name, parameters.localization_section.."-caption"..args.name,parameters.localization_section..args.name.."-caption"}
+			args.tooltip = key
+		end
 	end
 end
 
@@ -168,14 +202,29 @@ local function prep_add(args)
 	return extra
 end
 
+---
+---@param args table
+---@param container LuaGuiElement The container in which the element will be created
 local function prep_name(args, container)
 	if(args.name) then
-		return
+		;
 	elseif(args[1] and type(args[1])=="string") then
 		args.name = args[1]
 		args[1] = nil
+	end
+	if args.name then
+		if args.name:find("/") then	error("Name must not contain '/' character") end
+		if args.name:sub(1,1)=="@" then	error("Name must not start with '@' character") end
 	else
-	--	args.name = create_element_name(container) --TODO: why do we need a name?
+		args.name = create_element_name(args.type, container) -- name is used to create stable paath
+	end
+
+	if container.tags and container.tags.path and args.name then
+		args.tags = args.tags or {}
+		args.tags.path = container.tags.path.."/"..args.name
+	elseif container.parent == nil and args.name then
+		args.tags = args.tags or {}
+		args.tags.path = container.name.."/"..args.name
 	end
 end
 
@@ -237,6 +286,7 @@ local prep = {
 	children = prep_children,
 	name = prep_name,
 	caption = prep_caption,
+	tooltip = prep_tooltip,
 	post = prep_post
 }
 

@@ -66,9 +66,10 @@ end
 ---@field mod_name string? The current mod name
 ---@field view_name string? The current view name
 ---@field parent_view_name string? The parent view name
----@field all_names {string: LuaGuiElement|LuaGuiElement[]}?
+---@field element_index {string: LuaGuiElement|LuaGuiElement[]}?
 ---@field mode "new"|"append"|nil defaults to "new"
----@field localization_prefix string? The prefix for the localization string
+---@field localization_section string? The prefix for the localization string
+---@field locale string
 ---@field [1] function|nil child
 
 
@@ -80,9 +81,9 @@ local function create(container, create_children_fnc, parameters)
 	assert(container~=nil, "Invalid Argument. 'container' must not be nil.")
 	assert(type(create_children_fnc)=="function", "Invalid Argument. 'create_children_fnc' must be a function but is '"..type(create_children_fnc).."'.")
 	trace("ElementBuilder.create in "..container.name.." from "..type(create_children_fnc))
-	if parameters.all_names == nil then parameters.all_names = {} end
+	if parameters.element_index == nil then parameters.element_index = {} end
 	if parameters.mode == "new" then
-		parameters.all_names[parameters.view_name] = {__parent_view_name=parameters.parent_view_name}
+		parameters.element_index[parameters.view_name] = {__parent_view_name=parameters.parent_view_name}
 	end
 	local list =
 		type(create_children_fnc) == "function" and {create_children_fnc} or
@@ -137,13 +138,13 @@ end
 ---@return LuaGuiElement
 ---@deprecated I no longer know what it was intended for
 function ElementBuilder.create(container, create_children_fnc)
-	return create(container, create_children_fnc, {all_names={}, mod_name=nil})
+	return create(container, create_children_fnc, {element_index={}, mod_name=nil})
 end
 
 ---createView
 ---@param args KuxCoreLib.ElementBuilder.create.parameters
 ---@return LuaGuiElement
----<p>-> createView{container, mod_name, view_name, all_names, children}</p>
+---<p>-> createView{container, mod_name, view_name, element_index, children}</p>
 function ElementBuilder.createView_v2(args)
 	args.mode = args.mode or "new"
 	return create(args.container, args[1], args)
@@ -151,11 +152,11 @@ end
 
 ---@param root_container LuaGuiElement
 ---@param create_children_fnc function
----@param all_names {[string]:LuaGuiElement|LuaGuiElement[]}?  --filled with all named elements for the complete tree
+---@param element_index {[string]:LuaGuiElement|LuaGuiElement[]}?  --filled with all named elements for the complete tree
 ---@param mod_name string? --name of the mod for the elements. stored in tags.mod_name
 ---@return LuaGuiElement
-function ElementBuilder.createView(root_container, create_children_fnc, all_names, mod_name)
-	return create(root_container, create_children_fnc, {all_names=all_names or {}, mod_name=mod_name})
+function ElementBuilder.createView(root_container, create_children_fnc, element_index, mod_name)
+	return create(root_container, create_children_fnc, {element_index=element_index or {}, mod_name=mod_name})
 end
 
 ---@param el LuaGuiElement
@@ -250,9 +251,10 @@ local function element_factory(args)
 				element = container.add(args)
 			end
 		else
-			local all_names = parameters.all_names or error("Invalid Argument. 'parameters.all_names' must not be nil.")
-			                 prep.name(args, container) --[1]
+			local element_index = parameters.element_index or error("Invalid Argument. 'parameters.element_index' must not be nil.")
+			                 prep.name(args, container)     --[1]
 							 prep.caption(args, parameters) --[2]
+							 prep.tooltip(args, parameters)
 			local style    = prep.style(args)
 			      children = prep.children(args)
 			local post     = prep.post(args) -- execute before prep_add
@@ -263,11 +265,12 @@ local function element_factory(args)
 			--[[TRACE]]--trace.append("  extra: "..serpent.line(extra))
 
 			element = container.add(args)
-			--if all_names then add_cache_element(all_names, element) end
+			--if element_index then add_cache_element(element_index, element) end
 			--if view_names then add_cache_element(view_names, element) end
-			if all_names then
-				all_names[element.name] = element                       -- add ti index, no duplicates, only last one is saved
-				if parameters.view_name then all_names[parameters.view_name][element.name] = element  end-- add to view index, no duplicates, only last one is saved
+			local skip = { ["@"] = true, ["."] = true }
+			if element_index and not skip[(element.name or "."):sub(1,1)] then
+				element_index[element.name] = element                       -- add ti index, no duplicates, only last one is saved
+				if parameters.view_name then element_index[parameters.view_name][element.name] = element  end-- add to view index, no duplicates, only last one is saved
 			end
 			if(style) then apply.style(element, style) end
 			if(extra) then apply.extra(element, extra) end

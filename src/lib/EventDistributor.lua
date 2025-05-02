@@ -46,10 +46,12 @@ local events={}
 
 local isOnLoadedRaised = false
 
+---Gets the LuaPlayer for the current event. Managed by KuxCoreLib.EventDistributor
+---@type LuaPlayer?
+_G.player = nil
+
 local mapEventNumberToName = {}
-for name, value in pairs(defines.events) do
-	mapEventNumberToName[value] = name
-end
+for name, value in pairs(defines.events) do mapEventNumberToName[value] = name end
 
 ---Get name and id of an event
 ---@param eventIdentifier any
@@ -145,6 +147,7 @@ local function on_configuration_changed(e)
 	 ModInfo.current_stage = "control-on-loaded"
 end
 
+---
 local function on_nth_tick(e)
 	--print("EventDistributor.on_nth_tick "..e.nth_tick)
 	local handlers = events["on_nth_tick"][e.nth_tick]
@@ -153,6 +156,7 @@ local function on_nth_tick(e)
 	end
 end
 
+---
 local function on_event(e)
 	--log("on_event "..getDisplayName(e))
 	_G.player = EventDistributor.getPlayerFnc(e)
@@ -164,6 +168,7 @@ local function on_event(e)
 	_G.player = nil
 end
 
+---
 local function on_event_customInput(e)
 	--log("on_event_customInput "..getDisplayName(e))
 	_G.player = EventDistributor.getPlayerFnc(e)
@@ -174,6 +179,7 @@ local function on_event_customInput(e)
 	_G.player = nil
 end
 
+---
 local function on_loaded(e)
 	--print("on_loaded")
 	if(isOnLoadedRaised) then return end
@@ -190,6 +196,7 @@ local function on_loaded(e)
 	events["on_loaded"] = {}
 end
 
+---
 local function on_built(e)
 	--print("EventDistributor.on_built")
 	_G.player = EventDistributor.getPlayerFnc(e)
@@ -199,6 +206,7 @@ local function on_built(e)
 	_G.player = nil
 end
 
+---
 local function on_destroy(e)
 	--print("EventDistributor.on_destroy")
 	_G.player = EventDistributor.getPlayerFnc(e)

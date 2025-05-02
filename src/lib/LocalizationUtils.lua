@@ -22,7 +22,7 @@ function LocalizationUtils.map_keys(loc,view_name)
 			loc[k1] = "factorium-"..view_name.."."..k1
 		elseif type(v1) == "table" then
 			for k2, v2 in pairs(v1) do
-				v1[k2] = "factorium-"..view_name.."."..k1.."."..k2
+				v1[k2] = "factorium-"..view_name.."-"..k1.."."..k2
 			end
 		else
 			error("invalid value")

@@ -1,4 +1,19 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.16.4
+  Features:
+    - auto tooltips, captions to ElementBuilder
+    - ElementBuilder add parameter: localization_section, locale
+    - ElementBuilder: tags.path calculation
+    - TranslationService add hasTranslation()
+    - Eventdistributoe: define _G.player (set in each event
+  Changes:
+    - TranslationService accepts strings as LocalisationStzring
+    - ElementBuilder parameter all_names renamed to element_index
+    - ElementBuilder parameter localization_prefix removed
+    - TranslationService getHash optimized
+  Bugfixes:
+    - fix a bug in TranslationService
+---------------------------------------------------------------------------------------------------
 Version: 3.16.3
   Features:
     - add LocalizationUtils

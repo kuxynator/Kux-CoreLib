@@ -29,20 +29,40 @@ local registry = {
 	translated={} -- locale -> {hash -> LocalisedString}
 }
 
+---Gets a stable string as hash
 ---@param localizable_string LocalisedString
 ---@return string
+---<p>We use a string as hash because table reference as key is not safe.</p>
 local function getHash(localizable_string)
-	return type(localizable_string)=="table" and helpers.table_to_json(localizable_string) or tostring(localizable_string)
+	--return type(localizable_string)=="table" and helpers.table_to_json(localizable_string) or tostring(localizable_string)
+	if type(localizable_string) ~= "table" then  error("invalid key. table expected") end
+	if #localizable_string == 1 then
+		local first = localizable_string[1]
+		if type(first) ~= "string" then error("invalid key, string expected at #1") end
+		return first
+	end
+	return helpers.table_to_json(localizable_string)
 end
 
 ---@param localizable_string LocalisedString
 ---@param locale string
 ---@return string
 function TranslationService.loc(localizable_string, locale)
+	if type(localizable_string) == "string" then localizable_string = {localizable_string} end -- <FEATURE
+	if type(localizable_string) ~= "table" then return tostring(localizable_string) end -- no translate
 	local hash = getHash(localizable_string)
 	local loc = registry.translated[locale]
 	if loc[hash] then return loc[hash] end
 	return hash
+end
+
+---@param localizable_string LocalisedString
+---@param locale string
+---@return boolean
+function TranslationService.hasTranslation(localizable_string, locale)
+	if type(localizable_string) == "string" then localizable_string = {localizable_string} end -- <FEATURE
+	if type(localizable_string) ~= "table" then return false end
+	return (registry.translated[locale] or {})[getHash(localizable_string)]~=nil
 end
 
 local supertype = {
@@ -80,13 +100,15 @@ function TranslationService.getLocalizableString(pt, field)
 end
 
 ---@param player LuaPlayer
----@param localisable_string LocalisedString
-function TranslationService.request(player, localisable_string)
-	if localisable_string == nil then return end
+---@param localizable_string LocalisedString
+function TranslationService.request(player, localizable_string)
+	if localizable_string == nil then return end
+	if type(localizable_string) == "string" then localizable_string = {localizable_string} end -- <FEATURE
+	if type(localizable_string) ~= "table" then return end
 	if not player.valid then return end
 	if not player.connected then return end
 	local locale = player.locale
-	local hash = getHash(localisable_string)
+	local hash = getHash(localizable_string)
 	registry.translated[locale] = registry.translated[locale] or {}
 
 	local loc = registry.translated[locale]
@@ -98,13 +120,13 @@ function TranslationService.request(player, localisable_string)
 	registry.requests[locale] = registry.requests[locale] or {}
 	if registry.requests[locale][hash] then return end -- still requesting
 
-	registry.queue[locale][hash] = {player_index = player.index, localised_string = localisable_string}
+	registry.queue[locale][hash] = {player_index = player.index, localised_string = localizable_string}
 	registry.num_queued = registry.num_queued + 1
 end
 
 
 ---
----@param loc any
+---@param loc table
 ---<p>CALLED-BY: loc file
 function TranslationService.add_gui_localization(loc)
 	table.insert(gui_localizations, loc)
@@ -147,15 +169,16 @@ function handler.on_string_translated(e)
 	local _ = "fnc{49483a93-e3fc-442e-a632-5630ebfc6c11}"
 	local player = game.players[e.player_index]
 	local locale = player.locale
-	if not registry.requests[locale] then return end
+	if not registry.requests[locale] then return end --requested by other mod
 	local hash = registry.requests[locale][e.id]
-	if not hash then return end
+	if not hash then return end  --requested by other mod
 	--clean request
 	registry.requests[locale][e.id] = nil
 	registry.requests[locale][hash] = nil
 	--save result
 	registry.translated[locale][hash] = e.result
 	registry.num_requests = registry.num_requests - 1
+	--print("TranslationService result :"..locale.." "..str(hash).." "..str(e.result))
 end
 
 
