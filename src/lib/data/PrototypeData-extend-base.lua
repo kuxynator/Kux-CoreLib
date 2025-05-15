@@ -1052,10 +1052,11 @@ extendBase.custom_event = extendBase.CustomEventPrototype
 
 --- CustomInputPrototype - custom-input
 ---@class KuxCoreLib.PrototypeData.Extent.CustomInputPrototype : data.CustomInputPrototype
----@field type string?
----@field name string?
 ---@field [1] string name
 ---@field [2] string key_sequence
+---@field type string?
+---@field name string?
+---@field key_sequence string?
 ---[View documentation](https://lua-api.factorio.com/latest/prototypes/CustomInputPrototype.html)
 
 --- CustomInputPrototype - custom-input constructor <br>

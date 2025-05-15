@@ -42,7 +42,5 @@ KuxCoreLib.Player          .asGlobal()
 --TODO DISABELD StoragePlayer   = KuxCoreLib.StoragePlayer    .asGlobal()
 --TODO DISABELD StoragePlayers  = KuxCoreLib.StoragePlayers   .asGlobal()
 
--- gui --
-GuiBuilder      = KuxCoreLib.GuiBuilder       .asGlobal()
 
 return KuxCoreLib

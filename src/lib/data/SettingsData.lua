@@ -233,14 +233,14 @@ end
 ---@field [4] double? Defines the highest possible number.
 ---@field min double? Defines the lowest possible number.
 ---@field max double? Defines the highest possible number.
----@field allowed double[] Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.  [only for compatibility, use 'allowed' instead]
+---@field allowed double[]? Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.  [only for compatibility, use 'allowed' instead]
 
 ---@class KuxCorelib.DoubleSettingArguments.compatibility
 ---@field name string
 ---@field default_value double Defines the default value of the setting.
----@field minimum_value double Defines the lowest possible number. [only for compatibility, use 'min' instead]
----@field maximum_value double Defines the highest possible number. [only for compatibility, use 'max' instead]
----@field allowed_values double[] Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.
+---@field minimum_value double? Defines the lowest possible number. [only for compatibility, use 'min' instead]
+---@field maximum_value double? Defines the highest possible number. [only for compatibility, use 'max' instead]
+---@field allowed_values double[]? Makes it possible to force the player to choose between the defined numbers, creates a dropdown instead of a texfield. If only one allowed value is given, the settings is forced to be of that value.
 
 ---@class KuxCorelib.DoubleSettingArguments.const
 ---@field [1] string 'name' Defines the name of the setting.

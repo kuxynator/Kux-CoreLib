@@ -131,5 +131,16 @@ function LuaGenericPrototype.new(pt, supertype)
 	return obj
 end
 
+
+---
+---@param arg any
+---@param expected_type string?
+---@return KuxCoreLib.LuaGenericPrototype
+function _G.getGenericPrototype(arg, expected_type)
+	local pt,cat = getPrototypeAndCategory(arg, expected_type)
+	if not pt then error("Invalid argument") end
+	return LuaGenericPrototype.new(pt, cat)
+end
+
 -----------------------------------------------------------------------------------------------------------------------
 return LuaGenericPrototype

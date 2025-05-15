@@ -1,6 +1,6 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
----@class KuxCoreLib.Flags : { [string]: boolean } 
+---@class KuxCoreLib.Flags : { [string]: boolean }
 local Flags = {
 	__class  = "Flags",
 	__guid   = "6b3edfc1-861b-4e38-86c3-1272706f1c59",
@@ -8,7 +8,7 @@ local Flags = {
 }
 if KuxCoreLib.__classUtils.cache(Flags) then return KuxCoreLib.__classUtils.cached end
 
----------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
 
 ---Creates new Flags
 ---@param flags string[]

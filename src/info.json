@@ -1,14 +1,14 @@
 {
 	"name": "Kux-CoreLib",
-	"version": "3.16.4",
+	"version": "3.17.0",
 	"title": "Kuxynator's Core Library",
 	"author": "Kuxynator",
-	"homepage": "https://fb.me/kuxynator.factorio",
+	"homepage": "https://mods.factorio.com/user/kuxynator",
 	"factorio_version": "2.0",
 	"dependencies": [
 		"base >= 2.0",
 		"(?) factorissimo-2-notnotmelon",
 		"(?) even-pickier-dollies", "(?) PickerDollies"
 	],
-	"description": "Provides core functionality for Kuxynator's mods.\nIMPORTANT! Do not update if it is not required. If you update it too early you will have to wait until dependent mods are also updated!."
+	"description": "Provides core functionality for Kuxynator's mods."
 }

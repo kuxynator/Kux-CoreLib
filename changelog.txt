@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.17.0
+Date: 2025-05-15
+  Info:
+    - lib splitted to Kux-GuiLib, all /gui/ files moved in to new lib
+    - Do not update if it is not required.
+    - If you update it too early you will have to wait until dependent mods are also updated!
+---------------------------------------------------------------------------------------------------
 Version: 3.16.4
   Features:
     - auto tooltips, captions to ElementBuilder

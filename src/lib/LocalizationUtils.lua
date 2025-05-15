@@ -46,6 +46,37 @@ function LocalizationUtils.request_translation(player, loc)
 		end
 	end
 end
+
+
+---Gets the localised name key of an object.
+---@param obj nil|ElemID|Ingredient|Product|LuaItem|LuaFluidPrototype|LuaEntity|LuaRecipe|LuaEquipment|LuaEquipmentGrid|LuaEquipmentPrototype|LuaEntityPrototype|LuaFluidPrototype|LuaItemPrototype|LuaRecipePrototype|string
+---@param expected_type string? -- Can also contain multiple types separated by "|"
+---@return LocalisedString
+function LocalizationUtils.localised_name(obj, expected_type)
+	if not obj then return end
+
+	-- Falls das Objekt eine eigene `localised_name` hat, direkt zurückgeben
+	if obj.localised_name then
+		local localised_name = obj.localised_name
+		if _G.type(localised_name) == "table" --[[@cast localised_name table]] and _G.type(localised_name[1]) == "table" then
+			_G.table.insert(localised_name, 1, "")
+		end
+		return localised_name
+	end
+
+	-- Prototyp abrufen (verwendet `getPrototypeAndType`, um doppelte Logik zu vermeiden)
+	local prototype, base_type = getPrototypeAndCategory(obj, expected_type)
+	if not prototype then return end
+
+	-- Localized Name zurückgeben (falls vorhanden)
+	if prototype.localised_name then
+		return prototype.localised_name
+	end
+
+	-- Standard-Localized-Name aus Basis-Typ und Namen generieren
+	return base_type .. "-name." .. prototype.name -- z. B. "item-name.iron-plate"
+end
+
 -----------------------------------------------------------------------------------------------------------------------
 return LocalizationUtils
 

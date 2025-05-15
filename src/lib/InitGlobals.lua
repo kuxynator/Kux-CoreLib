@@ -3,6 +3,7 @@
 	REQIRE THIS file ONLY ONE TIME in lib/init.lua
 --]]---------------------------------------------------------------------------
 
+--NOTE: KuxCoreLib.require.Xxy does not work here!
 
 ---@type "factorio"|"local" Gets the current environment
 _G.evironment = "factorio"
@@ -221,6 +222,73 @@ if(script)then
 	function _G.getRecipeOrNil(var) return getLuaObject(var, "LuaRecipe", nil, true)--[[@as LuaRecipe?]] end
 
 	-- getRecipe can not work in all case (string -> LuaRecipe) Which force is used?
-end
 
+
+	---
+	---@param arg ElemID|Ingredient|Product|string|LuaEntity|LuaItem|LuaRecipe|LuaTechnology|LuaObject|RecipeInfo|SelectedPrototypeData
+	---@param expected_type string? -- Can also contain multiple types separated by "|"
+	---@return any
+	---@return string?
+	function getPrototypeAndCategory(arg, expected_type)
+		if not arg then return nil, nil end
+		local name, types
+
+		if _G.type(arg) == "userdata" then --[[@cast arg LuaObject]]
+			if arg.object_name =="LuaEntity" then --[[@cast arg LuaEntity]]
+				return arg.prototype, "entity"
+			elseif arg.object_name =="LuaEntityPrototype" then --[[@cast arg LuaEntityPrototype]]
+				return arg, "entity"
+			elseif arg.object_name =="LuaItem" then --[[@cast arg LuaItem]]
+				return arg.prototype, "item"
+			elseif arg.object_name =="LuaItemPrototype" then --[[@cast arg LuaItemPrototype]]
+				return arg, "item"
+			elseif arg.object_name =="LuaRecipe" then --[[@cast arg LuaRecipe]]
+				return arg.prototype, "recipe"
+			elseif arg.object_name =="LuaRecipePrototype" then --[[@cast arg LuaRecipePrototype]]
+				return arg, "recipe"
+			elseif arg.object_name =="LuaTechnology" then --[[@cast arg LuaTechnology]]
+				return arg.prototype, "technology"
+			elseif arg.object_name =="LuaTechnologyPrototype" then --[[@cast arg LuaTechnologyPrototype]]
+				return arg, "technology"
+			else
+				error("Invalid argument. object_name="..arg.object_name)
+			end
+		elseif _G.type(arg) == "table" then
+			if arg["__class"] == "RecipeInfo" then --[[@cast arg RecipeInfo]]
+				return arg.prototype, "recipe"
+			else
+				name = arg.name or arg["value"] or error("Invalid argument: missing name")
+				types = { arg.type or arg.base_type or error("Invalid argument: missing type") }
+			end
+
+		elseif _G.type(arg) == "string" then
+			name = arg
+			if not expected_type then error("Missing expected_type for string argument") end
+			-- Zerlege den expected_type-String in eine Liste von Typen
+			types = {}
+			for t in expected_type:gmatch("[^|,%s/]+") do table.insert(types, t) end
+		else
+			error("Invalid argument type")
+		end
+
+		-- Check all specified types in the given order
+		for _, type in ipairs(types) do
+			local t = prototypes[type]
+			if t then
+				local prototype = t[name]
+				if prototype then
+					return prototype, type
+				end
+			end
+		end
+
+		error("Invalid name or type not found")
+	end
+
+
+	rawset(_G, "toElemID", function(arg)
+		error("ElementUtils must be required before use toElemID")
+	end)
+
+end -- runtime
 

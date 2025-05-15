@@ -81,15 +81,11 @@ end
 ---@field Storage KuxCoreLib.Storage
 ---@field StoragePlayer KuxCoreLib.StoragePlayer
 ---@field StoragePlayers KuxCoreLib.StoragePlayers @deprecated
----@field GuiBuilder KuxCoreLib.GuiBuilder
 ---@field PickerDollies KuxCoreLib.PickerDollies
 ---@field Factorissimo KuxCoreLib.Factorissimo
 ---@field SurfacesMod KuxCoreLib.SurfacesMod
 ---@field CollisionMaskData KuxCoreLib.CollisionMaskData
 ---@field DataGrid KuxCoreLib.DataGrid
----@field GuiHelper KuxCoreLib.GuiHelper
----@field GuiElementCache KuxCoreLib.GuiElementCache
----@field GuiElementCache2 KuxCoreLib.GuiElementCache2
 ---@field Timer KuxCoreLib.Timer
 ---@field PlayerStorage KuxCoreLib.PlayerStorage
 ---@field RadarData KuxCoreLib.RadarData
@@ -98,12 +94,12 @@ end
 ---@field LuaGenericPrototype KuxCoreLib.LuaGenericPrototype.static
 -- @field SelectionTool KuxCoreLib.SelectionTool
 ---@field StageBridge KuxCoreLib.StageBridge
----@field GuiElemenRef KuxCoreLib.GuiElementRef.static
----@field GuiView KuxCoreLib.GuiView.static
----@field VGuiElement KuxCoreLib.VGuiElement.static
 ---@field FunctionUtils KuxCoreLib.FunctionUtils
 ---@field LocalizationUtils KuxCoreLib.LocalizationUtils
 ---@field TranslationService KuxCoreLib.TranslationService
+---@field FactorioDatabase KuxCoreLib.FactorioDatabase
+---@field RecipeUtils KuxCoreLib.RecipeUtils
+---@field ElementUtils KuxCoreLib.ElementUtils
 
 
 ---Provides access to Kux-CoreLib modules<br>
@@ -194,6 +190,9 @@ local require_map = { --RUN (F5) to AUTOGENERATE
 		FunctionUtils = "",
 		LocalizationUtils = "",
 		TranslationService = "",
+		FactorioDatabase = "",
+		RecipeUtils = "",
+		ElementUtils = "",
 
 		CollisionMaskData = "data",
         DataRaw = "data",
@@ -216,15 +215,6 @@ local require_map = { --RUN (F5) to AUTOGENERATE
         StoragePlayer = "storage",
         StoragePlayers = "storage",
 		PlayerStorage = "storage",
-
-        GuiBuilder = "gui",
-		ElementBuilder = "gui",
-		GuiHelper = "gui",
-		GuiElementCache = "gui",
-		GuiElementCache2 = "gui",
-		GuiElemenRef = "gui",
-		GuiView = "gui",
-		VGuiElement = "gui",
 
 		PickerDollies = "mods",
 		Factorissimo = "mods",
