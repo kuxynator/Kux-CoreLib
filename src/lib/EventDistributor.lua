@@ -95,7 +95,7 @@ local function getDisplayName(event)
 	if(not eventId or eventId<0) then
 		return eventName or "unknown"
 	else
-		return (eventName or "custom").."("..tostring(eventId)..")"
+		return (eventName or "custom").."(ID "..tostring(eventId)..")"
 	end
 end
 

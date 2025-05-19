@@ -78,6 +78,5 @@ Debug.getExecutingMod = Debug.util.getExecutingMod
 ---@return string?
 Debug.getCallingMod = Debug.util.getExecutingMod
 
-
 ---------------------------------------------------------------------------------------------------
 return Debug

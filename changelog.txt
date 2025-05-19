@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.17.1
+  Features:
+    - RecipeUtils add support for additional_categories (Factorio >= 2.0.50)
+  Changes:
+    - FunctionUtils.registerClass checks now for duplicate objects
+  Bugfixes:
+    - LocalizationUtils: fix wrong constant
+---------------------------------------------------------------------------------------------------
 Version: 3.17.0
 Date: 2025-05-15
   Info:

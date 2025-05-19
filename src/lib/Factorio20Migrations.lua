@@ -2,9 +2,9 @@
 	 ensures that old 1.1 code also works in 2.0
 --]]---------------------------------------------------------------------------
 
---- The gloabal table => storage
+--- The global table => storage
 --- @deprecated Use `storage` instead
-_G.global = storage
+_G.global = _G.global ---@diagnostic disable-line: deprecated
 
 -- Removed LuaPlayer::open_map, zoom_to_world, and close_map. LuaPlayer::set_controller with type 'remote' replaces these.
 

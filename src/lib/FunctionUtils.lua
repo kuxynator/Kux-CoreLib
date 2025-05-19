@@ -81,19 +81,52 @@ function this.scanClass(obj, class_name)
 	]]
 end
 
+---@deprecated not fully tested
+function this.unscanClass(obj, class_name)
+	for funcName, func in pairs(obj) do
+		if type(func) == "function" then
+			local full_name = class_name.."."..funcName
+			local fid = this.getFunctionsId(func)
+			idx_func_info[func] = nil
+			idx_full_name_func[full_name] = nil
+			if fid then idx_fid_func[fid] = nil end
+		end
+	end
+end
+
 --[ static ]----------------------------------------------------------------------------------------------------------
 
 ---
 ---@param obj table
 ---@param name string?
-function FunctionUtils.registerClass(obj,name)
-	name = name or obj.__class
-	if not name then error("Class name is nil") end
+function FunctionUtils.registerClass(obj, name)
+	assert(obj~=nil, "Argument 'obj' must not be nil.")
+	name = name or obj.__class or  error("Class name is nil and no 'name' argument specified.")
 	if idx_name_obj[name] then error("Class name already registered: "..name) end
+	if idx_obj_name[obj] then error("Class instance already registered: "..name) end
 	idx_name_obj[name] = obj
 	idx_obj_name[obj] = name
-
 	this.scanClass(obj, name)
+end
+
+---@deprecated not fully tested
+---@param arg string|table
+function FunctionUtils.unregisterClass(arg)
+	assert(arg~=nil, "Argument 'arg' must not be nil.")
+	local obj, name
+	if type(arg) == "string" then
+		name = arg --[[@as string]]
+		obj = idx_name_obj[name]
+		if not obj then return end
+	else
+		obj = arg --[[@as table]]
+		name = idx_obj_name[obj]
+		if not name then return end
+	end
+
+	this.unscanClass(obj,name)---@diagnostic disable-line: deprecated
+	idx_obj_name[obj] = nil
+	idx_name_obj[name] = nil
 end
 
 ---Gets the info object for the specifoed function name or GUID.
@@ -110,7 +143,7 @@ FunctionUtils.getId = this.getFunctionsId
 
 ---Gets the class name of the object.
 ---@param obj table
-function FunctionUtils.getCLassName(obj)
+function FunctionUtils.getClassName(obj)
 	if not obj then return nil end
 	local name = idx_obj_name[obj]
 	if not name then return nil end

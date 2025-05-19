@@ -13,6 +13,7 @@ if KuxCoreLib.__classUtils.cache(RecipeUtils) then return KuxCoreLib.__classUtil
 -----------------------------------------------------------------------------------------------------------------------
 local FactorioDatabase = KuxCoreLib.require.FactorioDatabase
 local LocalizationUtils = KuxCoreLib.require.LocalizationUtils
+local Version = KuxCoreLib.require.Version
 
 function RecipeUtils.generateRecipeCatalog()
 	local fdb = FactorioDatabase
@@ -156,8 +157,8 @@ function RecipeUtils.made_in(player, recipe)
 		local entity = prototypes.entity[entity_name]
 		local crafting_time = get_crafting_time(entity)
 		local crafting_time_rounded = math.floor(crafting_time * 100 + 0.5) / 100
-		local time_tooltip = entity.name=="character" and {"", {"Time_to_craft_with_character"}, ": ", crafting_time_rounded}
-			or {"", {"Time_to_craft_in_building"}, ": ", crafting_time_rounded}
+		local time_tooltip = entity.name=="character" and {"", {"Kux-GuiLib.Time_to_craft_with_character"}, ": ", crafting_time_rounded}
+			or {"", {"Kux-GuiLib.Time_to_craft_in_building"}, ": ", crafting_time_rounded}
 		local entity_enabled = is_entity_enabled(player, entity_name)
 		local style_name = entity_enabled and "inventory_slot" or "red_inventory_slot"
 
@@ -178,10 +179,14 @@ function RecipeUtils.made_in(player, recipe)
 
 
 	-- crafting
-	local entities = fdb.prototypes.entities.by_crafting_category[recipe.category] or {}
-	for _, entity_name in pairs(entities) do
-		add(entity_name)
+	local categories = Version.compare(script.active_mods.base, "2.0.50")>=0 and recipe.additional_categories or {}
+	table.insert(categories, 1, recipe.category)
+	for _, category in ipairs(categories) do
+		entities = fdb.prototypes.entities.by_crafting_category[category] or {}
+		for _, entity_name in pairs(entities) do add(entity_name) end
 	end
+
+
 	-- mining
 	entities = fdb.prototypes.entities.by_resource_category[recipe.category] or {}
 	for _, entity_name in pairs(entities) do
@@ -305,6 +310,8 @@ local function new_recipe_prototype(pt)
 		ingredients = { { type = elemId.type, name = elemId.name, amount = 1 } },---@diagnostic disable-line: assign-type-mismatch
 		products = (minable and pt.mineable_properties.products or {}) or { { name = pt.fluid.name, amount = 1, type = "fluid" } } ,
 		category = (minable and pt.resource_category) or (offshore and "offshore") or error("category is unknown"),
+		additional_categories = {}, -- NEW in 2.0.50
+		has_category = function () error("not implemented")	end,-- TODO: NEW in 2.0.50
 		group = pt.group,
 		subgroup = pt.subgroup,
 		order = pt.order,
