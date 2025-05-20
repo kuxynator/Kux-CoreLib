@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.17.2
+  Features:
+    - Debug: add formatStackTrace, extractCallerFromTrace
+  Bugfixes:
+    - fix an issue with nil in getLuaObject
+---------------------------------------------------------------------------------------------------
 Version: 3.17.1
   Features:
     - RecipeUtils add support for additional_categories (Factorio >= 2.0.50)

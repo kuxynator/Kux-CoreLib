@@ -118,7 +118,9 @@ if(script)then
 	---@param returnNilOnError boolean?
 	---@return any
 	local function getLuaObject(var, object_name, prop, returnNilOnError)
-		if is_obj(var, "LuaEntity") then ---@cast var LuaEntity
+		if var == nil then
+			return nil
+		elseif is_obj(var, "LuaEntity") then ---@cast var LuaEntity
 			if     object_name == "LuaEntity"  then var = var
 			elseif object_name == "LuaSurface" then var = var.surface
 			elseif object_name == "LuaForce"   then var = var.force
