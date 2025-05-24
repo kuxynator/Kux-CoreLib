@@ -65,20 +65,28 @@ local function common_from_args(t)
 	return common
 end
 
+ ---@class KuxCoreLib.SettingsData.ExtendInstance
+ ---@field common table
+ local x = {}
+
 ---Creates a new Extend object
 ---@param t KuxCorelib.ExtendArguments
 ---@return KuxCoreLib.SettingsData.Extend
 local function call_extend(self, t)
 	local new = {common = common_from_args(t), count = 0}
 	setmetatable(new, {
-		__index = SettingsData.extend
+		__index = x
 	})
 	return new
 end
 
 ---@class KuxCoreLib.SettingsData.Extend
 ---@field prefix string The name prefix for all settings
----@overload fun(args:KuxCorelib.ExtendArguments|table):KuxCoreLib.SettingsData.Extend
+---@overload fun(args:KuxCorelib.ExtendArguments|table):KuxCoreLib.SettingsData.ExtendInstance
+-- @operator call(KuxCorelib.ExtendArguments): KuxCoreLib.SettingsData.ExtendInstance
+---<p>Usage: <br>
+---<code> local extend = KuxCoreLib.require.SettingsData.extend
+---local x = extend { startup|global|user, order?, prefix?= } </code>
 SettingsData.extend = {
 	---@type string
 	prefix = nil,
@@ -90,13 +98,13 @@ setmetatable(SettingsData.extend --[[@as table]],{
 })
 
 
----@param self KuxCoreLib.SettingsData.Extend
+---@param self KuxCoreLib.SettingsData.ExtendInstance
 ---@return string
 local function getPrefix(self)
 	return (self.common.prefix or SettingsData.extend.prefix or mod and mod["prefix"] or "")
 end
 
----@param self KuxCoreLib.SettingsData.Extend
+---@param self KuxCoreLib.SettingsData.ExtendInstance
 ---@param name string
 ---@return string
 local function getName(self, name)
@@ -135,7 +143,7 @@ end
 
 ---Adds bool-setting
 ---@param t KuxCorelib.BoolSetting|KuxCorelib.BoolSetting.compatibility
-function SettingsData.extend:bool(t)
+function x:bool(t)
 	self.count = self.count + 1
 	local d = merge(self.count, self.common, t, {
 		type          = "bool-setting",
@@ -150,7 +158,7 @@ end
 ---@param t KuxCorelib.BoolSetting.const
 ---<p>Usage:<br>
 ---1. <code>x:bool_const{name, const_value }</code>
-function SettingsData.extend:bool_const(t)
+function x:bool_const(t)
 	self.count = self.count + 1
 	local value = tostring(t["default_value"] or t[2] or false)  == "true"
 	local d = merge(self.count, self.common, t, {
@@ -189,7 +197,7 @@ end
 ---1. <code>x:int{name, default, min?, max?, allowwed?=[] }</code><br>
 ---2. <code>x:int{name, default, allowed[] }</code><br>
 ---3. <code>x:int{name=, default_value=, minimum_value?=, maximum_value?=, allowed_values?= }</code> for comatibility
-function SettingsData.extend:int(t)
+function x:int(t)
 	self.count = self.count + 1
 	local ff =
 	{
@@ -213,7 +221,7 @@ end
 ---@param t KuxCorelib.IntSettingArguments.const
 ---<p>Usage:<br>
 ---1. <code>x:int_const{name, const_value }</code>
-function SettingsData.extend:int_const(t)
+function x:int_const(t)
 	self.count = self.count + 1
 	local value = t["default_value"] or t[2] or error("Missing value 'default_value'|[2]")
 	local d = merge(self.count, self.common, t, {
@@ -252,7 +260,7 @@ end
 ---1. <code>x:int{name, default, min?, max?, allowwed?=[] }</code><br>
 ---2. <code>x:int{name, default, allowed[] }</code><br>
 ---3. <code>x:int{name=, default_value=, minimum_value?=, maximum_value?=, allowed_values?= }</code> for comatibility
-function SettingsData.extend:double(t)
+function x:double(t)
 	self.count = self.count + 1
 	local d = merge(self.count, self.common, t, {
 		type           = "double-setting",
@@ -269,7 +277,7 @@ end
 ---@param t KuxCorelib.DoubleSettingArguments.const
 ---<p>Usage:<br>
 ---1. <code>x:double_const{name, const_value }</code><
-function SettingsData.extend:double_const(t)
+function x:double_const(t)
 	self.count = self.count + 1
 	local value  = t["default_value"] or t[2] or error("Missing value 'default_value'|[2]")
 	local d = merge(self.count, self.common, t, {
@@ -304,7 +312,11 @@ end
 
 ---Adds string-setting
 ---@param t KuxCorelib.StringSettingArguments|KuxCorelib.StringSettingArguments.comatibility
-function SettingsData.extend:string(t)
+---<p>Usage: <br>
+---1: <code>x:string { name, default, allowed?, allow_blank?=, auto_trim?= }</code> <br>
+---2: <code>x:string { name=, default_value=, allowed_values=, allow_blank?=, auto_trim?= }</code> used for compatibility
+---</p>
+function x:string(t)
 	self.count = self.count + 1
 	local d = merge(self.count, self.common, t, {
 		type           = "string-setting",
@@ -321,7 +333,7 @@ end
 ---@param t KuxCorelib.StringSettingArguments.const
 ---<p>Usage:<br>
 ---1. <code>x:string_const{name, const_value }</code>
-function SettingsData.extend:string_const(t)
+function x:string_const(t)
 	self.count = self.count + 1
 	local value  = t["default_value"] or t[2] or error("Missing value 'default_value'")
 	local d = merge(self.count, self.common, t, {
@@ -336,15 +348,17 @@ function SettingsData.extend:string_const(t)
 	data:extend{d}
 end
 
+
 ---@class KuxCorelib.ColorSettingArguments
 ---@field [1] string 'name'
 ---@field [2] Color 'default_value' Defines the default value of the setting.
 ---@field name string?
 ---@field default_value Color? Defines the default value of the setting.
 
+
 ---Adds color-setting
 ---@param t KuxCorelib.ColorSettingArguments
-function SettingsData.extend:color(t)
+function x:color(t)
 	self.count = self.count + 1
 	local d = merge(self.count, self.common, t, {
 		type          = "color-setting",
@@ -357,7 +371,7 @@ end
 ---Adds color-setting (hidden constant)
 ---<br>NOTE: can not overide already set colors!
 ---@param t KuxCorelib.ColorSettingArguments
-function SettingsData.extend:color_const(t)
+function x:color_const(t)
 	self.count = self.count + 1
 	local value = t.default_value or t[2] or error("default_value is mandatory")
 	local d = merge(self.count, self.common, t, {

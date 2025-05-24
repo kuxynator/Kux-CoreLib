@@ -26,7 +26,8 @@ local registry = {
 	num_requests = 0,
 	queue={}, ---@type {[string]: {[string]: {localised_string:LocalisedString, player_index:number}}} -- locale -> {hash -> {localised_string, player_index}
 	requests={}, -- locale -> {id -> hash}
-	translated={} -- locale -> {hash -> LocalisedString}
+	translated={}, -- locale -> {hash -> LocalisedString}
+	idx_hash_localised_string={} -- {hash -> LocalisedString}
 }
 
 ---Gets a stable string as hash
@@ -99,6 +100,21 @@ function TranslationService.getLocalizableString(pt, field)
 	return pt[field] or (supertype[pt.type].."-"..dic[field].."."..pt[dic[field]])
 end
 
+
+function request_core(locale, localizable_string, hash)
+	local loc = registry.translated[locale]
+	if loc[hash] then return end -- already translated
+
+	registry.queue[locale] = registry.queue[locale] or {}
+	if registry.queue[locale][hash] then return end -- already queued
+
+	registry.requests[locale] = registry.requests[locale] or {}
+	if registry.requests[locale][hash] then return end -- still requesting
+
+	registry.queue[locale][hash] = {localised_string = localizable_string}
+	registry.num_queued = registry.num_queued + 1
+end
+
 ---@param player LuaPlayer
 ---@param localizable_string LocalisedString
 function TranslationService.request(player, localizable_string)
@@ -110,18 +126,9 @@ function TranslationService.request(player, localizable_string)
 	local locale = player.locale
 	local hash = getHash(localizable_string)
 	registry.translated[locale] = registry.translated[locale] or {}
+	registry.idx_hash_localised_string[hash]=localizable_string -- stores all requested strings
 
-	local loc = registry.translated[locale]
-	if loc[hash] then return end -- already translated
-
-	registry.queue[locale] = registry.queue[locale] or {}
-	if registry.queue[locale][hash] then return end -- already queued
-
-	registry.requests[locale] = registry.requests[locale] or {}
-	if registry.requests[locale][hash] then return end -- still requesting
-
-	registry.queue[locale][hash] = {player_index = player.index, localised_string = localizable_string}
-	registry.num_queued = registry.num_queued + 1
+	request_core(locale, localizable_string, hash)
 end
 
 
@@ -181,22 +188,59 @@ function handler.on_string_translated(e)
 	--print("TranslationService result :"..locale.." "..str(hash).." "..str(e.result))
 end
 
+---
+---@param locale string
+---@return LuaPlayer?
+local function findPlayer(locale)
+	for _, player in pairs(game.players) do
+		if not player.valid or not player.connected then goto next end
+		if player.locale == locale then return player end
+		::next::
+	end
+end
 
 function handler.on_nth_tick_1(e)
 	local _ = "fnc{cc5f09b5-19a9-45ae-a63e-7bcf896113fc}"
 	if registry.num_queued == 0 then return end
 	local count = 1000
+	local orphaned = {}
 	for locale, list in pairs(registry.queue) do
+		local player = findPlayer(locale)
+		if not player then
+			orphaned[locale]=true
+			goto next_locale
+		end
 		for hash, data in pairs(list) do
-			request_internal(data.player_index, hash, data.localised_string)
+			request_internal(player.index, hash, data.localised_string)
 			count = count - 1
 			if count == 0 then return end
 		end
+		::next_locale::
+	end
+	for locale, _ in pairs(orphaned) do
+		local c = 0 for _, _ in pairs(registry.queue[locale]) do c=c+1 end
+		registry.num_queued = registry.num_queued - c
+		registry.queue[locale]=nil
 	end
 end
 
 Events.on_event(defines.events.on_string_translated, function (e) handler.on_string_translated(e) end)
 Events.on_nth_tick(1, handler.on_nth_tick_1)
+
+---@param e EventData.on_player_locale_changed
+Events.on_event(defines.events.on_player_locale_changed, function(e)
+	local player = game.players[e.player_index]
+	print (e.tick, "on_player_locale_changed", e.player_index, e.old_locale, player.locale)
+	if registry.queue[player.locale] then return end
+	for hash, localised_string in ipairs(registry.idx_hash_localised_string) do
+		request_core(player.locale,localised_string,hash)
+	end
+end)
+
+---@param e EventData.on_player_created
+Events.on_event(defines.events.on_player_created, function(e)
+	print (e.tick, "on_player_created", e.player_index)
+end)
 -----------------------------------------------------------------------------------------------------------------------
 return TranslationService
 

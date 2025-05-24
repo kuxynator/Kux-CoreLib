@@ -122,5 +122,72 @@ function Debug.extractCallerFromTrace(stacktrace, fname)
 	end
 end
 
+local function trim_from_entry(trace, func_name)
+	for pos, line in trace:gmatch("()([^\n]+)") do
+		if line:find("in function '"..func_name.."'") then
+			return trace:sub(1, pos - 1)
+		end
+	end
+	return trace
+end
+
+local function enhance_exception(ex)
+	local func_name = debug.traceback(nil, 3):match("in function '([^']*)'")
+	ex.stack_trace = trim_from_entry(ex.stack_trace, "try")
+	ex.caller = debug.traceback(nil, 3):match("^[^\n]*\n\t([^\n]*)") or "<unknown>"
+	ex.current_stack = debug.traceback("", 3)
+	ex.stack_trace = Debug.formatStackTrace(ex.stack_trace, func_name)
+	return ex
+end
+
+---Calls the function and provides an exception object and terminates with an extended error.
+---@param f function
+---@param on_error (fun(KuxCoreLib.Exception):string)?
+---@return any
+---<p>Usage: <code>result = call(f, format_exception)</code></p>
+function _G.call(f,on_error)
+	local ok, result = xpcall(f, Debug.catchException)
+	if not ok then
+		local ex = enhance_exception(result)
+		local msg = on_error and on_error(ex) or ex.message.."\n"..ex.stack_trace
+		error(msg,2)
+	end
+	return result
+end
+
+---Calls the function and provides an exception object and terminates with an extended error.
+---@param f function
+---@param catch fun(KuxCoreLib.Exception)
+---@return boolean
+---@return any #result of f or an error object
+function _G.trycall(f,catch)
+	local ok, result = xpcall(f, Debug.catchException)
+	if not ok then
+		local ex = enhance_exception(result)
+		if catch then catch(ex) end
+		return false, ex
+	end
+	return true, result
+end
+
+---
+---@param err any
+---@return KuxCoreLib.Exception
+---<p>Usage: <br>
+---<code>local ok, result = xpcall(try, Debug.catchException)<br>
+--- if not ok then error(error_handler(result)) end</code>
+function Debug.catchException(err)
+	local ex = {
+		message=err,
+		stack_trace = debug.traceback("", 2)
+	}
+	return ex
+end
+
 ---------------------------------------------------------------------------------------------------
 return Debug
+
+---@class KuxCoreLib.Exception
+---@field message string
+---@field stack_trace string
+--@field caller string

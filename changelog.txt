@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.17.3
+  Features:
+    - Debug: add global call and trycall
+  Changes:
+    - KuxCoreLib.SettingsData.Extend
+  Bugfixes:
+    - fix a bug in EventDistributor on_configuration_changed
+    - fix other possible issues in EventDistributor
+    - fix a bug in TranslanslationService
+---------------------------------------------------------------------------------------------------
 Version: 3.17.2
   Features:
     - Debug: add formatStackTrace, extractCallerFromTrace
@@ -7,7 +17,7 @@ Version: 3.17.2
 ---------------------------------------------------------------------------------------------------
 Version: 3.17.1
   Features:
-    - RecipeUtils add support for additional_categories (Factorio >= 2.0.50)
+    - RecipeUtils add support for additional_categories (Factorio >= 2.0.49)
   Changes:
     - FunctionUtils.registerClass checks now for duplicate objects
   Bugfixes:

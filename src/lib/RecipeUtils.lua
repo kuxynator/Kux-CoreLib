@@ -179,7 +179,7 @@ function RecipeUtils.made_in(player, recipe)
 
 
 	-- crafting
-	local categories = Version.compare(script.active_mods.base, "2.0.50")>=0 and recipe.additional_categories or {}
+	local categories = Version.compare(script.active_mods.base, "2.0.49")>=0 and recipe.additional_categories or {}
 	table.insert(categories, 1, recipe.category)
 	for _, category in ipairs(categories) do
 		entities = fdb.prototypes.entities.by_crafting_category[category] or {}
@@ -310,8 +310,8 @@ local function new_recipe_prototype(pt)
 		ingredients = { { type = elemId.type, name = elemId.name, amount = 1 } },---@diagnostic disable-line: assign-type-mismatch
 		products = (minable and pt.mineable_properties.products or {}) or { { name = pt.fluid.name, amount = 1, type = "fluid" } } ,
 		category = (minable and pt.resource_category) or (offshore and "offshore") or error("category is unknown"),
-		additional_categories = {}, -- NEW in 2.0.50
-		has_category = function () error("not implemented")	end,-- TODO: NEW in 2.0.50
+		additional_categories = {}, -- NEW in 2.0.49
+		has_category = function () error("not implemented")	end,-- TODO: NEW in 2.0.49
 		group = pt.group,
 		subgroup = pt.subgroup,
 		order = pt.order,

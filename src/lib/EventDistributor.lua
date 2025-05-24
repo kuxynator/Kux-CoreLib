@@ -106,9 +106,7 @@ EventDistributor.getDisplayName=getDisplayName
 local function on_init()
 	--print("EventDistributor.on_init")
 	local handlers = events["on_init"]
-	if(handlers) then
-		for _,fnc in pairs(handlers) do fnc() end
-	end
+	for _,fnc in pairs(handlers or {}) do fnc() end
 
 	 -- we set the state in advance, the state is valid on next tick
 	ModInfo.isModLoaded = true
@@ -120,8 +118,7 @@ end
 local function on_load()
 	--print("EventDistributor.on_load")
 	local handlers = events["on_load"]
-	if(not handlers) then return end
-	for _,fnc in pairs(handlers) do fnc() end
+	for _,fnc in pairs(handlers or {}) do fnc() end
 
 	if(settings.global["Kux-CoreLib_".."on_load_LogEvents_Summary"].value) then
 		util.log_summary()
@@ -139,9 +136,7 @@ local function on_configuration_changed(e)
 
 	--print("EventDistributor.on_configuration_changed")
 	local handlers = events["on_configuration_changed"]
-	if(not handlers) then
-		for _,fnc in pairs(handlers) do fnc(e) end
-	end
+	for _,fnc in pairs(handlers or {}) do fnc(e) end
 
 	 -- we set the state in advance, the state is valid on next tick
 	 ModInfo.current_stage = "control-on-loaded"
@@ -151,9 +146,7 @@ end
 local function on_nth_tick(e)
 	--print("EventDistributor.on_nth_tick "..e.nth_tick)
 	local handlers = events["on_nth_tick"][e.nth_tick]
-	if(handlers) then
-		for _,fnc in pairs(handlers) do fnc(e) end
-	end
+	for _,fnc in pairs(handlers or {}) do fnc(e) end
 end
 
 ---
@@ -163,8 +156,7 @@ local function on_event(e)
 	local eventName, eventId = eventPair(e.name)
 	local key = eventId or eventName
 	local handlers = events[key]
-	if(not handlers) then return end
-	for _,fnc in pairs(handlers) do fnc(e) end
+	for _,fnc in pairs(handlers or {}) do fnc(e) end
 	_G.player = nil
 end
 
@@ -174,8 +166,7 @@ local function on_event_customInput(e)
 	_G.player = EventDistributor.getPlayerFnc(e)
 	local name, number = eventPair(e)
 	local handlers = events[name]
-	if(not handlers) then return end
-	for _,fnc in pairs(handlers) do fnc(e) end
+	for _,fnc in pairs(handlers or {}) do fnc(e) end
 	_G.player = nil
 end
 
