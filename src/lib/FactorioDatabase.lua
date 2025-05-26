@@ -10,7 +10,7 @@ local FactorioDatabase = {
 	__origin = "Kux-CoreLib/lib/FactorioDatabase.lua",
 	__writableMembers={"getDisplayName","registerName"}
 }
-if KuxCoreLib.__classUtils.cache(FactorioDatabase) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(FactorioDatabase)
 -----------------------------------------------------------------------------------------------------------------------
 _G.fdb = FactorioDatabase
 

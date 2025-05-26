@@ -7,7 +7,7 @@ local SurfacesMod = {
 	__guid   = "e71cea3a-405c-4bd4-bb24-74b5a216b16e",
 	__origin = "Kux-CoreLib/lib/mods/SurfacesMod.lua",
 }
-if KuxCoreLib.__classUtils.cache(SurfacesMod) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(SurfacesMod)
 ---------------------------------------------------------------------------------------------------
 ---Provides SurfacesMod in the global namespace
 ---@return KuxCoreLib.SurfacesMod

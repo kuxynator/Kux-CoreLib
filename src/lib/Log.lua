@@ -8,7 +8,7 @@ local Log = {
 	__guid   = "{93D539EB-D2F8-41C8-9BAB-44CFDFE67F00}",
 	__origin = "Kux-CoreLib/lib/Log.lua"
 }
-if KuxCoreLib.__classUtils.cache(Log) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(Log)
 ---------------------------------------------------------------------------------------------------
 
 -- to avoid circular references, the class MUST be defined before require other modules

@@ -9,7 +9,7 @@ local RecipeUtils = {
 	__origin = "Kux-CoreLib/lib/RecipeUtils.lua",
 	__writableMembers={"getDisplayName","registerName"}
 }
-if KuxCoreLib.__classUtils.cache(RecipeUtils) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(RecipeUtils)
 -----------------------------------------------------------------------------------------------------------------------
 local FactorioDatabase = KuxCoreLib.require.FactorioDatabase
 local LocalizationUtils = KuxCoreLib.require.LocalizationUtils

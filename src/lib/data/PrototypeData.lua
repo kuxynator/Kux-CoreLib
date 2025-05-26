@@ -6,7 +6,7 @@ local PrototypeData = {
 	__guid   = "{29042CED-24D6-446E-8265-151D08B0A991}",
 	__origin = "Kux-CoreLib/lib/data/PrototypeData.lua",
 }
-if KuxCoreLib.__classUtils.cache(PrototypeData) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(PrototypeData)
 ---------------------------------------------------------------------------------------------------
 function PrototypeData.setIconTint(item, tint)
 	if(item.icons) then

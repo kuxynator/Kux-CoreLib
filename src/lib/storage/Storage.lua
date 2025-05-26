@@ -14,7 +14,7 @@ local Storage = {
 	__origin = "Kux-CoreLib/lib/storage/Storage.lua",
 	raw = {}
 }
-if KuxCoreLib.__classUtils.cache(Storage) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(Storage)
 ---------------------------------------------------------------------------------------------------
 
 local Events = KuxCoreLib.Events

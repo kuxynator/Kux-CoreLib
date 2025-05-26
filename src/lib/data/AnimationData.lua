@@ -6,7 +6,7 @@ local AnimationData = {
 	__guid   = "44b86734-4323-4071-8d0e-6e181c27c577",
 	__origin = "Kux-CoreLib/lib/data/AnimationData.lua",
 }
-if KuxCoreLib.__classUtils.cache(AnimationData) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(AnimationData)
 ---------------------------------------------------------------------------------------------------
 
 function AnimationData.createHrVersion(data)

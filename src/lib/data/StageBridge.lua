@@ -7,7 +7,7 @@ local StageBridge = {
 	__guid   = "{9a6f6b02-3b9f-4f43-aff2-530d78d99357}",
 	__origin = "Kux-CoreLib/lib/data/StageBridge.lua",
 }
-if KuxCoreLib.__classUtils.cache(StageBridge) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(StageBridge)
 ---------------------------------------------------------------------------------------------------
 
 

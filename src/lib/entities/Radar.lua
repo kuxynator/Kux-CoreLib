@@ -7,7 +7,7 @@ Radar = {
 	__guid   = "bdcf1cb7-8228-45ba-92d4-e5e3528a64a2",
 	__origin = "Kux-CoreLib/lib/entities/Radar.lua",
 }
-if KuxCoreLib.__classUtils.cache(Radar) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(Radar)
 ---------------------------------------------------------------------------------------------------
 local Math = KuxCoreLib.Math
 

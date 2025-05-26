@@ -7,7 +7,7 @@ local SettingsData = {
 	__guid   = "{6B1DC373-2A83-4C81-94BD-92E772340FDE}",
 	__origin = "Kux-CoreLib/lib/data/SettingsData.lua",
 }
-if KuxCoreLib.__classUtils.cache(SettingsData) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(SettingsData)
 ---------------------------------------------------------------------------------------------------
 
 SettingsData.startup = {}

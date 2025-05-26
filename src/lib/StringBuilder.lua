@@ -8,7 +8,7 @@ local StringBuilderClass = {
 	__guid   = "d5b31800-b937-41d3-9ea4-f92de667806a",
 	__origin = "Kux-CoreLib/lib/StringBuilder.lua",
 }
-if KuxCoreLib.__classUtils.cache(StringBuilderClass) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(StringBuilderClass)
 
 ---------------------------------------------------------------------------------------------------
 

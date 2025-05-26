@@ -11,7 +11,7 @@ TechnologyIndex = {
 	__guid   = "331e212d-14ba-4de5-b69a-c6f50dd30da6",
 	__origin = "Kux-CoreLib/lib/data/TechnologyIndex.lua",
 }
-if KuxCoreLib.__classUtils.cache(TechnologyIndex) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(TechnologyIndex)
 ---------------------------------------------------------------------------------------------------
 TechnologyIndex.normal={
 	effectsUnlockRecipe = {},

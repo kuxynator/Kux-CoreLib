@@ -29,7 +29,7 @@ _require = _require;
 require = require
 
 ---Ovverrides the default require function
-function KuxCoreLib.override_require()
+function KuxCoreLib.override_require()---@diagnostic disable-line: inject-field
 	---@diagnostic disable-next-line: param-type-mismatch
 	if(type(_G.require)=="function" and debug.getinfo(_G.require,"S").short_src=="[C]") then
 		_G._require = _G.require

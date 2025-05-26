@@ -7,7 +7,7 @@ local TechnologyData = {
 	__guid   = "69c904c0-8169-454a-a807-d9d5232e9986",
 	__origin = "Kux-CoreLib/lib/data/TechnologyData.lua",
 }
-if KuxCoreLib.__classUtils.cache(TechnologyData) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(TechnologyData)
 ---------------------------------------------------------------------------------------------------
 local Table = KuxCoreLib.Table
 local utils = KuxCoreLib.PrototypeData.extend.utils

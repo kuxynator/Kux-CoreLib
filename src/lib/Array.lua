@@ -11,7 +11,7 @@ local Array = {
     ---@type integer The length of the array
     length = 0
 }
-if KuxCoreLib.__classUtils.cache(Array) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(Array)
 -----------------------------------------------------------------------------------------------------------------------
 -- to avoid circular references, the class is defined before require other modules
 local Table= KuxCoreLib.Table

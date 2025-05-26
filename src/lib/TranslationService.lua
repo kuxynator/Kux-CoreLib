@@ -8,7 +8,7 @@ local TranslationService = {
 	__guid   = "{e0c523bd-4c87-4eb9-8c30-a4761f3c3a32}",
 	__origin = "Kux-CoreLib/lib/TranslationService.lua",
 }
-if KuxCoreLib.__classUtils.cache(TranslationService) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(TranslationService)
 -----------------------------------------------------------------------------------------------------------------------
 local LocalizationUtils = KuxCoreLib.require.LocalizationUtils
 

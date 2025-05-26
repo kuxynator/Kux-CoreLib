@@ -1,12 +1,8 @@
 --[[-----------------------------------------------------------------------------------------------
-	used only in src/lib/init.lua (CoreLib/GuiLib)
+NOTE: require only in src/lib/init.lua (CoreLib)
 --]]-----------------------------------------------------------------------------------------------
-if KuxCoreLib.__classUtils then return end
 
 ---@class KuxCoreLib.__classUtils
----@field __cache fun(KuxCoreLib.Class):boolean Caches the class.
----@field __cached KuxCoreLib.Class The cached class.
----@field __initialize function
 local __classUtils = {}
 KuxCoreLib.__classUtils = __classUtils
 ---------------------------------------------------------------------------------------------------
@@ -108,30 +104,30 @@ local function inject_ctor(obj)
 	obj.__optionalMembers{"__setGlobals"}
 	obj.__isInitialized = false
 	obj.__on_initialized = setmetatable({}, mt__on_initialized)
-	obj.asGlobal = function() return KuxCoreLib.__classUtils.asGlobal(obj) end
+	obj.asGlobal = function() return __classUtils.asGlobal(obj) end
 	obj.__isGlobal = false
 end
 
--- Usage:
--- local myClass = {__class="myClass"};
--- if KuxCoreLib.__classUtils.cache(myClass) then return KuxCoreLib.__classUtils.cached end
+-- Usage: <br>
+-- local myClass = {__class="myClass"} -- or -- <br>
+-- local myClass = {__module="myClass", __class="prefix.myClass.suffix"} <br>
+-- KuxCoreLib.__classUtils.ctor(myClass) -- or -- <br>
+-- KuxCoreLib.__classUtils.ctor(myClass, OtheLib) <br>
 -- ...<class initializer>
-function __classUtils.cache(obj)
+function __classUtils.ctor(obj, lib)
 	if not obj then error("Argument 'obj' must not be nil!") end
-	local m = KuxCoreLib.__modules[obj.__class];
+	lib = lib or KuxCoreLib
+	local module_name = obj.__module -- or normalize "KuxCoreLib.Foo" → "Foo"
+		or obj.__class:match("([^.]+)%.static$")
+		or obj.__class:match("([^.]+)$")
+		or obj.__class
+	local m = lib.__modules[module_name] -- uses KuxCoreLib.__modules
 	if m then
-		if obj.__guid ~= m.__guid then error("Duplicate class name! " ..obj.__origin.." existing: "..m.__origin) end
-		if not script and not game and m.__setGlobals then
-			-- allways call __setGlobals in settings stage and data stage stage
-			m.__setGlobals()
-		end
-		__classUtils.cached = m
-		return true
+		if obj.__guid ~= m.__guid then error("Duplicate module name! " ..obj.__origin.." existing: "..m.__origin) end
+		error("invalid state")
 	end
 	inject_ctor(obj)
-	KuxCoreLib.__modules[obj.__class] = obj
-	__classUtils.cached = obj -- we use __cached to keep the calling code short. in which we do not have to create any additional variables.
-	return false
+	lib.__modules[module_name] = obj
 end
 
 
@@ -163,22 +159,6 @@ function __classUtils.finalize(obj)
 	protect(obj)
 	if obj.__setGlobals then obj.__setGlobals() end
 	for _, fnc in ipairs(obj.__on_initialized--[[@as table]] ) do fnc() end
-	return obj
-end
-
----
----@param impl {[string]:any} The class implementation. This is the object that will be used as a prototype for the new object.
----@param init {[string]:any} The initial values for the new object. This is a table that will be merged with the prototype.
----@param mt {[string]:any}?  The metatable for the new object. This is an optional parameter that can be used to set a custom metatable for the new object.
----@return {[string]:any}
-function __classUtils.new(impl, init, mt)
-	if not impl then error("Argument 'impl' must not be nil!") end
-	if not init then error("Argument 'init' must not be nil!") end
-	--if not mt then error("Argument 'mt' must not be nil!") end
-
-	local obj = table.deepcopy(impl)
-	for k, v in pairs(init) do obj[k] = v end
-	obj = mt and setmetatable(obj, mt) or obj
 	return obj
 end
 

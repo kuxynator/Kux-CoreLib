@@ -10,7 +10,7 @@ local Timer = {
 	__guid   = "fba8b087-083d-43d9-b4d6-4fa1743b1562",
 	__origin = "Kux-CoreLib/lib/Timer.lua",
 }
-if KuxCoreLib.__classUtils.cache(Timer) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(Timer)
 ---------------------------------------------------------------------------------------------------
 if(not script) then
 	KuxCoreLib.__classUtils.finalize(Timer)

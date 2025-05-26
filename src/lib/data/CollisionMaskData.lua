@@ -6,7 +6,7 @@ local CollisionMaskData = {
 	__guid   = "72c0af7b-5840-4c8d-857d-b564bd4547bd",
 	__origin = "Kux-CoreLib/lib/data/CollisionMaskData.lua",
 }
-if KuxCoreLib.__classUtils.cache(CollisionMaskData) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(CollisionMaskData)
 ---------------------------------------------------------------------------------------------------
 function CollisionMaskData.asGlobal() return KuxCoreLib.__classUtils.asGlobal(CollisionMaskData) end
 ---------------------------------------------------------------------------------------------------

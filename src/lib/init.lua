@@ -223,6 +223,7 @@ local require_map = { --RUN (F5) to AUTOGENERATE
 
 local KuxCoreLib_metatable = {}
 function KuxCoreLib_metatable.__index(self, key)
+	if KuxCoreLib.__modules[key] then return KuxCoreLib.__modules[key] end
 	local rootpath = (KuxCoreLibPath or "__Kux-CoreLib__/").."lib/"
 	if(require_map[key] and require_map[key] ~="") then rootpath = rootpath .. require_map[key] .."/" end
 	local path = rootpath..key

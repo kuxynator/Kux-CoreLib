@@ -7,7 +7,7 @@ local ElementUtils = {
 	__guid   = "08964aca-98c4-4e23-bf18-6d6e6b982e08",
 	__origin = "Kux-CoreLib/lib/ElementUtils.lua",
 }
-if KuxCoreLib.__classUtils.cache(ElementUtils) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(ElementUtils)
 -----------------------------------------------------------------------------------------------------------------------
 local TranslationService = KuxCoreLib.require.TranslationService
 local LuaGenericPrototype = KuxCoreLib.require.LuaGenericPrototype

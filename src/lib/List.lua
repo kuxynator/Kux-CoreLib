@@ -8,7 +8,7 @@ local List = {
 	__guid   = "aeb0658f-4c33-4a61-a689-49741a5e8fff",
 	__origin = "Kux-CoreLib/lib/List.lua",
 }
-if KuxCoreLib.__classUtils.cache(List) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(List)
 -----------------------------------------------------------------------------------------------------------------------
 ---@class KuxCoreLib.List.instance
 ---@field private __length integer

@@ -154,7 +154,7 @@ ModInfo.__isInitialized = true
 for _, fnc in ipairs(ModInfo.__on_initialized) do fnc() end
 
 if(ModInfo.current_stage=="control") then
-	KuxCoreLib.EventDistributor() -- this is reqired for update control states
+	_=KuxCoreLib.EventDistributor -- this is reqired for update control states
 end
 
 ---Initializes a new mod (due updating ModInfo)

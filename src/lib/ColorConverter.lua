@@ -10,7 +10,7 @@ local ColorConverter = {
 	__guid      = "{C29DBDDA-9A65-424D-98F2-45CDBAD8D2A1}",
 	__origin    = "Kux-CoreLib/lib/ColorConverter.lua"
 }
-if KuxCoreLib.__classUtils.cache(ColorConverter) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(ColorConverter)
 
 -- to avoid circular references, the class is defined before require other modules
 -- require(KuxCoreLibPath.."Math")

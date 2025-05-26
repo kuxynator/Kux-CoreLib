@@ -8,7 +8,7 @@ local Utils = {
 	__guid   = "5c1d7b38-4452-4339-902e-b82d93286121",
 	__origin = "Kux-CoreLib/lib/Utils.lua",
 }
-if KuxCoreLib.__classUtils.cache(Utils) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(Utils)
 ---------------------------------------------------------------------------------------------------
 
 function Utils.skipIntro()

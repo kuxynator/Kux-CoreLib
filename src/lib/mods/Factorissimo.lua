@@ -7,7 +7,7 @@ local Factorissimo = {
 	__guid   = "b5a1824b-c824-474c-a87a-25e7288d7423",
 	__origin = "Kux-CoreLib/lib/mods/Factorissimo.lua",
 }
-if KuxCoreLib.__classUtils.cache(Factorissimo) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(Factorissimo)
 ---------------------------------------------------------------------------------------------------
 ---Provides Factorissimo in the global namespace
 ---@return KuxCoreLib.Factorissimo

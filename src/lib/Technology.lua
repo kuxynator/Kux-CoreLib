@@ -7,7 +7,7 @@ Technology = {
 	__guid   = "eb2242d4-9547-45d1-b0a2-0e2528a43c70",
 	__origin = "Kux-CoreLib/lib/Technology.lua",
 }
-if KuxCoreLib.__classUtils.cache(Technology) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(Technology)
 ---------------------------------------------------------------------------------------------------
 
 ---comment

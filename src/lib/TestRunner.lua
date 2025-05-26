@@ -16,7 +16,7 @@ local TestRunner = {
 	__guid   = "{68FAAD34-FF3D-40A2-9844-BF1F9400E5A8}",
 	__origin = "Kux-CoreLib/lib/TestRunner.lua",
 }
-if KuxCoreLib.__classUtils.cache(TestRunner) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(TestRunner)
 ---------------------------------------------------------------------------------------------------
 local Debug = KuxCoreLib.Debug
 local Path = KuxCoreLib.Path

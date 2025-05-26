@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.17.4
+  Changes:
+    - __classUtils caching revised, cache removed, ctor added
+    - EventDistributor _G.player management revised
+---------------------------------------------------------------------------------------------------
 Version: 3.17.3
   Features:
     - Debug: add global call and trycall

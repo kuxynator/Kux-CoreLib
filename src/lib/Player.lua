@@ -8,7 +8,7 @@ local Player = {
 	__guid   = "b241c272-0cfd-44c2-82a9-83d6918b8ccb",
 	__origin = "Kux-CoreLib/lib/Player.lua",
 }
-if KuxCoreLib.__classUtils.cache(Player) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(Player)
 ---------------------------------------------------------------------------------------------------
 ---@alias KuxCoreLib.LuaPlayerIdentifier  uint|string|LuaPlayer|KuxCoreLib.Player
 

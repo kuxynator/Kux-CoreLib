@@ -12,7 +12,7 @@ local Debug = {
 	__guid   = "{62243C3D-5389-42F7-B7C2-D87967E2D9AF}",
 	__origin = "Kux-CoreLib/lib/Debug.lua"
 }
-if KuxCoreLib.__classUtils.cache(Debug) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(Debug)
 
 ---------------------------------------------------------------------------------------------------
 Debug.util = require((KuxCoreLibPath or "__Kux-CoreLib__/").."modules/debug_util") --[[@as KuxCoreLib.debug_util]]

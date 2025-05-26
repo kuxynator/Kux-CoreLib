@@ -8,7 +8,7 @@ local Dictionary = {
 	__guid   = "{114989BE-8900-4ABF-91F4-BC5D19537396}",
 	__origin = "Kux-CoreLib/lib/Dictionary.lua",
 }
-if KuxCoreLib.__classUtils.cache(Dictionary) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(Dictionary)
 ---------------------------------------------------------------------------------------------------
 -- to avoid circular references, the class is defined before require other modules
 local Table = KuxCoreLib.Table

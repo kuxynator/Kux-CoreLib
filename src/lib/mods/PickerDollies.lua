@@ -7,7 +7,7 @@ local PickerDollies = {
 	__guid   = "b4f4811e-d7e6-4fdd-ac5d-97042bce5a7c",
 	__origin = "Kux-CoreLib/lib/mods/PickerDollies.lua",
 }
-if KuxCoreLib.__classUtils.cache(PickerDollies) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(PickerDollies)
 ---------------------------------------------------------------------------------------------------
 
 local ModInfo = KuxCoreLib.ModInfo

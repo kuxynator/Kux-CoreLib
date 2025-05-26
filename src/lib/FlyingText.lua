@@ -8,7 +8,7 @@ local FlyingText = {
 	__guid   = "{8BFF3C82-2A4F-41F8-A7B3-C2969A741749}",
 	__origin = "Kux-CoreLib/lib/FlyingText.lua",
 }
-if KuxCoreLib.__classUtils.cache(FlyingText) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(FlyingText)
 
 local function posOffset( pos, offset )
 	return { x=pos.x + offset.x, y=pos.y + offset.y }

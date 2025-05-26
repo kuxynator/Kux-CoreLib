@@ -16,7 +16,7 @@ local FileWriter = {
 	__guid   = "{D54DB186-3D06-47CC-ABF7-8C25BCAE1B44}",
 	__origin = "Kux-CoreLib/lib/FileWriter.lua",
 }
-if KuxCoreLib.__classUtils.cache(FileWriter) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(FileWriter)
 
 ---------------------------------------------------------------------------------------------------
 

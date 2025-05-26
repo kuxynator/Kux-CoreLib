@@ -42,7 +42,7 @@ local PlayerStorage = {
 	__guid   = "cb7e6ed5-e48c-4ef8-841c-b3782ab36b72",
 	__origin = "Kux-CoreLib/lib/storage/PlayerStorage.lua"
 }
-if KuxCoreLib.__classUtils.cache(PlayerStorage) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(PlayerStorage)
 
 ---------------------------------------------------------------------------------------------------
 if(not script) then

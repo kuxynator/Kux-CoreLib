@@ -6,7 +6,7 @@ local DataRaw ={
 	__guid   = "92023dde-c5de-476e-8ca5-85270e130774",
 	__origin = "Kux-CoreLib/lib/data/DataRaw.lua",
 }
-if KuxCoreLib.__classUtils.cache(DataRaw) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(DataRaw)
 ---------------------------------------------------------------------------------------------------
 -- TODO FACTORIO 2.0
 

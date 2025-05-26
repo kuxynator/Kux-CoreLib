@@ -30,7 +30,7 @@ local That = {
     Disctionary = {},
     ---@class That.String
 }
-if KuxCoreLib.__classUtils.cache(That) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(That)
 
 -- to avoid circular references, the class MUST be defined before require other modules
 local Table = KuxCoreLib.Table

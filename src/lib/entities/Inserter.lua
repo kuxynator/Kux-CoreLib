@@ -7,7 +7,7 @@ Inserter = {
 	__guid   = "bbd1b177-9f09-426f-8b36-0d40a9f02503",
 	__origin = "Kux-CoreLib/lib/entities/Inserter.lua",
 }
-if KuxCoreLib.__classUtils.cache(Inserter) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(Inserter)
 ---------------------------------------------------------------------------------------------------
 local Math = KuxCoreLib.Math
 

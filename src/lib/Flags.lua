@@ -6,7 +6,7 @@ local Flags = {
 	__guid   = "6b3edfc1-861b-4e38-86c3-1272706f1c59",
 	__origin = "Kux-CoreLib/lib/Flags.lua",
 }
-if KuxCoreLib.__classUtils.cache(Flags) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(Flags)
 
 -----------------------------------------------------------------------------------------------------------------------
 

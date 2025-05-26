@@ -12,7 +12,7 @@ local ListWrapper = {
     ---@type integer The number of entries in the list
     count = 0
 }
-if KuxCoreLib.__classUtils.cache(ListWrapper) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(ListWrapper)
 
 -----------------------------------------------------------------------------------------------------------------------
 

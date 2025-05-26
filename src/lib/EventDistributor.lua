@@ -14,18 +14,15 @@ require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 ---@class KuxCoreLib.EventDistributor : KuxCoreLib.Class
 ---@field asGlobal fun():KuxCoreLib.EventDistributor Provides EventDistributor in the global namespace
 local EventDistributor = {
-	__class  = "EventDistributor",
+	__class  = "KuxCoreLib.EventDistributor",
 	__guid   = "{ADD81DB1-53B9-4D61-9279-401AD277DBEE}",
 	__origin = "Kux-CoreLib/lib/EventDistributor.lua",
 }
-if KuxCoreLib.__classUtils.cache(EventDistributor) then return KuxCoreLib.__classUtils.cached end
-setmetatable(EventDistributor,{
-	---dummy method to use with `require.KuxCoreLib.EventDistributor()
-	__call = function (t, ...) end
-})
+KuxCoreLib.__classUtils.ctor(EventDistributor)
+---------------------------------------------------------------------------------------------------
 
 local util = {}
----------------------------------------------------------------------------------------------------
+
 
 if(KuxCoreLib.ModInfo.current_stage ~= "control") then
 	KuxCoreLib.__classUtils.finalize(EventDistributor)
@@ -48,7 +45,7 @@ local isOnLoadedRaised = false
 
 ---Gets the LuaPlayer for the current event. Managed by KuxCoreLib.EventDistributor
 ---@type LuaPlayer?
-_G.player = nil
+_G.player = _G.player
 
 local mapEventNumberToName = {}
 for name, value in pairs(defines.events) do mapEventNumberToName[value] = name end
@@ -149,25 +146,36 @@ local function on_nth_tick(e)
 	for _,fnc in pairs(handlers or {}) do fnc(e) end
 end
 
+
 ---
 local function on_event(e)
 	--log("on_event "..getDisplayName(e))
-	_G.player = EventDistributor.getPlayerFnc(e)
+	local restore = _G.player
+	_G.player = EventDistributor.getPlayerFnc(e) or _G.player
+	local safe = _G.player
+	if e.player_index~=nil and not _G.player then error("invalid state") end
 	local eventName, eventId = eventPair(e.name)
 	local key = eventId or eventName
 	local handlers = events[key]
-	for _,fnc in pairs(handlers or {}) do fnc(e) end
-	_G.player = nil
+	for _,fnc in pairs(handlers or {}) do
+		fnc(e)
+		if _G.player ~= safe then
+			local i = debug.getinfo(fnc, "Sl")
+			error("invalid (global) player change detetcted.\n\tin "..i.short_src..":"..i.linedefined)
+		end
+	end
+	_G.player = restore
 end
 
 ---
 local function on_event_customInput(e)
 	--log("on_event_customInput "..getDisplayName(e))
+	local restore = _G.player
 	_G.player = EventDistributor.getPlayerFnc(e)
 	local name, number = eventPair(e)
 	local handlers = events[name]
 	for _,fnc in pairs(handlers or {}) do fnc(e) end
-	_G.player = nil
+	_G.player = restore
 end
 
 ---
@@ -190,17 +198,19 @@ end
 ---
 local function on_built(e)
 	--print("EventDistributor.on_built")
-	_G.player = EventDistributor.getPlayerFnc(e)
+	local restore = _G.player
+	_G.player = EventDistributor.getPlayerFnc(e) or _G.player
 	local handlers = events["on_built"]
 	if(not handlers) then return end
 	for _,fnc in pairs(handlers) do fnc(e) end
-	_G.player = nil
+	_G.player = restore
 end
 
 ---
 local function on_destroy(e)
 	--print("EventDistributor.on_destroy")
-	_G.player = EventDistributor.getPlayerFnc(e)
+	local restore = _G.player
+	_G.player = EventDistributor.getPlayerFnc(e) or _G.player
 	if     e.name == defines.events.on_robot_pre_mined then return
 	elseif e.name == defines.events.on_pre_player_mined_item then return
 	elseif e.name == defines.events.on_space_platform_pre_mined then return
@@ -209,7 +219,7 @@ local function on_destroy(e)
 	local handlers = events["on_destroy"]
 	if(not handlers) then return end
 	for _,fnc in pairs(handlers) do fnc(e) end
-	_G.player = nil
+	_G.player = restore
 end
 
 ---@param e NthTickEventData
@@ -232,7 +242,8 @@ end
 
 ---@param e PickerDollies.dolly_moved_entity
 local function on_entity_moved(e)
-	_G.player = EventDistributor.getPlayerFnc(e)
+	local restore = _G.player
+	_G.player = EventDistributor.getPlayerFnc(e) or _G.player
 	local handlers = events["on_entity_moved"]
 	if not handlers then return end
 	local e1 = e ---@cast e1 KuxCoreLib.on_entity_moved
@@ -242,7 +253,7 @@ local function on_entity_moved(e)
 	e1.start_postion = e.start_pos
 
 	for _,fnc in pairs(handlers) do fnc(e1) end
-	_G.player = nil
+	_G.player = restore
 end
 
 --#endregion event handlers
@@ -524,7 +535,7 @@ end
 ---@type fun(event:table):LuaPlayer?
 EventDistributor.getPlayerFnc = function(e)
 	if not e then return nil end
-	if(e.player_index) then return game.get_player(e.player_index) end
+	if(e.player_index) then return game.players[e.player_index] end
 	return nil
 end
 

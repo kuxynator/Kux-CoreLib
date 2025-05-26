@@ -12,7 +12,7 @@ local AsyncTask = {
 	__guid   = "{5a5500ae-79d0-424e-a849-a69cfc4fd7e7}",
 	__origin = "Kux-CoreLib/lib/AsyncTask.lua",
 }
-if KuxCoreLib.__classUtils.cache(AsyncTask) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(AsyncTask)
 -----------------------------------------------------------------------------------------------------------------------
 local Storage = KuxCoreLib.Storage
 local Events  = KuxCoreLib.Events

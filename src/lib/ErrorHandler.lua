@@ -11,7 +11,7 @@ local ErrorHandler = {
 	__isInitialized = false,
 	__on_initialized = {}
 }
-if KuxCoreLib.__classUtils.cache(ErrorHandler) then return KuxCoreLib.__classUtils.cached end
+KuxCoreLib.__classUtils.ctor(ErrorHandler)
 ---------------------------------------------------------------------------------------------------
 local Events = KuxCoreLib.Events
 local EventDistributor = KuxCoreLib.EventDistributor
