@@ -163,7 +163,7 @@ end
 ---
 ---@param player LuaPlayer
 ---<p>CALLED-BY: control.on_loaded</p>
-local function reqest_gui_localization(player)
+function TranslationService.request_gui_localization(player)
 	for _, loc in pairs(gui_localizations) do
 		LocalizationUtils.request_translation(player, loc)
 	end
@@ -252,7 +252,7 @@ Events.on_loaded(function ()
 		local locale = {}
 		for _, player in pairs(game.players) do
 			if not locale[player.locale] then
-				reqest_gui_localization(player)
+				TranslationService.request_gui_localization(player)
 			end
 		end
 	end)
