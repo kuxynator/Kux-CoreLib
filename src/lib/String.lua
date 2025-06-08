@@ -422,6 +422,6 @@ function String.__setGlobals()
 	function _G.str(v) return prettystr_core(v,0,{showNil=true, useQuotes=true, cycleDetectTable={}, printTableRefs=false, recursive=false, maxLevel=0}) end
 end
 
+-----------------------------------------------------------------------------------------------------------------------
 KuxCoreLib.__classUtils.finalize(String)
-
 return String

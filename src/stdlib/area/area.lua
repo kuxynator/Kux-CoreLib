@@ -88,7 +88,7 @@ end
 --- @param area_string string the area to convert
 --- @return BoundingBox
 function Area.from_key(area_string)
-	function n(v) return tonumber(v) or error('Invalid number: ' .. v) end
+	local function n(v) return tonumber(v) or error('Invalid number: ' .. v) end
     local tab = string.split(area_string, ',', false, tonumber)
     local lt = Position.new { x = n(tab[1]), y = n(tab[2]) }
     local rb = Position.new { x = n(tab[3]), y = n(tab[4]) }

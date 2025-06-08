@@ -31,20 +31,20 @@ end -- events are only available in control stage
 
 -- to avoid circular references, the class MUST be defined before require other modules
 KuxCoreLib.lua.asGlobal()
-local Table = KuxCoreLib.Table
-local List = KuxCoreLib.List
-local ModInfo = KuxCoreLib.ModInfo
-local StringBuilder = KuxCoreLib.StringBuilder
-local Storage = KuxCoreLib.Storage
-local PickerDollies = KuxCoreLib.PickerDollies ---@see KuxCoreLib.PickerDollies
+local Table         = KuxCoreLib.require.Table
+local List          = KuxCoreLib.require.List
+local ModInfo       = KuxCoreLib.require.ModInfo
+local StringBuilder = KuxCoreLib.require.StringBuilder
+local Storage       = KuxCoreLib.require.Storage
+local PickerDollies = KuxCoreLib.require.PickerDollies ---@see KuxCoreLib.PickerDollies
 
 ---Dictionary of EventId|EventName, table of function
 local events={}
 
 local isOnLoadedRaised = false
 
----Gets the LuaPlayer for the current event. Managed by KuxCoreLib.EventDistributor
----@type LuaPlayer?
+---Gets the LuaPlayer for the current event. Managed by KuxCoreLib.EventDistributor. Can be `nil`.
+---@type LuaPlayer
 _G.player = _G.player
 
 local mapEventNumberToName = {}

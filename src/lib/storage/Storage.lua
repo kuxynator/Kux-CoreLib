@@ -104,6 +104,111 @@ local function register_events()
 	Events.on_loaded(init_storage)-- only for development
 end
 
+function Storage.set(...)
+	local args = { ... }
+	if #args < 2 then error("Argument count mismatch. set requires at least a name and a value") end
+
+	local value = args[#args]
+	local path = {}
+	for i = 1, #args - 1 do
+		local arg = args[i]
+		if type(arg) == "table" then
+			for _, seg in ipairs(arg) do
+				for part in tostring(seg):gmatch("[^%./]+") do
+					table.insert(path, part)
+				end
+			end
+		else
+			for part in tostring(arg):gmatch("[^%./]+") do
+				table.insert(path, part)
+			end
+		end
+	end
+
+	local t = storage or error("storage is not available")
+	for i = 1, #path - 1 do
+		t[path[i]] = t[path[i]] or {}
+		t = t[path[i]]
+	end
+
+	t[path[#path]] = value
+end
+
+---Get value from storage
+---@param ... (string|table) Path segments (strings with optional "/" or arrays of segments)
+---@return any
+function Storage.get(...)
+	local raw = { ... }
+	local path = {}
+
+	local function split(raw)
+		for _, segment in ipairs(raw) do
+			if type(segment) == "table" then
+				split(segment)
+			else
+				for part in tostring(segment):gmatch("[^%./]+") do
+					path[#path+1] = part
+				end
+			end
+		end
+	end
+	split(raw)
+
+	local t = storage or error("storage is not available")
+	for _, p in ipairs(path) do
+		t = t[p]
+		if t == nil then return nil end
+	end
+
+	return t
+end
+
+---Get boolean value
+---@param ... (string) Path segments
+---@return boolean?
+function Storage.getBool(...) return Storage.get(...) --[[@as boolean?]] end
+
+---Get numeric value
+---@param ... (string) Path segments
+---@return number?
+function Storage.getNumber(...) return Storage.get(...) --[[@as number?]] end
+
+---Get string value
+---@param ... (string) Path segments
+---@return string?
+function Storage.getString(...) return Storage.get(...) --[[@as string?]] end
+
+---Get table value
+---@param ... (string) Path segments
+---@return table?
+function Storage.getTable(...) return Storage.get(...) --[[@as table?]] end
+
+
+-- Storage get/set Test
+if script.active_mods["debugadapter"] then
+	local restore = storage
+	storage = {}
+
+	Storage.set("test.path", "value", 123)
+	assert(storage.test.path.value == 123,  "Storage.set: expected 123 at test.path.value")
+	assert(Storage.get("test.path", "value") == 123,  "Storage.get: expected 123 at test.path.value")
+
+	Storage.set("test", "flag", true)
+	assert(storage.test.flag == true,       "Storage.get: expected true at test.flag")
+	assert(Storage.get("test","flag") == true,       "Storage.get: expected true at test.flag")
+
+	Storage.set("test/flag2", true)
+	assert(storage.test.flag2 == true,       "Storage.get: expected true at test.flag")
+	assert(Storage.get("test/flag2") == true,       "Storage.get: expected true at test.flag")
+
+	Storage.set({"test.nested"}, "inner", "hello")
+	assert(storage.test.nested.inner == "hello", "Storage.get: expected 'hello' at test.nested.inner")
+	assert(Storage.get({"test.nested"},"inner") == "hello", "Storage.get: expected 'hello' at test.nested.inner")
+
+	log("[Storage] get/set test: OK")
+	storage = restore
+end
+
 KuxCoreLib.Events.__on_initialized(register_events)
 
 ---------------------------------------------------------------------------------------------------

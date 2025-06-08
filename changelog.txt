@@ -1,4 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.17.5
+Date: 2025-06-08
+  Info:
+    - requires Factorio 2.0.55
+  Features:
+    - add new method to SettingsData.Extend
+    - add self expanding dictionaries for Dictionary
+    - add (global) getPlayerIndex
+    - add class Storage
+  Changes:
+    - allow Table.toJson in data stage
+---------------------------------------------------------------------------------------------------
 Version: 3.17.4
   Changes:
     - __classUtils caching revised, cache removed, ctor added

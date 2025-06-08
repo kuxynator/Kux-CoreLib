@@ -176,5 +176,5 @@ function ModInfo.new(additionalMembers)
 	--log("ModInfo.new() done: prefix="..ModInfo.prefix)
 	return mod
 end
-
+-----------------------------------------------------------------------------------------------------------------------
 return ModInfo

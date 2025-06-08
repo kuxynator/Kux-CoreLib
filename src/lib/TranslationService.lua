@@ -10,6 +10,7 @@ local TranslationService = {
 }
 KuxCoreLib.__classUtils.ctor(TranslationService)
 -----------------------------------------------------------------------------------------------------------------------
+local Events = KuxCoreLib.require.Events
 local LocalizationUtils = KuxCoreLib.require.LocalizationUtils
 
 ---@class KuxCoreLib.TranslationService.handler
@@ -100,6 +101,25 @@ function TranslationService.getLocalizableString(pt, field)
 	return pt[field] or (supertype[pt.type].."-"..dic[field].."."..pt[dic[field]])
 end
 
+---@return string[]?
+local function extract_keys(lstr)
+	local keys = {}
+	if type(lstr) == "string" then return end -- Nur einzelner Text, kein Key – ignorieren
+	if type(lstr[1]) == "string" and lstr[1] ~= "" then
+		keys[#keys+1]=lstr[1]
+	end
+	for i = 2, #lstr do
+		for _,k in ipairs(extract_keys(lstr[i]) or {}) do keys[#keys+1]=k end
+	end
+end
+
+local function fill_placeholders(text, placeholders)
+	for i, v in ipairs(placeholders) do
+		text = text:gsub("__"..i.."__", v)
+	end
+	return text
+end
+
 
 function request_core(locale, localizable_string, hash)
 	local loc = registry.translated[locale]
@@ -143,11 +163,12 @@ end
 ---
 ---@param player LuaPlayer
 ---<p>CALLED-BY: control.on_loaded</p>
-function TranslationService.reqest_gui_localization(player)
+local function reqest_gui_localization(player)
 	for _, loc in pairs(gui_localizations) do
 		LocalizationUtils.request_translation(player, loc)
 	end
 end
+
 
 ---
 ---@return boolean
@@ -226,6 +247,16 @@ end
 
 Events.on_event(defines.events.on_string_translated, function (e) handler.on_string_translated(e) end)
 Events.on_nth_tick(1, handler.on_nth_tick_1)
+Events.on_loaded(function ()
+	Events.on_next_tick({},function ()
+		local locale = {}
+		for _, player in pairs(game.players) do
+			if not locale[player.locale] then
+				reqest_gui_localization(player)
+			end
+		end
+	end)
+end)
 
 ---@param e EventData.on_player_locale_changed
 Events.on_event(defines.events.on_player_locale_changed, function(e)
@@ -242,6 +273,7 @@ Events.on_event(defines.events.on_player_created, function(e)
 	print (e.tick, "on_player_created", e.player_index)
 end)
 -----------------------------------------------------------------------------------------------------------------------
+KuxCoreLib.__classUtils.finalize(TranslationService)
 return TranslationService
 
 

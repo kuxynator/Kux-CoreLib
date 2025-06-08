@@ -40,6 +40,7 @@ local splitString = function (text)
 end
 
 Version.compare = function (versionA, versionB)
+	--local v0 = helpers.compare_versions(versionA, versionB) -->=2.0.55
 	local a = splitString(versionA)
 	local b = splitString(versionB)
 	for i = 1, 3, 1 do
@@ -51,6 +52,12 @@ Version.compare = function (versionA, versionB)
 		if ax>bx then return 1 end
 	end
 	return 0
+end
+
+do
+	assert(helpers.compare_versions("1.1.1", "1.1.2")==Version.compare("1.1.1", "1.1.2"))
+	assert(helpers.compare_versions("1.1.0", "1.1"  )==Version.compare("1.1.0", "1.1"  ))
+	--not supported: assert(helpers.compare_versions("1.0.0", "1"    )==Version.compare("1.0.0", "1"    ))
 end
 
 ---Creates a new version

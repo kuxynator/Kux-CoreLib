@@ -83,10 +83,9 @@ end
 ---@class KuxCoreLib.SettingsData.Extend
 ---@field prefix string The name prefix for all settings
 ---@overload fun(args:KuxCorelib.ExtendArguments|table):KuxCoreLib.SettingsData.ExtendInstance
--- @operator call(KuxCorelib.ExtendArguments): KuxCoreLib.SettingsData.ExtendInstance
 ---<p>Usage: <br>
----<code> local extend = KuxCoreLib.require.SettingsData.extend
----local x = extend { startup|global|user, order?, prefix?= } </code>
+---<code> local extend = KuxCoreLib.require.SettingsData.extend  </code><br>
+---<code> local x = extend { "startup|global|user", order?, prefix?= } </code>
 SettingsData.extend = {
 	---@type string
 	prefix = nil,
@@ -97,6 +96,11 @@ setmetatable(SettingsData.extend --[[@as table]],{
 	__call = call_extend
 })
 
+---@param args KuxCorelib.ExtendArguments|table
+---@return KuxCoreLib.SettingsData.ExtendInstance
+---<p>Usage: <br>
+---<code> local x = extend.new { "startup|global|user", order?, prefix?= } </code>
+function SettingsData.extend.new(args) return call_extend(nil, args) end
 
 ---@param self KuxCoreLib.SettingsData.ExtendInstance
 ---@return string

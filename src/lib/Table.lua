@@ -123,6 +123,7 @@ function Table.isEmpty(t)
 	-- TODO check this with LuaObject
 end
 
+
 --#region count, length, size
 --[[
 table
@@ -537,6 +538,7 @@ end
 ---see also List.isEqual or Dictionary.isEqual
 function Table.isEqual(t1,t2)
 	if t1 == t2 then return true end
+	if t1 == nil or t2 == nil then return false end
 	for k,v in pairs(t1) do
 	  	if type(v) == "table" and type(t2[k]) == "table" then
 			if not Table.isEqual(v, t2[k]) then return false end
@@ -726,7 +728,7 @@ end
 --- - [Not available in data stage. 'game' is required'.]
 --- - contains a bugfix for game.table_to_json
 function Table.toJson(t)
-	if(not game) then error("Function not available in current stage.") end
+	if isV1 and not game then error("Function not available in current stage.") end
 	local json = (isV1 and game or helpers).table_to_json(t)
 	--BUGFIX for game.table_to_json
 	json=string.gsub(json,"%:inf",":\"#inf\"")

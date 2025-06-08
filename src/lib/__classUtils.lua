@@ -82,7 +82,7 @@ end
 
 local mt__on_initialized = {
 	__call = function(t, fnc)
-		if t.__isInitialized then fnc()
+		if t.parent.__isInitialized then fnc()
 		else table.insert(t, fnc) end
 	end
 }
@@ -103,7 +103,7 @@ local function inject_ctor(obj)
 	obj.__writableMembers{"__isInitialized", "__isGlobal"}
 	obj.__optionalMembers{"__setGlobals"}
 	obj.__isInitialized = false
-	obj.__on_initialized = setmetatable({}, mt__on_initialized)
+	obj.__on_initialized = setmetatable({parent=obj}, mt__on_initialized)
 	obj.asGlobal = function() return __classUtils.asGlobal(obj) end
 	obj.__isGlobal = false
 end
@@ -158,7 +158,7 @@ function __classUtils.finalize(obj)
 	obj.__isInitialized = true
 	protect(obj)
 	if obj.__setGlobals then obj.__setGlobals() end
-	for _, fnc in ipairs(obj.__on_initialized--[[@as table]] ) do fnc() end
+	for _, fnc in ipairs(obj.__on_initialized--[[@as table]] or {} ) do fnc() end
 	return obj
 end
 

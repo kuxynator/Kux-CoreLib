@@ -288,6 +288,27 @@ if(script)then
 	end
 
 
+	---
+	---@param obj string|number|LuaPlayer|LuaGui|LuaGuiElement|table|any
+	---@return integer?
+	_G.getPlayerIndex = function(obj)
+		local t = type(obj)
+		if t == "number" then return obj end
+		if t == "string" then return game.players[obj].index end
+		if t == "userdata" then
+			if obj.object_name=="LuaPlayer" then return obj.index end
+			if obj.object_name=="LuaGui" then return obj.player.index end
+			if obj.object_name=="LuaGuiElement" then return obj.player_index end
+		end
+		if t == "table" then
+			if obj.player_index then return obj.player_index end
+			if obj.player then return obj.player.index end
+		end
+		return getPlayer(obj).index
+		--error("Invalid player argument: "..serpent.block(player))
+	end
+
+
 	rawset(_G, "toElemID", function(arg)
 		error("ElementUtils must be required before use toElemID")
 	end)

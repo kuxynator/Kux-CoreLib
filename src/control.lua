@@ -1,3 +1,5 @@
+if true then return end --NOTE: diabled
+
 require("mod")
 require("lib/@")
 if mods["gvv"] then require("__gvv__.gvv")() end

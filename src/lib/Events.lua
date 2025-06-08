@@ -16,14 +16,13 @@ if(not script) -- events are only available in control stage
 ---------------------------------------------------------------------------------------------------
 --- control stage only ----------------------------------------------------------------------------
 
-local EventDistributor = KuxCoreLib.EventDistributor
+local EventDistributor = KuxCoreLib.require.EventDistributor
 
 local function register_names()
 	Events.getDisplayName = EventDistributor.getDisplayName or error("Invalid state.")
 	Events.registerName   = EventDistributor.registerName or error("Invalid state.")
+	KuxCoreLib.__classUtils.finalize(Events)
 end
-EventDistributor.__on_initialized(register_names)
-
 
 ---@param fnc function
 ---@return boolean
@@ -108,5 +107,8 @@ function Events.on_entity_moved(fnc, filters) return EventDistributor.register("
 function Events.on_custom_input(input_name, fnc) return EventDistributor.register(input_name, fnc) end
 
 ---------------------------------------------------------------------------------------------------
-KuxCoreLib.__classUtils.finalize(Events)
+-- wait für dependencies initialialized
+EventDistributor.__on_initialized(register_names) -- will also finalize this class
+---------------------------------------------------------------------------------------------------
+--wo are not yet done! (X) KuxCoreLib.__classUtils.finalize(Events)
 return Events
