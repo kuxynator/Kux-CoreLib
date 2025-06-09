@@ -7,7 +7,7 @@ local SurfacesMod = {
 	__guid   = "e71cea3a-405c-4bd4-bb24-74b5a216b16e",
 	__origin = "Kux-CoreLib/lib/mods/SurfacesMod.lua",
 }
-KuxCoreLib.__classUtils.ctor(SurfacesMod)
+if not KuxCoreLib.__classUtils.ctor(SurfacesMod) then return self end
 ---------------------------------------------------------------------------------------------------
 ---Provides SurfacesMod in the global namespace
 ---@return KuxCoreLib.SurfacesMod

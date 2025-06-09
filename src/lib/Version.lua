@@ -8,7 +8,7 @@ Version = {
 	__guid   = "{3F3C2EDA-5537-4643-8A33-6B00A0F42C25}",
 	__origin = "Kux-CoreLib/lib/Version.lua",
 }
-KuxCoreLib.__classUtils.ctor(Version)
+if not KuxCoreLib.__classUtils.ctor(Version) then return self end
 ---------------------------------------------------------------------------------------------------
 -- to avoid circular references, the class MUST be defined before require other modules
 local String = KuxCoreLib.String

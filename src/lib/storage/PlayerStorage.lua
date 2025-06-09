@@ -42,7 +42,7 @@ local PlayerStorage = {
 	__guid   = "cb7e6ed5-e48c-4ef8-841c-b3782ab36b72",
 	__origin = "Kux-CoreLib/lib/storage/PlayerStorage.lua"
 }
-KuxCoreLib.__classUtils.ctor(PlayerStorage)
+if not KuxCoreLib.__classUtils.ctor(PlayerStorage) then return self end
 
 ---------------------------------------------------------------------------------------------------
 if(not script) then

@@ -13,7 +13,7 @@ local Template = {
 	__origin = "Kux-CoreLib/lib/Template.lua",
 	__writableMembers={"getDisplayName","registerName"}
 }
-KuxCoreLib.__classUtils.ctor(Template)
+if not KuxCoreLib.__classUtils.ctor(Template) then return self end
 ---------------------------------------------------------------------------------------------------
 
 local EventDistributor = KuxCoreLib.require.EventDistributor

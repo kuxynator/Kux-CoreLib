@@ -10,7 +10,7 @@ local StoragePlayer = {
 	__guid   = "2eab6777-b887-4cf0-922c-41458b63dd2b",
 	__origin = "Kux-CoreLib/lib/storage/StoragePlayer.lua",
 }
-KuxCoreLib.__classUtils.ctor(StoragePlayer)
+if not KuxCoreLib.__classUtils.ctor(StoragePlayer) then return self end
 ---------------------------------------------------------------------------------------------------
 
 --storage.players[].frames

@@ -13,7 +13,7 @@ local DataGrid = {
     ---@type integer The number of entries in the list
     count = 0
 }
-KuxCoreLib.__classUtils.ctor(DataGrid)
+if not KuxCoreLib.__classUtils.ctor(DataGrid) then return self end
 ---------------------------------------------------------------------------------------------------
 
 

@@ -8,7 +8,7 @@ local Dictionary = {
 	__guid   = "{114989BE-8900-4ABF-91F4-BC5D19537396}",
 	__origin = "Kux-CoreLib/lib/Dictionary.lua",
 }
-KuxCoreLib.__classUtils.ctor(Dictionary)
+if not KuxCoreLib.__classUtils.ctor(Dictionary) then return self end
 ---------------------------------------------------------------------------------------------------
 -- to avoid circular references, the class is defined before require other modules
 local Table = KuxCoreLib.Table
@@ -168,7 +168,7 @@ factory.mt_dic_any2 = {
 		return v
 	end
 }
-script.register_metatable("KuxCoreLib-018846cd-6863-4fb0-8f88-0415b2b114e4", factory.mt_dic_any2)
+if script then script.register_metatable("KuxCoreLib-018846cd-6863-4fb0-8f88-0415b2b114e4", factory.mt_dic_any2) end
 
 factory.mt_dic_player_any = {
 	__index = function(t, k)
@@ -182,7 +182,7 @@ factory.mt_dic_player_any = {
 		return v
 	end
 }
-script.register_metatable("KuxCoreLib-cdcca1f2-60a1-4355-b04d-70871bedf230", factory.mt_dic_player_any)
+if script then script.register_metatable("KuxCoreLib-cdcca1f2-60a1-4355-b04d-70871bedf230", factory.mt_dic_player_any) end
 
 factory.mt_dic_player_string_any = {
 	__index = function(t, k)
@@ -196,7 +196,8 @@ factory.mt_dic_player_string_any = {
 		return v
 	end
 }
-script.register_metatable("KuxCoreLib-8caa792c-ade1-4c5c-9bf0-6a274d0bef78", factory.mt_dic_player_string_any)
+if script then script.register_metatable("KuxCoreLib-8caa792c-ade1-4c5c-9bf0-6a274d0bef78", factory.mt_dic_player_string_any) end
+
 
 factory.mt_dic_any3 = {
 	__index = function(t, k)
@@ -205,7 +206,7 @@ factory.mt_dic_any3 = {
 		return v
 	end
 }
-script.register_metatable("KuxCoreLib-cba2c2c8-65db-416e-8434-8a2bb1782f25", factory.mt_dic_any3)
+if script then script.register_metatable("KuxCoreLib-cba2c2c8-65db-416e-8434-8a2bb1782f25", factory.mt_dic_any3) end
 
 factory.mt_dic_any4 = {
 	__index = function(t, k)
@@ -214,7 +215,7 @@ factory.mt_dic_any4 = {
 		return v
 	end
 }
-script.register_metatable("KuxCoreLib-bd38d6c9-0582-4752-802b-6b4b6e8112c1", factory.mt_dic_any4)
+if script then script.register_metatable("KuxCoreLib-bd38d6c9-0582-4752-802b-6b4b6e8112c1", factory.mt_dic_any4) end
 
 function Dictionary.create_byString()
 	local t = {}

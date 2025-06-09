@@ -9,7 +9,7 @@ local Event = {
 	__guid   = "2f60d204-a0b5-4dd1-ae43-63bc65cfbe14",
 	__origin = "Kux-CoreLib/lib/Event.lua",
 }
-KuxCoreLib.__classUtils.ctor(Event)
+if not KuxCoreLib.__classUtils.ctor(Event) then return self end
 
 ---Create a new event.
 ---@param eventIdentifier any

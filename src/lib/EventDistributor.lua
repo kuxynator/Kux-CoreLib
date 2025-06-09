@@ -18,7 +18,7 @@ local EventDistributor = {
 	__guid   = "{ADD81DB1-53B9-4D61-9279-401AD277DBEE}",
 	__origin = "Kux-CoreLib/lib/EventDistributor.lua",
 }
-KuxCoreLib.__classUtils.ctor(EventDistributor)
+if not KuxCoreLib.__classUtils.ctor(EventDistributor) then return self end
 ---------------------------------------------------------------------------------------------------
 
 local util = {}

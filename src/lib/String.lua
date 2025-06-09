@@ -8,7 +8,7 @@ local String = {
 	__guid   = "{0E8BBFAF-73EF-4209-9774-B2CD6A13A296}",
 	__origin = "Kux-CoreLib/lib/String.lua",
 }
-KuxCoreLib.__classUtils.ctor(String)
+if not KuxCoreLib.__classUtils.ctor(String) then return self end
 ---------------------------------------------------------------------------------------------------
 local Table = {} -- we do not load lib/Table here, to avoid circular reference
 function Table.append(t, value)

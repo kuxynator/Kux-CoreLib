@@ -9,7 +9,7 @@ local Events = {
 	__origin = "Kux-CoreLib/lib/Events.lua",
 	__writableMembers={"getDisplayName","registerName"}
 }
-KuxCoreLib.__classUtils.ctor(Events)
+if not KuxCoreLib.__classUtils.ctor(Events) then return self end
 ---------------------------------------------------------------------------------------------------
 if(not script) -- events are only available in control stage
 	then KuxCoreLib.__classUtils.finalize(Events) return Events end

@@ -111,8 +111,8 @@ end
 -- Usage: <br>
 -- local myClass = {__class="myClass"} -- or -- <br>
 -- local myClass = {__module="myClass", __class="prefix.myClass.suffix"} <br>
--- KuxCoreLib.__classUtils.ctor(myClass) -- or -- <br>
--- KuxCoreLib.__classUtils.ctor(myClass, OtheLib) <br>
+-- if not KuxCoreLib.__classUtils.ctor(myClass) then return self end -- or -- <br>
+-- if not KuxCoreLib.__classUtils.ctor(myClass, OtheLib) then return self end <br>
 -- ...<class initializer>
 function __classUtils.ctor(obj, lib)
 	if not obj then error("Argument 'obj' must not be nil!") end
@@ -124,10 +124,14 @@ function __classUtils.ctor(obj, lib)
 	local m = lib.__modules[module_name] -- uses KuxCoreLib.__modules
 	if m then
 		if obj.__guid ~= m.__guid then error("Duplicate module name! " ..obj.__origin.." existing: "..m.__origin) end
-		error("invalid state")
+		--error("Duplicate constructor call for class '"..tostring(obj.__class).."'\n" .."origin: "..tostring(obj.__origin))
+
+		-- to use with: if not KuxCoreLib.__classUtils.ctor(Foo) then return self end
+		_G.self = m; return false
 	end
 	inject_ctor(obj)
 	lib.__modules[module_name] = obj
+	return true
 end
 
 

@@ -8,7 +8,7 @@ local RadarData= {
 	__guid   = "{147056a9-bb45-4f57-b66b-1df4f3321cfd}",
 	__origin = "Kux-CoreLib/lib/data/RadarData.lua",
 }
-KuxCoreLib.__classUtils.ctor(RadarData)
+if not KuxCoreLib.__classUtils.ctor(RadarData) then return self end
 ---------------------------------------------------------------------------------------------------
 
 ---Calculates energy_per_nearby_scan and energy_per_sector based on the given time and energy_usage

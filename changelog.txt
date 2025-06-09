@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.17.7
+  Changes:
+    - __classUtils caching revised, revert changes of 3.17.4
+  Bugfixes:
+    - fix a bug in __classUtils cache
+    - fix a bug in Dictionary
+---------------------------------------------------------------------------------------------------
 Version: 3.17.6
   Bugfixes:
     - fix the 'Member not exists.' crash in TranslationService

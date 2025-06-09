@@ -7,7 +7,7 @@ local ItemData = {
 	__guid   = "{AD869786-5B06-420C-9866-E83F3AB736C0}",
 	__origin = "Kux-CoreLib/lib/data/ItemData.lua",
 }
-KuxCoreLib.__classUtils.ctor(ItemData)
+if not KuxCoreLib.__classUtils.ctor(ItemData) then return self end
 ---------------------------------------------------------------------------------------------------
 local DataRaw = KuxCoreLib.DataRaw
 local Table = KuxCoreLib.Table

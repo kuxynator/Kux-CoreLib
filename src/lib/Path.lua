@@ -6,7 +6,7 @@ local Path = {
 	__guid   = "{6C02BAA4-AA92-4760-95C9-F62C7EF1E373}",
 	__origin = "Kux-CoreLib/lib/Path.lua",
 }
-KuxCoreLib.__classUtils.ctor(Path)
+if not KuxCoreLib.__classUtils.ctor(Path) then return self end
 ---------------------------------------------------------------------------------------------------
 local String = KuxCoreLib.String
 local Table = KuxCoreLib.Table

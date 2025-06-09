@@ -6,7 +6,7 @@ local BigData ={
 	__guid   = "3180d12b-7961-4a00-b425-6baaecb27180",
 	__origin = "Kux-CoreLib/lib/data/BigData.lua",
 }
-KuxCoreLib.__classUtils.ctor(BigData)
+if not KuxCoreLib.__classUtils.ctor(BigData) then return self end
 ---------------------------------------------------------------------------------------------------
 
 

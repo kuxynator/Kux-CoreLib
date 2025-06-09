@@ -7,7 +7,7 @@ local ElementUtils = {
 	__guid   = "08964aca-98c4-4e23-bf18-6d6e6b982e08",
 	__origin = "Kux-CoreLib/lib/ElementUtils.lua",
 }
-KuxCoreLib.__classUtils.ctor(ElementUtils)
+if not KuxCoreLib.__classUtils.ctor(ElementUtils) then return self end
 -----------------------------------------------------------------------------------------------------------------------
 local TranslationService = KuxCoreLib.require.TranslationService
 local LuaGenericPrototype = KuxCoreLib.require.LuaGenericPrototype

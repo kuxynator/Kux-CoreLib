@@ -8,7 +8,7 @@ local LuaGenericPrototype = {
 	__guid   = "c4e0734d-c035-41c4-b03f-7a3341d23739",
 	__origin = "Kux-CoreLib/lib/LuaGenericPrototype.lua",
 }
-KuxCoreLib.__classUtils.ctor(LuaGenericPrototype)
+if not KuxCoreLib.__classUtils.ctor(LuaGenericPrototype) then return self end
 
 -----------------------------------------------------------------------------------------------------------------------
 

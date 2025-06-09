@@ -8,7 +8,7 @@ local Table = {
 	__guid   = "{0a7a6b17-1d2a-4001-a105-2897c4d7f4e6}",
 	__origin = "Kux-CoreLib/lib/Table.lua",
 }
-KuxCoreLib.__classUtils.ctor(Table)
+if not KuxCoreLib.__classUtils.ctor(Table) then return self end
 ---------------------------------------------------------------------------------------------------
 local That = KuxCoreLib.That
 local String = KuxCoreLib.String

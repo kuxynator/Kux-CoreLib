@@ -8,7 +8,7 @@ local FunctionUtils = {
 	__guid   = "{e622bb71-6b8c-40eb-b043-d945a24f653e}",
 	__origin = "Kux-CoreLib/lib/FunctionUtils.lua",
 }
-KuxCoreLib.__classUtils.ctor(FunctionUtils)
+if not KuxCoreLib.__classUtils.ctor(FunctionUtils) then return self end
 -----------------------------------------------------------------------------------------------------------------------
 
 ---@class KuxCoreLib.FunctionUtils.private

@@ -164,7 +164,7 @@ local Trace = {
 		"🛠️",
 	},
 }
-KuxCoreLib.__classUtils.ctor(Trace)
+if not KuxCoreLib.__classUtils.ctor(Trace) then return self end
 ---------------------------------------------------------------------------------------------------
 local Table = KuxCoreLib.Table
 

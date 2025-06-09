@@ -6,7 +6,8 @@ local DataRaw ={
 	__guid   = "92023dde-c5de-476e-8ca5-85270e130774",
 	__origin = "Kux-CoreLib/lib/data/DataRaw.lua",
 }
-KuxCoreLib.__classUtils.ctor(DataRaw)
+
+if not KuxCoreLib.__classUtils.ctor(DataRaw) then return self end
 ---------------------------------------------------------------------------------------------------
 -- TODO FACTORIO 2.0
 

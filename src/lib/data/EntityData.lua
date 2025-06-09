@@ -7,7 +7,7 @@ local EntityData = {
 	__guid   = "{990068A3-AA60-4453-A786-A4F2C7E7CA7F}",
 	__origin = "Kux-CoreLib/lib/data/EntityData.lua",
 }
-KuxCoreLib.__classUtils.ctor(EntityData)
+if not KuxCoreLib.__classUtils.ctor(EntityData) then return self end
 ---------------------------------------------------------------------------------------------------
 local Table= KuxCoreLib.Table
 local DataRaw = KuxCoreLib.DataRaw

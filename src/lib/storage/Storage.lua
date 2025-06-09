@@ -14,7 +14,7 @@ local Storage = {
 	__origin = "Kux-CoreLib/lib/storage/Storage.lua",
 	raw = {}
 }
-KuxCoreLib.__classUtils.ctor(Storage)
+if not KuxCoreLib.__classUtils.ctor(Storage) then return self end
 ---------------------------------------------------------------------------------------------------
 
 local Events = KuxCoreLib.Events

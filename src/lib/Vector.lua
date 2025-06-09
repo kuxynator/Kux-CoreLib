@@ -7,7 +7,7 @@ Vector = {
 	__guid   = "c4d74ac2-ff84-4467-af6d-8ad8a0475d23",
 	__origin = "Kux-CoreLib/lib/Vector.lua",
 }
-KuxCoreLib.__classUtils.ctor(Vector)
+if not KuxCoreLib.__classUtils.ctor(Vector) then return self end
 ---------------------------------------------------------------------------------------------------
 
 function Vector.setmetatable(t)

@@ -10,7 +10,7 @@ local Modules = {
 	__guid   = "{7DB9693F-91FE-406A-9090-0797F785D8F5}",
 	__origin = "Kux-CoreLib/lib/Modules.lua",
 }
-KuxCoreLib.__classUtils.ctor(Modules)
+if not KuxCoreLib.__classUtils.ctor(Modules) then return self end
 ---------------------------------------------------------------------------------------------------
 ---Calls a mthod in each module
 ---@param method string Name of the method to call.
