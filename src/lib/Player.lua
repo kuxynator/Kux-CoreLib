@@ -68,7 +68,7 @@ function Player.setZoomFactor(player, zoomFactor)
 end
 
 ---@class KuxCoreLib.LuaPlayer.set_controller_param : LuaPlayer.set_controller_param
----@field zoom double
+---@field zoom double?
 
 ---@param player LuaPlayer
 ---@param parameter KuxCoreLib.LuaPlayer.set_controller_param

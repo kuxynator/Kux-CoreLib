@@ -150,16 +150,30 @@ function FunctionUtils.getClassName(obj)
 	return name
 end
 
----Gets the full qualified name of the function.
+---[DEPRECATED] Gets the full qualified name of the function.
 ---@param func function
 ---@return string #The full qualified name of the function or nil if not found.
 ---<p>Functions must be registered with <code>FunctionUtils.register_class</code> to be able to get the full name.</p>
+---@deprecated
 function _G.fname(func)
 	--if not func then return nil end
 	if not func then error("name not found") end
 	local info = idx_func_info[func]
 	--if not info then return nil end
 	if not info then error("name not found") end
+	return info.full_name
+end
+
+---Gets the full qualified name of the function.
+---@param func function
+---@return string #The full qualified name of the function or nil if not found.
+---<p>Functions must be registered with <code>FunctionUtils.register_class</code> to be able to get the full name.</p>
+function FunctionUtils.nameof(func)
+	--if not func then return nil end
+	if not func then error("function is nil") end
+	local info = idx_func_info[func]
+	--if not info then return nil end
+	if not info then error("name not found. Check whether FunctionUtils.registerClass or GuiEventDistributor.register_view is called" ) end
 	return info.full_name
 end
 

@@ -143,14 +143,15 @@ end
 ---Calls the function and provides an exception object and terminates with an extended error.
 ---@param f function
 ---@param on_error (fun(KuxCoreLib.Exception):string)?
+---@param skipLevel integer? (defaults to 0)
 ---@return any
 ---<p>Usage: <code>result = call(f, format_exception)</code></p>
-function _G.call(f,on_error)
+function _G.call(f,on_error, skipLevel)
 	local ok, result = xpcall(f, Debug.catchException)
 	if not ok then
 		local ex = enhance_exception(result)
 		local msg = on_error and on_error(ex) or ex.message.."\n"..ex.stack_trace
-		error(msg,2)
+		error(msg, 2 + (skipLevel or 0))
 	end
 	return result
 end

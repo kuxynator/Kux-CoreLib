@@ -313,5 +313,36 @@ if(script)then
 		error("ElementUtils must be required before use toElemID")
 	end)
 
+	---Returns the type of the argument, coded as a string. The possible results of this function are "nil" (a string, not the value nil), "number", "string", "boolean", "table", "function", "thread", and "userdata".
+	---@param v any
+	---@return "boolean"|"function"|"nil"|"number"|"string"|"table"|"thread"|"userdata"
+	function typeof(v) return type(v) end
+
+	---Return the name of the argument
+	---@param v any
+	---@return string
+	---<p>The name depends on type: <br>
+	---for userdata from <code>__object_name</code>, <br>
+	---for tables from <code>__class</code>, <code>__class_name</code> or <code>__object_name</code> (in this order, first non nil), <br>
+	---for functions via <code>fname()</code>(require FunctionUtils). <br>
+	---or <code>nil</code> if no name is found.</p>
+	function nameof(v)
+		local t = type(v)
+		if t=="userdata" then return v.object_name end
+		if t=="table" then return v.__class or v.__class_name or v.object_name or error("no name object") end
+		if t=="function" and KuxCoreLib.__modules.FunctionUtils then return KuxCoreLib.__modules.FunctionUtils.nameof(v) or error("no name function") end
+		error("invalid argument")
+	end
+
+	---@param value any
+	---@param enum table
+	---@return string|nil
+	function _G.getEnumName(value, enum)
+		for name, val in pairs(enum) do
+			if val == value then return name end
+		end
+		return nil
+	end
+
 end -- runtime
 

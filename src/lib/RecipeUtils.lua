@@ -153,7 +153,7 @@ function RecipeUtils.made_in(player, recipe)
 		end
 	end
 
-	function add(entity_name)
+	local function add(entity_name)
 		local entity = prototypes.entity[entity_name]
 		local crafting_time = get_crafting_time(entity)
 		local crafting_time_rounded = math.floor(crafting_time * 100 + 0.5) / 100

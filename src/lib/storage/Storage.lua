@@ -105,12 +105,13 @@ local function register_events()
 end
 
 function Storage.set(...)
-	local args = { ... }
-	if #args < 2 then error("Argument count mismatch. set requires at least a name and a value") end
+	local args = table.pack(...)
+	if args.n < 2 then error("Argument count mismatch. set requires at least a name and a value") end
 
-	local value = args[#args]
+	local value = args[args.n]
 	local path = {}
-	for i = 1, #args - 1 do
+
+	for i = 1, args.n - 1 do
 		local arg = args[i]
 		if type(arg) == "table" then
 			for _, seg in ipairs(arg) do
@@ -127,8 +128,13 @@ function Storage.set(...)
 
 	local t = storage or error("storage is not available")
 	for i = 1, #path - 1 do
-		t[path[i]] = t[path[i]] or {}
-		t = t[path[i]]
+		local key = path[i]
+		if t[key] == nil then
+			t[key] = {}
+		elseif type(t[key]) ~= "table" then
+			error("Path conflict at '" .. key .. "'")
+		end
+		t = t[key]
 	end
 
 	t[path[#path]] = value

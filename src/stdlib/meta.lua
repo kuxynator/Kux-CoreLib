@@ -2,7 +2,9 @@
 
 ---@alias Position  MapPosition -- TODO maybe also TilePosition or ChunkPosition, need deeper check
 
---- math class [TODO: verify memebers generated with ChatGPT]
+--TODO: verify memebers generated with ChatGPT
+
+--- math class
 --- @class math
 --- @field pi number The mathematical constant pi (≈ 3.14159).
 --- @field radianConversion number The conversion factor from degrees to radians.
@@ -34,7 +36,9 @@
 --- @field toradians fun(x: number): number Converts `x` from degrees to radians.
 
 
---- string type [TODO: verify members generated with ChatGPT]
+--TODO: verify members generated with ChatGPT
+
+--- string type
 --- @class string
 --- @field byte fun(s: string, i: number?, j: number?): number, number Returns the internal byte values of the characters in `s` from position `i` to `j`.
 --- @field char fun(...:number): string Converts one or more numbers to characters and returns them as a string.
@@ -53,7 +57,9 @@
 --- @field trim fun(s: string): string Trims whitespace from both ends of `s`.
 --- @field split fun(s: string, pattern: string): table Splits `s` into a table using the given `pattern` as a delimiter.
 
----table  type [TODO: verify members generated with ChatGPT]
+---TODO: verify members generated with ChatGPT
+
+---table  type
 ---@class table
 ---@field insert fun(list: table, pos: integer|nil, value: any) Inserts a value at the end or at a specified position in the table.
 ---@field remove fun(list: table, pos: integer|nil): any Removes the value at a specified index and returns it.

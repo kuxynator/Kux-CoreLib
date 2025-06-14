@@ -1,7 +1,20 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.17.8
+  Features:
+    - add (global) nameof(v) as replacement for fname
+    - add (global) typeof(v) as alias for type
+    - add (global) getEnumName
+    - Colors: add lightgray, gray, darkgray
+  Changes:
+    - add FunctionUtils.nameof as replacement for fname
+    - deprecate (global) fname
+    - add skipFrames paramter to (global) call
+  Bugfixes:
+    - fix Storage.set with nil values
+---------------------------------------------------------------------------------------------------
 Version: 3.17.7
   Changes:
-    - __classUtils caching revised, revert changes of 3.17.4
+    - __classUtils caching revised, revert changes from 3.17.4
   Bugfixes:
     - fix a bug in __classUtils cache
     - fix a bug in Dictionary
