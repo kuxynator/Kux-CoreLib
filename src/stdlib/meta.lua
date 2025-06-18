@@ -46,7 +46,7 @@
 --- @field find fun(s: string, pattern: string, init?: number, plain?: boolean): number, number Finds the first match of `pattern` in `s` and returns its start and end positions.
 --- @field format fun(f: string, ...): string Returns a formatted string, similar to `sprintf` in C.
 --- @field gmatch fun(s: string, pattern: string): fun() Returns an iterator function that matches the `pattern` in `s`.
---- @field gsub fun(s: string, pattern: string, repl: string, n?: number): string, number Replaces occurrences of `pattern` in `s` with `repl`, and optionally limits the number of replacements.
+--- @field gsub fun(s: string, pattern: string, repl: string|function, n?: number): string, number Replaces occurrences of `pattern` in `s` with `repl`, and optionally limits the number of replacements.
 --- @field len fun(s: string): number Returns the length of the string `s`.
 --- @field lower fun(s: string): string Converts `s` to lowercase.
 --- @field match fun(s: string, pattern: string): string Matches the first occurrence of `pattern` in `s` and returns it.

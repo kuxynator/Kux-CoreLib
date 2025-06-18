@@ -125,6 +125,19 @@ end
 ---@field __class string "KuxCoreLib.LuaPlayer"
 ---@field zoom double Gets or sets the zoom factor of the player. If the Kux-Zooming mod is installed, it will use that mod's zoom factor instead.
 
+
+function Player.foreach(f)
+	local restore = _G.player
+	for _, player in pairs(game.players) do
+		if player.valid then
+			_G.player = player
+			if f(player)=="break" then break end
+		end
+	end
+	_G.player = restore
+end
+
+
 local mt_LuaPlayer = {
 	__index = function (self,key)
 		if key == "__class" then return "KuxCoreLib.Player" end

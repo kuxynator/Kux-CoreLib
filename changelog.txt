@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 3.17.9 WIP
+  Features:
+    - Array: new implementation
+    - List: new implementation
+    - Player.foreach
+    - Add Kua - Lua extension methods
+    - (global) fnil, tnil, global_player_using
+    - (global) seqpairs, numpairs, alphapairs
+  Changes:
+    - Array/List implemenation changed! BREAKING CHANGE
+---------------------------------------------------------------------------------------------------
 Version: 3.17.8
   Features:
     - add (global) nameof(v) as replacement for fname

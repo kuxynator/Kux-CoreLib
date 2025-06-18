@@ -344,5 +344,91 @@ if(script)then
 		return nil
 	end
 
+	---A constant 'nil' function reference
+	_G.fnil = function()_="fid{00000000-0000-0000-0000-000000000000}" end
+
+	---A constant 'nil' table reference
+	_G.tnil = {}
+
+
+	---Using _G.player
+	---@param pid PlayerIdentification
+	---@param f function
+	---@return any
+	---<p></p>
+	function _G.global_player_using(pid, f)
+		local player_bak = _G.player
+		_G.player = getPlayer(pid)
+		local result = f()
+		_G.player = player_bak
+		return result
+	end
+
+
+	function seqpairs(t)
+		local keys = {}
+		local len = rawget(t, "__len")
+		if type(len) == "number" then
+			for i = 1, len do
+				if t[i] ~= nil then keys[#keys+1] = i end
+			end
+		end
+		for k in pairs(t) do
+			if type(k) ~= "number" or (not len or k > len) then
+				keys[#keys+1] = k
+			end
+		end
+
+		table.sort(keys, function(a, b)
+			local ta, tb = type(a), type(b)
+			if ta == "number" and tb == "number" then return a < b end
+			if ta == "number" then return true end
+			if tb == "number" then return false end
+			return tostring(a) < tostring(b)
+		end)
+
+		local i = 0
+		return function()
+			i = i + 1
+			local k = keys[i]
+			if not k then return nil end
+			return k, t[k]
+		end, t, nil
+	end
+
+	function numpairs(t)
+		local keys = {}
+		for k in pairs(t) do
+			if type(k) == "number" and t[k] ~= nil then
+				keys[#keys+1] = k
+			end
+		end
+		table.sort(keys)
+		local i = 0
+		return function()
+			i = i + 1
+			local k = keys[i]
+			if not k then return nil end
+			return k, t[k]
+		end, t, nil
+	end
+
+	function alphapairs(t)
+		local keys = {}
+		for k in pairs(t) do
+			if type(k) == "string" and t[k] ~= nil then
+				keys[#keys+1] = k
+			end
+		end
+		table.sort(keys)
+		local i = 0
+		return function()
+			i = i + 1
+			local k = keys[i]
+			if not k then return nil end
+			return k, t[k]
+		end, t, nil
+	end
+
 end -- runtime
 

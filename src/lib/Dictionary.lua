@@ -14,7 +14,7 @@ if not KuxCoreLib.__classUtils.ctor(Dictionary) then return self end
 local Table = KuxCoreLib.Table
 local Assert = KuxCoreLib.That
 local String = KuxCoreLib.String
-local PRIVATE = "71d7bad4-21c1-4148-a979-506c3b02bd9e"
+local PRIVATE = "71d7bad4-21c1-4148-a979-506c3b02bd9e"--unique private field
 
 ---@class KuxCoreLib.Dictionary.factory
 local factory = {}

@@ -1,55 +1,65 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
----Provides a true list which supports ipairs with nil elements
----@class KuxCoreLib.List
+---Provides array functions
+---@class KuxCoreLib.List : KuxCoreLib.Class
 ---@field asGlobal fun():KuxCoreLib.List
 local List = {
 	__class  = "List",
 	__guid   = "aeb0658f-4c33-4a61-a689-49741a5e8fff",
 	__origin = "Kux-CoreLib/lib/List.lua",
+
+    ---@type integer The length of the list
+    length = 0
 }
 if not KuxCoreLib.__classUtils.ctor(List) then return self end
 -----------------------------------------------------------------------------------------------------------------------
----@class KuxCoreLib.List.instance
----@field private __length integer
----@field [integer] any
-local instance_impl = {}
+local Table= KuxCoreLib.require.Table
+local Array = KuxCoreLib.require.Array
+local Assert= KuxCoreLib.require.That
+local String = KuxCoreLib.require.String
 
----@class KuxCoreLib.List.instance.metatable
-local mt = {__class = "KuxCoreLib.List.instance.metatable"}
+local table_o = {
+	remove = table.remove,
+	insert = table.insert,
+	sort = table.sort
+}
 
-function mt.__index(t,k)
-	if type(k)=="number" then return nil
-	elseif instance_impl[k] then return instance_impl[k]
-	else error("Unknown member: " .. tostring(k)) end
+---@class KuxCoreLib.List.Instance
+---@field length integer
+local impl = {}
+
+local function set_length(t, new_length)
+	if new_length<0 then error("new_length mast be positive") end
+	local len = rawget(t,"__len")
+	for i = new_length+1, len, 1 do t[i]=nil end
+	rawset(t,"__len",new_length)
 end
 
-function mt.__newindex(t,k,v)
-	if type(k)=="number" then
-		rawset(t,k,v)
-		rawset(t,"__length", math.max(rawget(t,"__length") or 0, k))
-	else error("Unknown member: " .. tostring(k)) end
+local mt = {__class="KuxCoreLib.List.Metatable"}
+
+
+---Creates a new array
+---@param values any[]?
+---@param maxlength integer?
+---@return KuxCoreLib.List.Instance
+function List.new(values, maxlength)
+	local t = values and Table.shallowCopy(values) or {}
+	setmetatable(t, mt)
+	t.length = math.min(#t, maxlength)
+	return t
 end
 
-function mt.__len(t)
-	return rawget(t, "__length") or 0
+---Converts into array
+---@param t any[]
+---@param length integer?
+---@return KuxCoreLib.List.Instance
+function List.convert(t, length)
+	setmetatable(t, mt) ---@cast t KuxCoreLib.List.Instance
+	t.length = length or #t
+	return t
 end
 
-function mt.__ipairs(t)
-	local i = 0
-	return function()
-		i = i + 1
-		while rawget(t, i) == nil and i <= rawget(t, "__length") do i = i + 1 end
-		if i > rawget(t, "__length") then return nil end
-		return i, rawget(t, i)
-	end
-end
-
------------------------------------------------------------------------------------------------------------------------
---#region: instance implementation
------------------------------------------------------------------------------------------------------------------------
-
-function instance_impl:add(value)
+function impl:add(value)
 	local len = rawget(self, "__length")
 	if rawlen(self) == len then
 		table.insert(self, value)
@@ -59,7 +69,7 @@ function instance_impl:add(value)
 	rawset(self, "__length", len+1)
 end
 
-function instance_impl:addRange(t)
+function impl:addRange(t)
 	local len = rawget(self, "__length")
 	if rawlen(self) == len then
 		for _, v in ipairs(t) do
@@ -75,7 +85,7 @@ function instance_impl:addRange(t)
 	rawset(self, "__length", len)
 end
 
-function instance_impl:insert(index, v)
+function impl:insert(index, v)
 	local len = rawget(self, "__length")
 	if index < 1 then error("index out of range") end
 	if index > len then self[index] = v return end
@@ -89,7 +99,7 @@ function instance_impl:insert(index, v)
 	rawset(self, "__length", len+1)
 end
 
-function instance_impl:removeAt(index)
+function impl:removeAt(index)
 	local len = rawget(self, "__length")
 	if index < 1 or index > len then error("index out of range") end
 	if rawlen(self) == len then table.remove(self, index)
@@ -103,98 +113,113 @@ end
 ---Removes the specified item
 ---@param item any
 ---@return boolean #true if the item has been found and removed; elsewhere false
-function instance_impl:remove(item)
-	local index = instance_impl.indexOf(self, item)
+function impl:remove(item)
+	local index = impl.indexOf(self, item)
 	if index then return false end
-	instance_impl.removeAt(self, index)
+	impl.removeAt(self, index)
 	return true
 end
 
 ---Gets the index of the specified item
 ---@param item any
 ---@return integer #the index of the item; 0 if the item is not found
-function instance_impl:indexOf(item)
+function impl:indexOf(item)
 	for i = 1, rawget(self, "__length"), 1 do
 		if self[i] == item then return i end
 	end
 	return 0
 end
 
----Sorts the list by the specified keys oder function
----@overload fun(self: KuxCoreLib.List.instance, comparator: fun(a: table, b: table): boolean)
----@param self KuxCoreLib.List.instance
----@param ... string Sort keys like "name" or "order:desc"
----<p>a) Sort with keys <code>sort("name", "order:desc") </code></p>
----<p>b) Sort with function <code>sort(my_sort_fnc) </code></p>
-function instance_impl:sort(...)
-	local args = { ... }
-
-	if type(args[1]) == "function" then
-		table.sort(self, args[1]--[[@as fun(a: table, b: table)]] )
-		return
-	end
-
-	table.sort(self, function(a, b)
-		for _, key in ipairs(args) do
-			local field, desc = key:match("([^:]+):?(desc)?")
-			local av = a[field]
-			local bv = b[field]
-			if av ~= bv then
-				if desc then return av > bv
-				else return av < bv
-				end
-			end
-		end
-		return false
-	end)
-end
-
-
----Removes all nil items
-function instance_impl:compress()
-	local len = rawget(self, "__length")
-	local shift=0
-	for i = 1, len do
-		local v = rawget(self, i)
-		if(v) == nil then
-			shift = shift + 1
-		elseif(shift > 0) then
-			rawset(self, i-shift, v)
-			rawset(self, i, nil)
+function impl:compact()
+	local write = 1
+	for read = 1, self.length do
+		local v = rawget(self, read)
+		if v ~= nil then
+			rawset(self, write, v)
+			write = write + 1
 		end
 	end
-	rawset(self, "__length", len-shift)
+	for i = write, self.length do rawset(self, i, nil) end
+	self.length = write - 1
 	return self
 end
 
------------------------------------------------------------------------------------------------------------------------
---#region: static implementation
------------------------------------------------------------------------------------------------------------------------
-
----Creates a new List
----@return KuxCoreLib.List.instance
-function List.new()
-	local obj = {__length=0}
-	setmetatable(obj, mt)
-	return obj
-end
-
-function List.setmetatable(t)
-	setmetatable(t, mt)
-	if rawget(t, "__length") == nil then
-		rawset(t, "__length", 0)
-		local max = 0
-		for k, _ in pairs(t) do if type(k) == "number" and k>max then max = k end end
-		rawset(t, "__length", max)
+function impl:sort(comparator)
+	local nilfirst = comparator(nil,"")
+	local nillast = comparator("",nil)
+	if not ((nilfirst and not nillast) or (not nilfirst and nillast)) then
+		error("This comparator cannot be used for nil order", 2)
 	end
-	return t
+
+	local len = self.length
+	impl.compact(self)
+	local new_len = self.length
+	table_o.sort(self, comparator)
+	if nilfirst then
+		local num_nil = len - new_len
+		for i = new_len, 1, -1 do self[i + num_nil] = self[i] end
+		for i = 1, num_nil do self[i] = nil end
+	end
+	self.length = len
+	return self
 end
+
 
 ---Returns true if the list is nil or empty
 function List.isNilOrEmpty(t) return not t or #t==0 end
 
-if KuxCoreLib.ModInfo.current_stage=="control" then
-	script.register_metatable(mt.__class, mt)
+
+--[ metatable ]----------------------------------------------------------------
+
+function mt.__len(t)
+	return rawget(t,"__len")
+end
+
+function mt.__index(t,k)
+	if k=="length" then return rawget(t,"__len") end
+	--if type(k)==string and impl[k] then return function(...) return impl[k].insert(t, ...) end end
+	if type(k)==string and impl[k] then rawset(t,"__action", k) return t end
+	if type(k)~="number" then error("only numeric indexes are allowed") end
+end
+
+function mt.__newindex(t,k,v)
+	if rawget(t,"length") then set_length(t,v) end
+	if type(k)~="number" then error("only numeric indexes are allowed") end
+end
+
+function mt.__call(t,...)
+	local action = impl[rawget(t["__action]"])] or error("attempt to call a table value", 2)
+	rawset(t,"__action",nil)
+	return action(t,...)
+end
+
+mt.__ipairs = allpairs
+
+mt.__pairs = Array.notnilpairs
+
+if script then script.register_metatable(mt.__class, mt) end
+
+--[ global ]----------------------------------------------------------------
+
+
+--[ guard ]--------------------------------------------------------------------
+
+table["remove"] = function(t, ...) ---@diagnostic disable-line: duplicate-set-field
+	if getmetatable(t) == mt then error("table.remove is not supported for list. use myMyList:removeAt") end
+	--if rawget(t,"__len") then error("table.remove is not supported for arrays") end
+	table_o.remove(t, ...)
+end
+
+table["insert"] = function(t, ...) ---@diagnostic disable-line: duplicate-set-field
+	if getmetatable(t) == mt then error("table.insert is not supported for list. use myMyList:insert") end
+	--if rawget(t,"__len") then error("table.insert is not supported for arrays") end
+	table_o.insert(t, ...)
+end
+
+table["sort"] = function(t, ...) ---@diagnostic disable-line: duplicate-set-field
+	if getmetatable(t) == mt then error("table.sort is not supported for list. use myMyList:sort") end
+	--if rawget(t,"__len") then error("table.sort is not supported for arrays") end
+	table_o.sort(t, ...)
 end
 
 -----------------------------------------------------------------------------------------------------------------------
@@ -213,12 +238,12 @@ if mods["debugadapter"] then --test compress
 	local list = List.new()
 	for i = 1, 5, 1 do list:add(i) end
 	list[2] = nil list[4] = nil
-	list:compress()
+	list:compact()
 	assert(#list == 3)
 	assert(list[1] == 1)
 	assert(list[2] == 3)
 	assert(list[3] == 5)
 	assert(rawlen(list) == 3)
 end
------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 return List
