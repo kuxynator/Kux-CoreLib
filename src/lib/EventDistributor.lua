@@ -38,7 +38,13 @@ local StringBuilder = KuxCoreLib.require.StringBuilder
 local Storage       = KuxCoreLib.require.Storage
 local PickerDollies = KuxCoreLib.require.PickerDollies ---@see KuxCoreLib.PickerDollies
 
+
+---@class EventHandler
+---@field fnc function
+---@field prio integer
+
 ---Dictionary of EventId|EventName, table of function
+---@type {[string|integer]:EventHandler[]|{[string|integer]: EventHandler[]}}
 local events={}
 
 local isOnLoadedRaised = false
@@ -47,8 +53,7 @@ local isOnLoadedRaised = false
 ---@type LuaPlayer
 _G.player = _G.player
 
-local mapEventNumberToName = {}
-for name, value in pairs(defines.events) do mapEventNumberToName[value] = name end
+local mapEventNumberToName = {}; for n, v in pairs(defines.events) do mapEventNumberToName[v] = n end
 
 ---Get name and id of an event
 ---@param eventIdentifier any
@@ -103,7 +108,7 @@ EventDistributor.getDisplayName=getDisplayName
 local function on_init()
 	--print("EventDistributor.on_init")
 	local handlers = events["on_init"]
-	for _,fnc in pairs(handlers or {}) do fnc() end
+	for _,h in ipairs(handlers or {}) do h.fnc() end
 
 	 -- we set the state in advance, the state is valid on next tick
 	ModInfo.isModLoaded = true
@@ -115,7 +120,7 @@ end
 local function on_load()
 	--print("EventDistributor.on_load")
 	local handlers = events["on_load"]
-	for _,fnc in pairs(handlers or {}) do fnc() end
+	for _,h in ipairs(handlers or {}) do h.fnc() end
 
 	if(settings.global["Kux-CoreLib_".."on_load_LogEvents_Summary"].value) then
 		util.log_summary()
@@ -133,7 +138,7 @@ local function on_configuration_changed(e)
 
 	--print("EventDistributor.on_configuration_changed")
 	local handlers = events["on_configuration_changed"]
-	for _,fnc in pairs(handlers or {}) do fnc(e) end
+	for _,h in ipairs(handlers or {}) do h.fnc(e) end
 
 	 -- we set the state in advance, the state is valid on next tick
 	 ModInfo.current_stage = "control-on-loaded"
@@ -143,7 +148,7 @@ end
 local function on_nth_tick(e)
 	--print("EventDistributor.on_nth_tick "..e.nth_tick)
 	local handlers = events["on_nth_tick"][e.nth_tick]
-	for _,fnc in pairs(handlers or {}) do fnc(e) end
+	for _,h in ipairs(handlers or {}) do h.fnc(e) end
 end
 
 
@@ -152,14 +157,23 @@ local function on_event(e)
 	--log("on_event "..getDisplayName(e))
 	local restore = _G.player
 	_G.player = EventDistributor.getPlayerFnc(e) or _G.player
-	local safe = _G.player
+	local playerCheck = _G.player
 	if e.player_index~=nil and not _G.player then error("invalid state") end
 	local eventName, eventId = eventPair(e.name)
 	local key = eventId or eventName
 	local handlers = events[key]
-	for _,fnc in pairs(handlers or {}) do
+	local repeat_handlers = {}
+	for _,h in ipairs(handlers or {}) do
+		h.fnc(e)
+		if _G.player ~= playerCheck then
+			local i = debug.getinfo(h.fnc, "Sl")
+			error("invalid (global) player change detetcted.\n\tin "..i.short_src..":"..i.linedefined)
+		end
+		if e.distributor_repeat_low then repeat_handlers[h.fnc] = true end
+	end
+	for _,fnc in pairs(repeat_handlers or {}) do
 		fnc(e)
-		if _G.player ~= safe then
+		if _G.player ~= playerCheck then
 			local i = debug.getinfo(fnc, "Sl")
 			error("invalid (global) player change detetcted.\n\tin "..i.short_src..":"..i.linedefined)
 		end
@@ -174,7 +188,7 @@ local function on_event_customInput(e)
 	_G.player = EventDistributor.getPlayerFnc(e)
 	local name, number = eventPair(e)
 	local handlers = events[name]
-	for _,fnc in pairs(handlers or {}) do fnc(e) end
+	for _,h in ipairs(handlers or {}) do h.fnc(e) end
 	_G.player = restore
 end
 
@@ -187,7 +201,7 @@ local function on_loaded(e)
 
 	local handlers = events.on_loaded
 	if(handlers) then
-		for _,fnc in pairs(handlers) do fnc(e) end
+		for _,h in ipairs(handlers or {}) do h.fnc(e) end
 	end
 
 	--print("set isLoadRaised=true")
@@ -202,7 +216,7 @@ local function on_built(e)
 	_G.player = EventDistributor.getPlayerFnc(e) or _G.player
 	local handlers = events["on_built"]
 	if(not handlers) then return end
-	for _,fnc in pairs(handlers) do fnc(e) end
+	for _,h in ipairs(handlers or {}) do h.fnc(e) end
 	_G.player = restore
 end
 
@@ -218,7 +232,7 @@ local function on_destroy(e)
 
 	local handlers = events["on_destroy"]
 	if(not handlers) then return end
-	for _,fnc in pairs(handlers) do fnc(e) end
+	for _,h in ipairs(handlers or {}) do h.fnc(e) end
 	_G.player = restore
 end
 
@@ -226,7 +240,7 @@ end
 local function on_timer(e)
 	local handlers = events["on_timer"][e.tick]
 	if(handlers) then
-		for _,fnc in pairs(handlers) do fnc(e) end
+		for _,h in ipairs(handlers or {}) do h.fnc(e) end
 		events["on_timer"][e.tick] = nil
 		if(Table.count(events["on_timer"]) == 0) then
 			EventDistributor.unregister_on_nth_tick(1, on_timer)
@@ -252,7 +266,7 @@ local function on_entity_moved(e)
 	e1.entity = e.moved_entity
 	e1.start_postion = e.start_pos
 
-	for _,fnc in pairs(handlers) do fnc(e1) end
+	for _,h in ipairs(handlers) do h.fnc(e1) end
 	_G.player = restore
 end
 
@@ -279,6 +293,12 @@ local function script_register(eventIdentifier, param)
 	-- can't use check_customInput, because 'game' is not yet available
 end
 
+local function removeHandler(t, fnc)
+	for i, v in ipairs(t) do
+		if v.fnc == fnc then table.remove(t,i) return end
+	end
+end
+
 ---Unregisters an event in script
 ---@param eventIdentifier uint|string
 ---@param ticks uint|nil only required for on_nth_tick
@@ -302,7 +322,7 @@ function EventDistributor.unregister(eventIdentifier, fnc)
 	assert(fnc~=nil, "Invalid Argument. 'fnc' must not be nil!")
 	local eventName, eventId = eventPair(eventIdentifier)
 	local key = eventId or eventName
-	Table.remove(events[key], fnc)
+	removeHandler(events[key], fnc)
 	if(not events[key] or #events[key]>0) then return end
 	if(eventName=="on_built") then
 		EventDistributor.unregister(defines.events.on_built_entity,                 on_built)
@@ -324,26 +344,63 @@ function EventDistributor.unregister(eventIdentifier, fnc)
 	end
 end
 
+local function containsFunction(t,fnc)
+	for i, v in ipairs(t) do
+		if v.fnc == fnc then return i end
+	end
+end
+
+---
+---@param list table
+---@param fnc function
+---@param prio integer
+---@return boolean
+function insertSorted(list, fnc, prio)
+	-- check duplicate
+	for _, h in ipairs(list) do if h.fnc == fnc then return false end end
+
+	-- search position
+	local pos = #list + 1
+	for i = 1, #list do
+		if (list[i].prio or 0) < prio then
+			pos = i
+			break
+		end
+	end
+
+	-- insert
+	table.insert(list, pos, { fnc = fnc, prio = prio })
+	return true
+end
+
 local function register_artifical_event(key, fnc)
-	if(List.isNilOrEmpty(events[key])) then
-		events[key] = {fnc}
+	events[key] = events[key] or {}
+	if #events[key]==0 then
 		--if(eventName ~= "on_loaded") then register(eventIdentifier, param) end
 	else
-		if(Table.contains(events[key], fnc)) then
+		if(containsFunction(events[key], fnc)) then
 			error("Multiple registration of same event is not supported. name: '"..key.."'")
 			--TODO: allow reregister the event
 			return false
 		end
-		table.insert(events[key], fnc)
 	end
+	local r insertSorted(events[key], fnc, 0); return r --avoid fucking tail calls!! who came up with this nonsense?
+end
+
+---
+---@param prio nil|"low"|"hight"|integer
+---@return integer
+local function toPrio(prio)
+	return prio=="low" and -1 or  prio=="hight" and 1 or prio or 0 --[[@as integer]]
 end
 
 ---Registers an event
 ---@param eventIdentifier integer|uint|string|defines.events|table
 ---@param fnc function
 ---@param arg any Optional parameter, depends on eventIdentifier (filter)
+---@param prio nil|"low"|"hight"|integer
 ---@return boolean #true if succesfully registered else false
-function EventDistributor.register (eventIdentifier, fnc, arg)
+function EventDistributor.register (eventIdentifier, fnc, arg, prio)
 	assert(eventIdentifier~=nil,  "Invalid Argument. 'eventIdentifier' must not be nil.")
 	assert(fnc~=nil,              "Invalid Argument. 'fnc' must not be nil.")
 	assert(type(fnc)=="function", "Invalid Argument. 'fnc' must be a function.")
@@ -358,40 +415,37 @@ function EventDistributor.register (eventIdentifier, fnc, arg)
 
 	local eventName, eventId = eventPair(eventIdentifier)
 	local key = eventId or eventName
-	if    (eventName=="nth_tick"  ) then error("Argument out of range. name: eventIdentifier, value: "..eventIdentifier)
-	elseif(eventName=="on_loaded" ) then EventDistributor.register_nth_tick(1, on_loaded)
-	elseif(eventName=="on_next_tick" ) then EventDistributor.register_on_next_tick(arg, fnc)
-	elseif(eventName=="on_timer"  ) then error("Argument out of range. name: eventIdentifier, value: "..eventIdentifier)
-	elseif(eventName=="on_built"  ) then EventDistributor.register_on_built(arg, fnc); return true
-	elseif(eventName=="on_destroy") then EventDistributor.register_on_destroy(arg, fnc); return true
+	if    (eventName=="nth_tick"       ) then error("Argument out of range. name: eventIdentifier, value: "..eventIdentifier)
+	elseif(eventName=="on_loaded"      ) then EventDistributor.register_nth_tick(1, on_loaded)
+	elseif(eventName=="on_next_tick"   ) then EventDistributor.register_on_next_tick(arg, fnc)
+	elseif(eventName=="on_timer"       ) then error("Argument out of range. name: eventIdentifier, value: "..eventIdentifier)
+	elseif(eventName=="on_built"       ) then EventDistributor.register_on_built(arg, fnc); return true
+	elseif(eventName=="on_destroy"     ) then EventDistributor.register_on_destroy(arg, fnc); return true
 	elseif(eventName=="on_entity_moved") then EventDistributor.register_on_entity_moved(fnc, arg) return true
 	end
-	if(List.isNilOrEmpty(events[key])) then
-		events[key] = {fnc}
-		if(eventName ~= "on_loaded") then script_register(eventIdentifier, arg) end
-	else
-		if(Table.contains(events[key], fnc)) then return false end
-		table.insert(events[key], fnc)
+
+	local no_script_register={on_loaded=true}
+	events[key] = events[key] or {}
+	if(#events[key] == 0) then
+		if not no_script_register[eventName] then script_register(eventIdentifier, arg) end
 	end
-	return true
+	return insertSorted(events[key], fnc, toPrio(prio))
 end
 
 ---Registers an on_nth_tick event
 ---@param ticks uint
 ---@param fnc function
+---@param prio nil|"low"|"hight"|integer
 ---@return boolean #true if succesfully registered else false
-function EventDistributor.register_nth_tick(ticks, fnc)
+function EventDistributor.register_nth_tick(ticks, fnc, prio)
 	--print("EventDistributor.register "..getDisplayName("on_nth_tick"))
 	assert(type(fnc)=="function", "Invalid Argument. 'fnc' must be a function.")
-	if not events["on_nth_tick"] then events["on_nth_tick"] = {} end
-	if (List.isNilOrEmpty(events["on_nth_tick"][ticks])) then
-		events["on_nth_tick"][ticks] = {fnc}
+	events["on_nth_tick"] = events["on_nth_tick"] or {}
+	events["on_nth_tick"][ticks] = events["on_nth_tick"][ticks] or {}
+	if #events["on_nth_tick"][ticks] == 0 then
 		script_register("on_nth_tick",ticks)
-	else
-		if(Table.contains(events["on_nth_tick"][ticks], fnc))  then return false end
-		table.insert(events["on_nth_tick"][ticks], fnc)
 	end
-	return true
+	return insertSorted(events["on_nth_tick"][ticks],fnc,toPrio(prio))
 end
 
 ---Registers an on_nth_tick event
@@ -400,7 +454,7 @@ end
 function EventDistributor.unregister_on_nth_tick(ticks, fnc)
 	--print("EventDistributor.unregister_on_nth_tick "..tick)
 	assert(type(fnc)=="function", "Invalid Argument. 'fnc' must be a function.")
-	Table.remove(events["on_nth_tick"][ticks], fnc)
+	removeHandler(events["on_nth_tick"][ticks], fnc)
 	if(#events["on_nth_tick"][ticks]>0) then return end
 	unregister("on_nth_tick",ticks)
 end
@@ -408,20 +462,18 @@ end
 ---Registers an on_timer
 ---@param tick uint the number of ticks after the event is raised.
 ---@param fnc function
+---@param prio nil|"low"|"hight"|integer
 ---@return boolean #true if succesfully registered else false
-function EventDistributor.register_on_timer(tick, fnc)
+function EventDistributor.register_on_timer(tick, fnc, prio)
 	assert(type(tick)=="number", "Invalid Argument. 'tick' must be a integer.")
 	assert(type(fnc)=="function", "Invalid Argument. 'fnc' must be a function.")
 	tick = tick + game.tick
-	if not events["on_timer"] then events["on_timer"] = {} end
-	if (List.isNilOrEmpty(events["on_timer"][tick])) then
-		events["on_timer"][tick] = {fnc}
+	events["on_timer"] = events["on_timer"] or {}
+	events["on_timer"][tick] = events["on_timer"][tick] or {}
+	if (#events["on_timer"][tick]==0) then
 		EventDistributor.register_nth_tick(1, on_timer)
-	else
-		if(Table.contains(events["on_timer"][tick], fnc)) then return false end
-		table.insert(events["on_timer"][tick], fnc)
 	end
-	return true
+	return insertSorted(events["on_timer"][tick], fnc, toPrio(prio))
 end
 
 ---@type {[uint]:{fnc:function,state:any}[]}
@@ -546,16 +598,16 @@ function util.log_summary()
 		if(Table.isNilOrEmpty(v1)) then goto next end
 		if(key=="on_nth_tick") then
 			sb:appendLine("  " .. getDisplayName(key))
-			for k2, v2 in pairs(v1) do
+			for k2, v2 in ipairs(v1) do
 				if(not Table.isNilOrEmpty(v2)) then sb:appendLine("    " ..k2) end
 				for _, v3 in ipairs(v2) do
-					sb:appendLine("      " .. debug.getinfo(v3,"S").short_src)
+					sb:appendLine("      " .. debug.getinfo(v3.fnc,"S").short_src)
 				end
 			end
 		else
 			sb:appendLine("  " .. getDisplayName(key))
 			for _, v3 in ipairs(v1) do
-				sb:appendLine("      " .. debug.getinfo(v3,"S").short_src)
+				sb:appendLine("      " .. debug.getinfo(v3.fnc,"S").short_src)
 			end
 		end
 		::next::

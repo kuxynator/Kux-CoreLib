@@ -14,7 +14,7 @@ if not KuxCoreLib.__classUtils.ctor(StoragePlayers) then return self end
 ---------------------------------------------------------------------------------------------------
 local Storage = KuxCoreLib.Storage
 local StoragePlayer = KuxCoreLib.StoragePlayer
-local Player = KuxCoreLib.Player
+local Player = KuxCoreLib.require.Player
 
 local mt = {}
 

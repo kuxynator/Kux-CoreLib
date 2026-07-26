@@ -1,4 +1,5 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
+local collection_util = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/collections/_collection_util") --[[@as collection_util]]
 
 ---DRAFT Provides Dictionary functions
 ---@class KuxCoreLib.Dictionary : KuxCoreLib.Class
@@ -10,10 +11,8 @@ local Dictionary = {
 }
 if not KuxCoreLib.__classUtils.ctor(Dictionary) then return self end
 ---------------------------------------------------------------------------------------------------
--- to avoid circular references, the class is defined before require other modules
-local Table = KuxCoreLib.Table
-local Assert = KuxCoreLib.That
-local String = KuxCoreLib.String
+
+local table = collection_util.table_o
 local PRIVATE = "71d7bad4-21c1-4148-a979-506c3b02bd9e"--unique private field
 
 ---@class KuxCoreLib.Dictionary.factory
@@ -108,6 +107,7 @@ end
 
 ---@class KuxCoreLib.Dictionary.Metatable
 local mt = {
+	__guid = "{43d10f7b-d34f-494b-a9c6-5fd9efa70908}",
 	__class = "KuxCoreLib.Dictionary.Metatable"
 }
 
@@ -131,9 +131,7 @@ function mt.__pairs(t)
 	return iter, t, nil
 end
 
-if KuxCoreLib.ModInfo.current_stage == "control" then
-	script.register_metatable("KuxCoreLib.Dictionary.Metatable", mt)
-end
+collection_util.register_metatable_and_guard(mt)
 
 -----------------------------------------------------------------------------------------------------------------------
 ---#region: static implementation
@@ -162,15 +160,17 @@ end
 
 
 factory.mt_dic_any2 = {
+	__guid = "{018846cd-6863-4fb0-8f88-0415b2b114e4}",
 	__index = function(t, k)
 		local v = {}
 		t[k] = v
 		return v
 	end
 }
-if script then script.register_metatable("KuxCoreLib-018846cd-6863-4fb0-8f88-0415b2b114e4", factory.mt_dic_any2) end
+if script then script.register_metatable(factory.mt_dic_any2.__guid, factory.mt_dic_any2) end
 
 factory.mt_dic_player_any = {
+	__guid = "{cdcca1f2-60a1-4355-b04d-70871bedf230}",
 	__index = function(t, k)
 		local playerIndex
 		if type(k) == "number" then playerIndex = k
@@ -182,9 +182,10 @@ factory.mt_dic_player_any = {
 		return v
 	end
 }
-if script then script.register_metatable("KuxCoreLib-cdcca1f2-60a1-4355-b04d-70871bedf230", factory.mt_dic_player_any) end
+if script then script.register_metatable(factory.mt_dic_player_any.__guid, factory.mt_dic_player_any) end
 
 factory.mt_dic_player_string_any = {
+	__guid = "{8caa792c-ade1-4c5c-9bf0-6a274d0bef78}",
 	__index = function(t, k)
 		local playerIndex
 		if type(k) == "number" then playerIndex = k
@@ -196,26 +197,28 @@ factory.mt_dic_player_string_any = {
 		return v
 	end
 }
-if script then script.register_metatable("KuxCoreLib-8caa792c-ade1-4c5c-9bf0-6a274d0bef78", factory.mt_dic_player_string_any) end
+if script then script.register_metatable(factory.mt_dic_player_string_any.__guid, factory.mt_dic_player_string_any) end
 
 
 factory.mt_dic_any3 = {
+	__guid = "{cba2c2c8-65db-416e-8434-8a2bb1782f25}",
 	__index = function(t, k)
 		local v = setmetatable({}, factory.mt_dic_any2)
 		t[k] = v
 		return v
 	end
 }
-if script then script.register_metatable("KuxCoreLib-cba2c2c8-65db-416e-8434-8a2bb1782f25", factory.mt_dic_any3) end
+if script then script.register_metatable(factory.mt_dic_any3.__guid, factory.mt_dic_any3) end
 
 factory.mt_dic_any4 = {
+	__guid = "{bd38d6c9-0582-4752-802b-6b4b6e8112c1}",
 	__index = function(t, k)
 		local v = setmetatable({}, factory.mt_dic_any3)
 		t[k] = v
 		return v
 	end
 }
-if script then script.register_metatable("KuxCoreLib-bd38d6c9-0582-4752-802b-6b4b6e8112c1", factory.mt_dic_any4) end
+if script then script.register_metatable(factory.mt_dic_any4.__guid, factory.mt_dic_any4) end
 
 function Dictionary.create_byString()
 	local t = {}

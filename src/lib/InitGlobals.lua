@@ -5,6 +5,12 @@
 
 --NOTE: KuxCoreLib.require.Xxy does not work here!
 
+require("Kua")
+
+---@class KuxCoreLib.Globals.private
+local this = {}
+
+
 ---@type "factorio"|"local" Gets the current environment
 _G.evironment = "factorio"
 
@@ -66,38 +72,38 @@ else
 	}
 end
 
-if(script)then
+
+---@param value any
+---@param enum table
+---@return string|nil
+function _G.getEnumName(value, enum)
+	for name, val in pairs(enum) do
+		if val == value then return name end
+	end
+	return nil
+end
+
+---A constant 'nil' function reference
+_G.fnil = function()_="fid{00000000-0000-0000-0000-000000000000}" end
+
+local tnil_mt = {
+	__index=function (t,k) return k=="is_nil" and true or  k=="isNil" and true or nil end,
+	__newindex=function () error("attempt to change a read-only object") end
+}
+---A constant 'nil' table reference
+---@class tnil
+---@field is_nil true
+---@field isNil true
+_G.tnil = setmetatable({}, tnil_mt)
+if script then script.register_metatable("{a405b7de-019e-473f-80ef-26df77c00fcd}",tnil_mt) end
+
+-----------------------------------------------------------------------------------------------------------------------
+--#region: runtime
+-----------------------------------------------------------------------------------------------------------------------
+
+if script then
 
 	local RecipeWithQuality = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/RecipeWithQuality")
-
-	---@param entity LuaEntity
-	---@return KuxCoreLib.RecipeWithQuality?
-	function __getRecipe(entity)
-		-- 'get_recipe' can only be used if this is crafting-machine
-		-- 'previous_recipe' can only be used if this is Furnace
-
-		-- try get_recipe for (crafting-machine->) assembling-machine|furnace|rocket-silo
-		if entity.type == "assembling-machine" or entity.type == "furnace"  or entity.type == "rocket-silo" then
-			local r,qp = entity.get_recipe();
-			if r then return RecipeWithQuality.new(r,qp) end
-		end
-
-		--fallback: try previous_recipe for furnace
-		if entity.type == "furnace" then
-			local pri = entity.previous_recipe --> RecipeIDAndQualityIDPair?
-			if not pri then return nil end
-			local force = getForce(entity.force)
-			local r = entity.previous_recipe.name -- RecipeIDAndQualityIDPair.name ->  RecipeID:LuaRecipePrototype|LuaRecipe|string
-			if type(r) == "string" then r = force.recipes[r]
-			elseif type(r) ~= "userdata" then r = force.recipes[r.name]
-			end
-			local q = pri.quality
-			if type(q) == "string" then q = prototypes.quality[q] end
-
-			return RecipeWithQuality.new(r,q)
-		end
-		return nil
-	end
 
 	---Gets a value indicating wether `value` is a table or userdata
 	---@param value any
@@ -117,15 +123,17 @@ if(script)then
 	---@param prop string?
 	---@param returnNilOnError boolean?
 	---@return any
+	---@return string? error_message The reason why the result is nil
 	local function getLuaObject(var, object_name, prop, returnNilOnError)
 		if var == nil then
-			return nil
+			local msg = "argument was nil"
+			if returnNilOnError then return nil, msg else error(msg) end
 		elseif is_obj(var, "LuaEntity") then ---@cast var LuaEntity
 			if     object_name == "LuaEntity"  then var = var
 			elseif object_name == "LuaSurface" then var = var.surface
 			elseif object_name == "LuaForce"   then var = var.force
 			elseif object_name == "LuaPlayer"  then var = var.last_user
-			elseif object_name == "LuaRecipe"  then var = __getRecipe(var)
+			elseif object_name == "LuaRecipe"  then var = _G.getRecipeWithQualityFromEntity(var)
 			else error("Invalid parameter") end
 		elseif is_obj(var, "LuaPlayer") then ---@cast var LuaPlayer
 			var =  object_name == "LuaPlayer"  and var
@@ -157,12 +165,12 @@ if(script)then
 			if field_var then return getLuaObject(field_var, object_name, prop, returnNilOnError) end
 		end
 		if obj == nil then
-			if returnNilOnError then return nil end
-			error("Invalid input: "..serpent.block(var))
+			local msg = "Invalid input: "..serpent.line(var)
+			if returnNilOnError then return nil, msg else error(msg) end
 		end
 		if not obj.valid then
-			if returnNilOnError then return nil end
-			error("Invalid "..object_name)
+			local msg = "Invalid "..object_name
+			if returnNilOnError then return nil, msg else error(msg) end
 		end
 		if prop == nil then return obj end
 		return obj[prop]
@@ -176,61 +184,182 @@ if(script)then
 	---@return string
 	function _G.getPlayerName(var) return getLuaObject(var, "LuaPlayer", "name")--[[@as string]] end
 
-	---@param var LuaPlayerId
-	---@return LuaPlayer
-	---@overload fun(var:{player_index:number}):LuaPlayer
-	---@overload fun(var:{player:LuaPlayer}):LuaPlayer
-	function _G.getPlayer(var) return getLuaObject(var, "LuaPlayer", nil)--[[@as LuaPlayer]] end
+		---
+	---@param obj string|number|LuaPlayer|LuaGui|LuaGuiElement|table|any
+	---@return integer?
+	_G.getPlayerIndex = function(obj)
+		local t = type(obj)
+		if t == "number" then return obj end
+		if t == "string" then return game.players[obj].index end
+		if t == "userdata" then
+			if obj.object_name=="LuaPlayer" then return obj.index end
+			if obj.object_name=="LuaGui" then return obj.player.index end
+			if obj.object_name=="LuaGuiElement" then return obj.player_index end
+		end
+		if t == "table" then
+			if obj.player_index then return obj.player_index end
+			if obj.player then return obj.player.index end
+		end
+		return getPlayer(obj).index
+		--error("Invalid player argument: "..serpent.block(player))
+	end
 
-	---@param var LuaPlayerId --{player_index:number}|{player:LuaPlayer}
-	---@return LuaPlayer?
-	function _G.getPlayerOrNil(var) return getLuaObject(var, "LuaPlayer", nil, true)--[[@as LuaPlayer?]] end
+	---@param var LuaPlayerId
+	---@return LuaPlayer? player
+	---@return string? error_message The error message if result is nil
+	---@overload fun(var:{player_index:number}):LuaPlayer,string?
+	---@overload fun(var:{player:LuaPlayer}):LuaPlayer,string?
+	function _G.getPlayer(var) return getLuaObject(var, "LuaPlayer", nil) end
 
 	---@param var LuaSurfaceId|LuaEntity|LuaPlayer|LuaPlanet
 	---@return string
-	function _G.getSurfaceName(var) return getLuaObject(var, "LuaSurface", "name")--[[@as string]] end
+	---@return string? error_message The error message if result is nil
+	function _G.getSurfaceName(var) return getLuaObject(var, "LuaSurface", "name") end
 
 	---@param var LuaSurfaceId|LuaEntity|LuaPlayer|LuaPlanet
 	---@return LuaSurface
-	function _G.getSurface(var) return getLuaObject(var, "LuaSurface", nil)--[[@as LuaSurface]] end
-
-	---@param var LuaSurfaceId|LuaEntity|LuaPlayer|LuaPlanet
-	---@return LuaSurface?
-	function _G.getSurfaceOrNil(var) return getLuaObject(var, "LuaSurface", nil, true)--[[@as LuaSurface?]] end
+	---@return string? error_message The error message if result is nil
+	function _G.getSurface(var) return getLuaObject(var, "LuaSurface", nil) end
 
 	---@param var LuaForceId|LuaEntity|LuaPlayer
 	---@return string
-	function _G.getForceName(var) return getLuaObject(var, "LuaForce", "name")--[[@as string]] end
+	---@return string? error_message The error message if result is nil
+	function _G.getForceName(var) return getLuaObject(var, "LuaForce", "name") end
 
 	---@param var LuaForceId|LuaEntity|LuaPlayer
 	---@return LuaForce
-	function _G.getForce(var) return getLuaObject(var, "LuaForce", nil)--[[@as LuaForce]] end
-
-	---@param var LuaForceId|LuaEntity|LuaPlayer
-	---@return LuaForce?
-	function _G.getForceOrNil(var) return getLuaObject(var, "LuaForce", nil, true)--[[@as LuaForce?]] end
-
+	---@return string? error_message The error message if result is nil
+	function _G.getForce(var) return getLuaObject(var, "LuaForce", nil) end
 
 	---@param var LuaRecipe|string|LuaEntity
 	---@return string
-	function _G.getRecipeName(var) return getLuaObject(var, "LuaRecipe", "name")--[[@as string]] end
+	---@return string? error_message The error message if result is nil
+	function _G.getRecipeName(var) return getLuaObject(var, "LuaRecipe", "name") end
 
 	---@param var LuaRecipe|string|LuaEntity
 	---@return LuaRecipe
-	function _G.getRecipe(var) return getLuaObject(var, "LuaRecipe", nil)--[[@as LuaRecipe]] end
-
-	---@param var LuaRecipe|string|nil|LuaEntity
-	---@return LuaRecipe?
-	function _G.getRecipeOrNil(var) return getLuaObject(var, "LuaRecipe", nil, true)--[[@as LuaRecipe?]] end
+	---@return string? error_message The error message if result is nil
+	function _G.getRecipe(var) return getLuaObject(var, "LuaRecipe", nil) end
 
 	-- getRecipe can not work in all case (string -> LuaRecipe) Which force is used?
 
+	---@param entity LuaEntity
+	---@return LuaRecipe? recipe
+	---@return string? err
+	function _G.getRecipeFromEntity(entity)
+		if entity.type == "assembling-machine" or entity.type == "furnace" or entity.type == "rocket-silo" then
+		-- 'get_recipe' can only be used if this is crafting-machine
+			local recipe, quality_prototype = entity.get_recipe();
+			if recipe then return recipe end
+		end
+		if entity.type == "furnace" then
+		-- 'previous_recipe' can only be used if this is Furnace
+			if not entity.previous_recipe then return nil end
+			local r, err = this.RecipeID_to_LuaRecipe(entity.previous_recipe.name, entity.force)
+			if not r then return nil,err end
+			return r
+		end
+		return nil, "no recipe available. entity: "..entity.name .." ("..entity.type..")"
+	end
+
+		---@param entity LuaEntity
+	---@return LuaRecipe?
+	---@return LuaQualityPrototype?
+	---@return string?
+	function _G.getRecipeAndQualityFromEntity(entity)
+		if entity.type == "assembling-machine" or entity.type == "furnace" or entity.type == "rocket-silo" then
+		-- 'get_recipe' can only be used if this is crafting-machine
+			local recipe, quality_prototype = entity.get_recipe();
+			if recipe then return recipe, quality_prototype end
+		end
+		if entity.type == "furnace" then
+		-- 'previous_recipe' can only be used if this is Furnace
+			if not entity.previous_recipe then return nil end
+			local r, err = this.RecipeID_to_LuaRecipe(entity.previous_recipe.name, entity.force)
+			if not r then return nil,nil,err end
+			local q, err = this.QualityID_to_LuaQualityPrototype(entity.previous_recipe.quality)
+			if not q then return nil,nil,err end
+			return r,q
+		end
+		return nil
+	end
+
+	---@param entity LuaEntity
+	---@return KuxCoreLib.RecipeWithQuality?
+	function _G.getRecipeWithQualityFromEntity(entity)
+		-- 'get_recipe' can only be used if this is crafting-machine
+		-- 'previous_recipe' can only be used if this is Furnace
+
+		-- try get_recipe for (crafting-machine->) assembling-machine|furnace|rocket-silo
+		if entity.type == "assembling-machine" or entity.type == "furnace"  or entity.type == "rocket-silo" then
+			local r,qp = entity.get_recipe();
+			if r then return RecipeWithQuality.new(r,qp) end
+		end
+
+		--fallback: try previous_recipe for furnace
+		if entity.type == "furnace" then
+			local pri = entity.previous_recipe --> RecipeIDAndQualityIDPair?
+			if not pri then return nil end
+			local force = getForce(entity.force)
+			local r = entity.previous_recipe.name -- RecipeIDAndQualityIDPair.name ->  RecipeID:LuaRecipePrototype|LuaRecipe|string
+			if type(r) == "string" then r = force.recipes[r]
+			elseif type(r) ~= "userdata" then r = force.recipes[r.name]
+			end
+			local q = pri.quality
+			if type(q) == "string" then q = prototypes.quality[q] end
+
+			return RecipeWithQuality.new(r,q)
+		end
+		return nil
+	end
+
+	---
+	---@param recipeId RecipeID
+	---@param force ForceID
+	---@return LuaRecipe?
+	---@return string?
+	function this.RecipeID_to_LuaRecipe(recipeId, force)
+		--RecipeID : LuaRecipePrototype|LuaRecipe|string
+		local type = type(recipeId)
+		local recipe_name
+		if type=="nil" then return nil, "argument is nil"
+		elseif type=="userdata" and recipeId.object_name=="LuaRecipe" then
+			return recipeId
+		elseif type=="string" then ---@cast recipeId string
+			if not prototypes[recipeId] then error("recipe name not valid") end
+			recipe_nae = recipeId
+		elseif type=="userdata" and recipeId.object_name=="LuaQualityPrototype" then
+			recipe_name = recipeId.name
+		else
+			return nil, "invalid argument"
+		end
+
+		force,err = getForce(force)
+		if force == nil and _G.player~=nil then force=player.force end
+		if not force then return nil, "no force available" end
+		local r = force.recipes[recipe_name]
+		if not r then return nil, "recipe not valid for force" end
+		return r
+	end
+
+	---
+	---@param qualityId QualityID
+	---@return LuaQualityPrototype?
+	---@return string? err
+	function this.QualityID_to_LuaQualityPrototype(qualityId)
+		-- QualityID :: LuaQualityPrototype | string
+		local type = type(qualityId)
+		if type=="nil" then return nil, "argument is nil"
+		elseif type=="string" then return prototypes.quality[qualityId], prototypes.quality[qualityId]==nil and "quality not exists" or nil
+		elseif type=="userdata" and qualityId.object_name=="LuaQualityPrototype" then return qualityId
+		else return nil, "invalid argument" end
+	end
 
 	---
 	---@param arg ElemID|Ingredient|Product|string|LuaEntity|LuaItem|LuaRecipe|LuaTechnology|LuaObject|RecipeInfo|SelectedPrototypeData
 	---@param expected_type string? -- Can also contain multiple types separated by "|"
 	---@return any
-	---@return string?
+	---@return string? type
 	function getPrototypeAndCategory(arg, expected_type)
 		if not arg then return nil, nil end
 		local name, types
@@ -287,33 +416,56 @@ if(script)then
 		error("Invalid name or type not found")
 	end
 
-
-	---
-	---@param obj string|number|LuaPlayer|LuaGui|LuaGuiElement|table|any
-	---@return integer?
-	_G.getPlayerIndex = function(obj)
-		local t = type(obj)
-		if t == "number" then return obj end
-		if t == "string" then return game.players[obj].index end
-		if t == "userdata" then
-			if obj.object_name=="LuaPlayer" then return obj.index end
-			if obj.object_name=="LuaGui" then return obj.player.index end
-			if obj.object_name=="LuaGuiElement" then return obj.player_index end
-		end
-		if t == "table" then
-			if obj.player_index then return obj.player_index end
-			if obj.player then return obj.player.index end
-		end
-		return getPlayer(obj).index
-		--error("Invalid player argument: "..serpent.block(player))
-	end
-
-
 	rawset(_G, "toElemID", function(arg)
+		-- do simple coversion only. for full conversion we need ElementUtils
+		if type(arg)=="nil" then return nil end
+		if type(arg)=="string" and prototypes.item[arg] then return {name = arg, type="item"} end
+		if type(arg)=="table" then
+			local elemID = {
+				name = type(arg.name)=="string" and arg.name or arg.name.name,
+				type = arg.type or "item",
+				quality = toQualityName(arg.quality)
+			}
+			if prototypes[elemID.type][elemID.name] then return elemID end
+		end
 		error("ElementUtils must be required before use toElemID")
 	end)
 
-	---Returns the type of the argument, coded as a string. The possible results of this function are "nil" (a string, not the value nil), "number", "string", "boolean", "table", "function", "thread", and "userdata".
+	---
+	---@param a any
+	---@param b any
+	---@param inclQuality boolean?
+	---@return boolean
+	---TODO: quality is not fully supported
+	function _G.eqElemID(a, b, inclQuality)
+		if a == nil and b == nil then return true end
+		a = toElemID(a)
+		b = toElemID(b)
+		if a == nil and b == nil then return true end
+		if a == nil or b == nil then return false end
+		if inclQuality then return
+			a.type == b.type and
+			a.name == b.name and
+			(a.quality or "normal") == (b.quality or "normal")
+		else return a.type == b.type and a.name == b.name end
+	end
+
+	---
+	---@param arg string?
+	---@return string?
+	function _G.toQualityName(arg)
+		if arg==nil then return nil end
+		if type(arg)=="string" then verifyQualityName(arg) return arg end
+	end
+
+	---@param quality string?
+	---@return string?
+	function _G.verifyQualityName(quality)
+		if not prototypes.quality[quality] then error("unknown quality "..str(quality)) end
+		return quality
+	end
+
+	---Returns the type of te argument, coded as a string. The possible results of this function are "nil" (a string, not the value nil), "number", "string", "boolean", "table", "function", "thread", and "userdata".
 	---@param v any
 	---@return "boolean"|"function"|"nil"|"number"|"string"|"table"|"thread"|"userdata"
 	function typeof(v) return type(v) end
@@ -333,37 +485,6 @@ if(script)then
 		if t=="function" and KuxCoreLib.__modules.FunctionUtils then return KuxCoreLib.__modules.FunctionUtils.nameof(v) or error("no name function") end
 		error("invalid argument")
 	end
-
-	---@param value any
-	---@param enum table
-	---@return string|nil
-	function _G.getEnumName(value, enum)
-		for name, val in pairs(enum) do
-			if val == value then return name end
-		end
-		return nil
-	end
-
-	---A constant 'nil' function reference
-	_G.fnil = function()_="fid{00000000-0000-0000-0000-000000000000}" end
-
-	---A constant 'nil' table reference
-	_G.tnil = {}
-
-
-	---Using _G.player
-	---@param pid PlayerIdentification
-	---@param f function
-	---@return any
-	---<p></p>
-	function _G.global_player_using(pid, f)
-		local player_bak = _G.player
-		_G.player = getPlayer(pid)
-		local result = f()
-		_G.player = player_bak
-		return result
-	end
-
 
 	function seqpairs(t)
 		local keys = {}
@@ -430,5 +551,61 @@ if(script)then
 		end, t, nil
 	end
 
+
+	---Gets ta valid sprite
+	---@param arg string|{name:string, type:string?}|SpritePath
+	---@param fallback true|SpritePath|nil
+	---@return SpritePath?
+	function _G.getSprite(arg, fallback)
+		if type(arg)=="table" and arg.name then
+			local sprite = (arg.type or "item").."/" .. arg.name
+			if helpers.is_valid_sprite_path(sprite) then return sprite end
+		end
+		if type(arg)=="string" and helpers.is_valid_sprite_path(arg) then return arg end
+		if type(arg)=="string" then
+			local paths = { "item/", "fluid/", "recipe/", "entity/", "virtual-signal/" }
+			for _, prefix in ipairs(paths) do
+				local sprite = prefix .. arg
+				if helpers.is_valid_sprite_path(sprite) then return sprite end
+			end
+		end
+		if type(fallback)=="string" and helpers.is_valid_sprite_path(fallback) then return fallback end
+		if fallback == true then return "utility/questionmark" end
+		return nil
+	end
+
+
+	---Sets the last error
+	---@param msg string
+	---@param data table<string,AnyBasic>?
+	---@return nil
+	function debug.setLastError(msg, data)
+		debug.lastError = {---@type DebugErrorInfo
+			message = msg,
+			data = data or {},
+			trace = debug.traceback("", 2),
+			tick = game.tick,
+		}
+		return nil
+	end
+	_G.setLastError = debug.setLastError
+
+	function debug.getLastError()
+		return debug.lastError
+	end
+	_G.getLastError = debug.getLastError
+
 end -- runtime
 
+---@class DebugErrorInfo
+---       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+---@field message string
+---@field data table<string,AnyBasic>
+---@field trace string
+---@field tick number game.tick
+
+
+---@class debug
+---       ‾‾‾‾‾
+---@field lastError DebugErrorInfo
+---@field setLastError fun(msg: string, data?: table): nil

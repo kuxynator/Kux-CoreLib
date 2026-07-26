@@ -67,7 +67,7 @@ end
 ---@field StringBuilder KuxCoreLib.StringBuilder.static
 ---@field TestRunner KuxCoreLib.TestRunner
 ---@field That KuxCoreLib.That
----@field Version KuxCoreLib.Version
+---@field Version KuxCoreLib.Version.static
 ---@field DataRaw KuxCoreLib.DataRaw
 ---@field EntityData KuxCoreLib.EntityData
 ---@field ItemData KuxCoreLib.ItemData
@@ -154,19 +154,16 @@ require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/Factorio20Migrations")
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/Factorio11BackwardCompatibility")
 
 local require_map = { --RUN (F5) to AUTOGENERATE
-        Array = "",
 		AsyncTask = "",
         ColorConverter = "",
         Colors = "",
         Debug = "",
-        Dictionary = "",
         Event = "",
         EventDistributor = "",
 		Events = "",
         FileWriter = "",
         Flags = "",
         FlyingText = "",
-        List = "",
         Log = "",
 		Trace = "",
         lua = "",
@@ -193,6 +190,11 @@ local require_map = { --RUN (F5) to AUTOGENERATE
 		FactorioDatabase = "",
 		RecipeUtils = "",
 		ElementUtils = "",
+
+        Array = "collections",
+        Dictionary = "collections",
+        List = "collections",
+		ListWrapper = "collections",
 
 		CollisionMaskData = "data",
         DataRaw = "data",

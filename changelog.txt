@@ -1,12 +1,22 @@
 ---------------------------------------------------------------------------------------------------
+Version: 4.17.9 WIP
+Date: 2026-07-26
+  Info:
+    - push to Factorio 2.1
+---------------------------------------------------------------------------------------------------
 Version: 3.17.9 WIP
   Features:
     - Array: new implementation
     - List: new implementation
+    - add class Queue
     - Player.foreach
-    - Add Kua - Lua extension methods
-    - (global) fnil, tnil, global_player_using
-    - (global) seqpairs, numpairs, alphapairs
+    - add module Kua with Lua extension methods
+    - add (global) fnil, tnil, global_player_using
+    - add (global) seqpairs, numpairs, alphapairs
+    - add (global) getSprite
+    - add (global) new
+    - TranslationService: add getUnknownKey()
+    - add debug.setLastError(), debug.getLastError(),
   Changes:
     - Array/List implemenation changed! BREAKING CHANGE
 ---------------------------------------------------------------------------------------------------

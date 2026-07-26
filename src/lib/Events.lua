@@ -54,8 +54,9 @@ function Events.on_runtime_mod_setting_changed(fnc) return EventDistributor.regi
 ---@param event integer|string|defines.events|table event
 ---@param fnc function
 ---@param filters EventFilter?
+---@param prio integer|"hight"|"low"|nil
 ---@return boolean
-function Events.on_event(event, fnc, filters) return EventDistributor.register(event, fnc, filters) end
+function Events.on_event(event, fnc, filters, prio) return EventDistributor.register(event, fnc, filters, prio) end
 
 ---@param fnc fun(e: EventData.on_tick)
 ---@return boolean

@@ -1,4 +1,5 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
+local collection_util = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/collections/_collection_util") --[[@as collection_util]]
 
 ---Provides table functions
 ---@class KuxCoreLib.Table : KuxCoreLib.Class
@@ -398,13 +399,7 @@ end
 ---Creates a shallow copy of the table
 ---@param t table The table to copy.
 ---@return table # The shallow copy.
-function Table.shallowCopy(t)
-	local copy = {}
-	for k,v in pairs(t) do
-		copy[k] = v
-	end
-	return copy
-end
+function Table.shallowCopy(t) return collection_util.shallowCopy(t) end
 
 function Table.shallowCopyPath(t, props)
     t = Table.shallowCopy(t)
@@ -909,7 +904,15 @@ end
 
 ---@param t string[]
 ---@return table<string, true>
-function Table.toFlagsDictionary(t)
+function Table.toFlagsDictionary(t) -- Alias: toSet(t)
+	local flags = {}
+	for _, v in ipairs(t) do flags[v] = true end
+	return flags
+end
+
+---@param t string[]
+---@return table<string, true>
+function Table.toSet(t)
 	local flags = {}
 	for _, v in ipairs(t) do flags[v] = true end
 	return flags

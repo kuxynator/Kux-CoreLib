@@ -12,11 +12,14 @@ if not KuxCoreLib.__classUtils.ctor(TranslationService) then return self end
 -----------------------------------------------------------------------------------------------------------------------
 local Events = KuxCoreLib.require.Events
 local LocalizationUtils = KuxCoreLib.require.LocalizationUtils
+local TranslationProgressWindow = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/TranslationProgressWindow")
 
 ---@class KuxCoreLib.TranslationService.handler
 local handler = {
 	__class  = "KuxCoreLib.TranslationService.handler",
 }
+
+local parser = {}
 
 ---queued loc registrations
 local gui_localizations = {}
@@ -31,6 +34,9 @@ local registry = {
 	idx_hash_localised_string={} -- {hash -> LocalisedString}
 }
 
+local last_update_tick = 0
+local progress_max = 0
+
 ---Gets a stable string as hash
 ---@param localizable_string LocalisedString
 ---@return string
@@ -44,6 +50,50 @@ local function getHash(localizable_string)
 		return first
 	end
 	return helpers.table_to_json(localizable_string)
+end
+
+
+local dic_rid_guiElement= {}
+
+---
+---@param elem LuaGuiElement
+---@param parameters {localization_section:string} --   KuxGuiLib.ElementBuilder.create.parameters
+function TranslationService.autoTranslateGuiElement(elem, parameters)
+
+	if not elem.name or elem.name:find("^[@.~]") then return end --exclude special names
+	local section = parameters and parameters.localization_section
+		or LocalizationUtils.getCfgSection(elem.tags.context_view_name or elem.tags.view_name, elem.tags.mod_name)
+
+	local keys = {-- v2 [section] name.prop
+		caption = string.format("%s.%s.%s", section, elem.name, "caption"),
+		tooltip = string.format("%s.%s.%s", section, elem.name, "tooltip")
+	}
+	local player = game.players[elem.player_index]
+
+	---@param prop "caption"|"tooltip"
+	local function f(prop)
+		local reg = registry
+		if TranslationService.hasTranslation(keys[prop], player.locale) then
+			local transl = TranslationService.get(keys[prop], player.locale, true)
+			if not transl or transl:find("^Unknown key") then return end -- do not show "Unknown key:"
+			elem[prop] = transl
+			return
+		end
+		local tid, err = TranslationService.request(player, keys[prop], true)
+		if not tid then error("invalid state") end
+		dic_rid_guiElement[tid] = {element=elem, property=prop, player_index=player.index, path=elem.tags.path}
+		--wait for on_string_translated
+	end
+
+	f("caption"); f("tooltip")
+end
+
+
+---Gets a Unknown key message
+---@param key LocalisedString
+---@return string
+function TranslationService.getUnknownKey(key)
+	return "Unknown key: "..str(getHash(key))
 end
 
 ---@param localizable_string LocalisedString
@@ -67,29 +117,43 @@ function TranslationService.hasTranslation(localizable_string, locale)
 	return (registry.translated[locale] or {})[getHash(localizable_string)]~=nil
 end
 
+---Checks if a valid translation exists for the given `LocalisedString` in the specified `locale`.
+---@param localizable_string LocalisedString
+---@param locale string
+---@param partial boolean?
+---@return boolean #returnes `true` if the translation is not empty and does not begin with “Unknown key”. If `partial` is set to `true`, "Unknown key" in nested translations will be ignored.
+function TranslationService.hasValidTranslation(localizable_string, locale, partial)
+	if type(localizable_string) == "string" then localizable_string = {localizable_string} end -- <FEATURE
+	if type(localizable_string) ~= "table" then return false end
+	local transl = TranslationService.get(localizable_string, locale, partial)
+	local notValid = transl==nil or transl=="" or transl:find("^Unknown key")
+	return notValid == false
+end
+
+---Returns translated string, or partial result if enabled.
+---@param localised_string LocalisedString
+---@param locale string
+---@param partial boolean? If true, resolve with partial fallback
+---@return string|nil
+function TranslationService.get(localised_string, locale, partial)
+	if type(localised_string) == "string" then localised_string = {localised_string} end
+	if type(localised_string) ~= "table" then return tostring(localised_string) end
+
+	local hash = getHash(localised_string)
+	local translated = registry.translated[locale]
+	local result = translated and translated[hash]
+	if result and result ~= "" then return result end
+	if partial then return parser.resolve(localised_string, locale) end
+	return nil
+end
+
 local supertype = {
-	item = "item",
-	capsule = "item",
-	gun = "item",
-	armor = "item",
-	mining_tool = "item",
-	repair_tool = "item",
-	rail_planner = "item",
-	tool = "item",
-	ammo = "item",
-	module = "item",
-	item_with_entity_data = "item",
-	item_with_inventory = "item",
-	item_with_label = "item",
-	item_with_tags = "item",
-	item_with_rocket_launcher = "item",
-	fluid = "fluid",
-	recipe = "recipe",
-	technology = "technology",
-	tile = "tile",
-	virtual_signal = "virtual-signal",
-	equipment = "equipment",
-	shortcut = "shortcut"
+	gun = "item",   module = "item",      rail_planner = "item",     item_with_inventory = "item",
+	item = "item",  fluid = "fluid",      shortcut = "shortcut",     item_with_entity_data = "item",
+	tool = "item",  capsule = "item",     item_with_tags = "item",   virtual_signal = "virtual-signal",
+	ammo = "item",  recipe = "recipe",    equipment = "equipment",   item_with_rocket_launcher = "item",
+	tile = "tile",  mining_tool = "item", item_with_label = "item",
+	armor = "item", repair_tool = "item", technology = "technology",
 }
 
 ---Gets the localisable string for the given prototype and field. (gets not the translation!)
@@ -101,18 +165,6 @@ function TranslationService.getLocalizableString(pt, field)
 	return pt[field] or (supertype[pt.type].."-"..dic[field].."."..pt[dic[field]])
 end
 
----@return string[]?
-local function extract_keys(lstr)
-	local keys = {}
-	if type(lstr) == "string" then return end -- Nur einzelner Text, kein Key – ignorieren
-	if type(lstr[1]) == "string" and lstr[1] ~= "" then
-		keys[#keys+1]=lstr[1]
-	end
-	for i = 2, #lstr do
-		for _,k in ipairs(extract_keys(lstr[i]) or {}) do keys[#keys+1]=k end
-	end
-end
-
 local function fill_placeholders(text, placeholders)
 	for i, v in ipairs(placeholders) do
 		text = text:gsub("__"..i.."__", v)
@@ -120,35 +172,80 @@ local function fill_placeholders(text, placeholders)
 	return text
 end
 
+---Finds a valid `LuaPlayer` for the specified `locale`
+---@param locale string
+---@return LuaPlayer?
+local function findPlayer(locale)
+	for _, player in pairs(game.players) do
+		if not player.valid or not player.connected then goto next end
+		if player.locale == locale then return player end
+		::next::
+	end
+end
 
-function request_core(locale, localizable_string, hash)
+---
+---@param locale any
+---@param localizable_string any
+---@param hash any
+---@param direct boolean?
+---@return integer? id only if direct=true
+---@return string? justification
+function request_core(locale, localizable_string, hash, direct)
 	local loc = registry.translated[locale]
-	if loc[hash] then return end -- already translated
-
-	registry.queue[locale] = registry.queue[locale] or {}
-	if registry.queue[locale][hash] then return end -- already queued
-
+	if loc[hash] then return nil, "already translated" end
 	registry.requests[locale] = registry.requests[locale] or {}
-	if registry.requests[locale][hash] then return end -- still requesting
-
-	registry.queue[locale][hash] = {localised_string = localizable_string}
-	registry.num_queued = registry.num_queued + 1
+	registry.queue[locale] = registry.queue[locale] or {}
+	if direct then
+		if registry.requests[locale][hash] then
+			local tid = registry.requests[locale][hash]
+			return tid, "still requesting"
+		end
+		local player = findPlayer(locale) or error("invalid state")
+		registry.num_queued = registry.num_queued + 1 -- request_internal: num_queued - 1
+		progress_max = progress_max + 1
+		local tid = request_internal(player.index, hash, localizable_string)
+		return tid
+	else
+		if registry.queue[locale][hash] then return nil, "already queued" end
+		if registry.requests[locale][hash] then return nil, "still requesting" end
+		registry.queue[locale][hash] = {localised_string = localizable_string}
+		registry.num_queued = registry.num_queued + 1
+		progress_max = progress_max + 1
+		return nil, "queued"
+	end
 end
 
 ---@param player LuaPlayer
 ---@param localizable_string LocalisedString
-function TranslationService.request(player, localizable_string)
+---@param direct boolean?
+function TranslationService.request(player, localizable_string, direct)
 	if localizable_string == nil then return end
 	if type(localizable_string) == "string" then localizable_string = {localizable_string} end -- <FEATURE
 	if type(localizable_string) ~= "table" then return end
 	if not player.valid then return end
 	if not player.connected then return end
-	local locale = player.locale
-	local hash = getHash(localizable_string)
-	registry.translated[locale] = registry.translated[locale] or {}
-	registry.idx_hash_localised_string[hash]=localizable_string -- stores all requested strings
 
-	request_core(locale, localizable_string, hash)
+	if registry.num_queued + registry.num_requests == 0 then --new batch
+		progress_max = 0
+	end
+	local locale = player.locale
+	registry.translated[locale] = registry.translated[locale] or {}
+	local hash = getHash(localizable_string)
+	local keys = parser.extract_keys(localizable_string)
+
+	local tid
+	local needOriginal = true
+	for _, ls in ipairs(keys) do
+		local lsh = getHash(ls)
+		if lsh == hash then needOriginal=false end
+		registry.idx_hash_localised_string[lsh]=ls -- stores all requested strings
+		tid = request_core(locale, ls, lsh, direct)
+	end
+	if needOriginal then
+		registry.idx_hash_localised_string[hash]=localizable_string -- stores all requested strings
+		tid = request_core(locale, localizable_string, hash, direct)
+	end
+	return tid
 end
 
 
@@ -177,6 +274,7 @@ function TranslationService.is_idle()
 end
 
 ---@param localised_string LocalisedString
+---@return integer?
 function request_internal(player_index, hash, localised_string)
 	if localised_string == nil then return end
 	local player = game.players[player_index]
@@ -190,6 +288,7 @@ function request_internal(player_index, hash, localised_string)
 	registry.queue[locale][hash] = nil
 	registry.num_requests = registry.num_requests + 1
 	registry.num_queued = registry.num_queued - 1
+	return id
 end
 
 ---@param e EventData.on_string_translated
@@ -207,23 +306,32 @@ function handler.on_string_translated(e)
 	registry.translated[locale][hash] = e.result
 	registry.num_requests = registry.num_requests - 1
 	--print("TranslationService result :"..locale.." "..str(hash).." "..str(e.result))
-end
 
----
----@param locale string
----@return LuaPlayer?
-local function findPlayer(locale)
-	for _, player in pairs(game.players) do
-		if not player.valid or not player.connected then goto next end
-		if player.locale == locale then return player end
-		::next::
+	if (last_update_tick) < game.tick-10 or registry.num_requests+registry.num_queued == 0 then
+		last_update_tick = game.tick
+		local current = progress_max - registry.num_requests - registry.num_queued
+		TranslationProgressWindow.show(script.mod_name, current, progress_max)
+	end
+
+	local guiReq = dic_rid_guiElement[e.id]
+	if guiReq then
+		if not guiReq.element or not guiReq.element.valid then
+			local player = game.players[guiReq.element.player_index]
+			---@diagnostic disable-next-line: undefined-global, undefined-field
+			guiReq.element = Gui.getElement(player, guiReq.element.path)
+		end
+		dic_rid_guiElement[e.id] = nil
+		local transl = TranslationService.get(e.localised_string, locale, true) or ""
+		if transl:find("^Unknown key") then return end
+		guiReq.element[guiReq.property] = transl
+		return
 	end
 end
 
 function handler.on_nth_tick_1(e)
 	local _ = "fnc{cc5f09b5-19a9-45ae-a63e-7bcf896113fc}"
 	if registry.num_queued == 0 then return end
-	local count = 1000
+	local count = 100
 	local orphaned = {}
 	for locale, list in pairs(registry.queue) do
 		local player = findPlayer(locale)
@@ -272,8 +380,181 @@ end)
 Events.on_event(defines.events.on_player_created, function(e)
 	print (e.tick, "on_player_created", e.player_index)
 end)
+
+-----------------------------------------------------------------------------------------------------------------------
+
+---
+---@param ls LocalisedString
+---@return LocalisedStringData
+function parser.split(ls)
+	if type(ls) == "string" then
+		return { type = "plain", value = ls }
+	elseif type(ls) ~= "table" then
+		return { type = "unknown", value = ls }
+	elseif ls[1] == "" then
+		local values = {}
+		for i = 2, #ls do values[#values+1] = parser.split(ls[i]) end
+		return { type = "chain", values = values }
+	elseif #ls == 1 then
+		return { type = "key", key = ls[1] }
+	end
+	local parameters = {}
+	for i = 2, #ls do parameters[#parameters+1] = parser.split(ls[i]) end
+	return { type = "key", key = ls[1], parameters = parameters }
+end
+
+---
+---@param node LocalisedStringData
+---@return LocalisedString[] list
+function parser.extract_keys(node)
+	if type(node)=="string" then return {} end
+	if type(node)~="table" then error("invalid argument. table expected, but got "..type(node)..": "..str(node)) end
+	if not node.type then node = parser.split(node) end
+
+	local list = {} ---@type LocalisedString[]
+	local function extract(node)
+		if node.type == "key" then
+			local params = {}
+			if node.parameters then
+				for i = 1, #node.parameters do
+					extract(node.parameters[i])
+					params[i] = string.format("__%d__",i)
+				end
+			end
+			table.insert(list, { node.key, table.unpack(params) })
+		elseif node.type == "chain" then
+			for _, v in ipairs(node.values) do
+				extract(v)
+			end
+		end
+	end
+	extract(node)
+	return list
+end
+
+function parser.toLocalisedString(node)
+	if node.type == "plain" then
+		return node.value
+	elseif node.type == "key" then
+		if not node.parameters then
+			return { node.key }
+		end
+		local params = {}
+		for i = 1, #node.parameters do
+			params[i] = parser.toLocalisedString(node.parameters[i])
+		end
+		return { node.key, table.unpack(params) }
+	elseif node.type == "chain" then
+		local values = { "" }
+		for i = 1, #node.values do
+			values[i+1] = parser.toLocalisedString(node.values[i])
+		end
+		return values
+	else
+		error("unknown node type: " .. tostring(node.type))
+	end
+end
+
+function parser.resolve(ls, locale)
+	local function resolveNode(node)
+		if node.type == "plain" then
+			return node.value
+
+		elseif node.type == "key" then
+			local str = {node.key}
+			local hash = getHash(str)
+			local result
+
+			-- wenn Parameter existieren → baue Placeholder-Key
+			if node.parameters then
+				local params = {}
+				for i = 1, #node.parameters do
+					params[i] = "__" .. i .. "__"
+				end
+
+				local placeholderKey = {node.key, table.unpack(params)}
+				local placeholderHash = getHash(placeholderKey)
+				local translated = registry.translated[locale] and registry.translated[locale][placeholderHash]
+
+				local resolvedParams = {}
+				for i, param in ipairs(node.parameters) do
+					resolvedParams[i] = resolveNode(param)
+				end
+
+				result = (translated and translated ~= "")
+					and fill_placeholders(translated, resolvedParams)
+					or TranslationService.getUnknownKey(str)
+
+			else
+				-- kein Parameter → normaler Key
+				local translated = registry.translated[locale] and registry.translated[locale][hash]
+				result = (translated and translated ~= "") and translated
+					or TranslationService.getUnknownKey(str)
+			end
+
+			return result
+
+		elseif node.type == "chain" then
+			local resolved = {}
+			for _, part in ipairs(node.values) do
+				resolved[#resolved+1] = resolveNode(part)
+			end
+			return table.concat(resolved)
+
+		else
+			return "<invalid>"
+		end
+	end
+
+	return resolveNode(parser.split(ls))
+end
+
+do --test
+   local err = { "Kux-GuiLib-GuiEventDistributor.error",
+		 		--[[__1__]] {"mod-name."..script.mod_name},
+				--[[__2__]] script.active_mods[script.mod_name],
+				--[[__3__]] script.mod_name,
+				--[[__4__]] {"","Error while running event ",script.mod_name,"::","on_gui_click","\n", "<error message>" }
+			}
+	local data = parser.split(err)
+	local keys = parser.extract_keys(data)
+	print(keys)
+end
+
+local TEST_tid
+if not commands.commands["test-ts"] then commands.add_command("test-ts","", function (e)
+	local ls = { "Kux-GuiLib-GuiEventDistributor.error",
+		 		--[[__1__]] {"mod-name."..script.mod_name},
+				--[[__2__]] script.active_mods[script.mod_name],
+				--[[__3__]] script.mod_name,
+				--[[__4__]] {"","Error while running event ",script.mod_name,"::","on_gui_click","\n", "<error message>" }
+			}
+	TEST_tid = TranslationService.request(game.players[e.player_index], ls, true)
+end)end
+
+---
+---@param e EventData.on_string_translated
+Events.on_event(defines.events.on_string_translated, function(e)
+	if TEST_tid and e.id == TEST_tid then
+		local t= registry.translated
+		local s
+		if e.result=="" then
+			s = parser.resolve(e.localised_string, game.players[e.player_index].locale)
+		end
+		game.players[e.player_index].print("Test erfolgreich: "..s)
+		TEST_tid = nil
+	end
+end)
+
 -----------------------------------------------------------------------------------------------------------------------
 KuxCoreLib.__classUtils.finalize(TranslationService)
 return TranslationService
 
+---@alias LocalisedStringType "plain"|"chain"|"key"
 
+---@class LocalisedStringData
+---
+---@field type LocalisedStringType
+---@field value LocalisedStringData? type "plain"
+---@field values LocalisedStringData[]? type "chain"
+---@field parameters LocalisedStringData[]? ftype "key"

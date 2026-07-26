@@ -10,7 +10,18 @@ local LocalizationUtils = {
 }
 if not KuxCoreLib.__classUtils.ctor(LocalizationUtils) then return self end
 -----------------------------------------------------------------------------------------------------------------------
+local Dictionary = KuxCoreLib.require.Dictionary
 local TranslationService = KuxCoreLib.require.TranslationService
+
+---
+---@param view_name string?
+---@param mod_name string?
+---@return string
+function LocalizationUtils.getCfgSection(view_name, mod_name)
+	local m = mod_name or script.mod_name
+	local v = (not view_name or view_name=="") and "" or ("-"..view_name)
+	return m..v
+end
 
 ---Maps the localisation string to keys. after mapping the 'loc' table contains the key for a `LocalisedString`
 ---@param loc {[string]: string|{[string]:string}} The localization data
@@ -19,19 +30,42 @@ local TranslationService = KuxCoreLib.require.TranslationService
 ---Resulting key format: <pre>&lt;mod_name&gt;-&lt;view_name&gt;.&lt;key&gt;<br>&lt;mod_name&gt;.&lt;key&gt;</pre>
 ---<p>CALLED_BY: loc definition file</p>
 function LocalizationUtils.map_keys(loc, view_name, mod_name)
-	view_name = (view_name and #view_name>0) and ("-"..view_name) or ""
-	mod_name = mod_name or script.mod_name
-	for k1, v1 in pairs(loc) do
-		if type(v1) == "string" then
-			loc[k1] = mod_name..view_name.."."..k1
-		elseif type(v1) == "table" then
-			for k2, v2 in pairs(v1) do
-				v1[k2] = mod_name..view_name.."-"..k1:gsub("^[^%w]+", "").."."..k2
+	local section = LocalizationUtils.getCfgSection(view_name, mod_name)
+	local version = safeget(loc,"__meta","version") or 1
+	setmetatable(loc,nil);loc.__meta=nil
+
+	if version==1 then -- ".caption" "name" "value"
+		for k1, v1 in pairs(loc) do
+			if type(v1) == "string" then
+				loc[k1] = section.."."..k1
+			elseif type(v1) == "table" then
+				for k2, v2 in pairs(v1) do
+					v1[k2] = section.."-"..k1:gsub("^[^%w]+", "").."."..k2
+				end
+			else
+				error("invalid value")
 			end
-		else
-			error("invalid value")
 		end
+	elseif version==2 then -- "name" "property" "value"
+		-- lua: loc.title_label.caption = "Factory Search"
+		-- cfg: [mod_name-view_name] name.property=value
+		local cfg={ string.format("[%s]", section) }
+		for k1, v1 in pairs(loc) do
+			if type(v1) == "string" then
+				loc[k1] = section.."."..k1
+				cfg[#cfg+1]=string.format("%s=%s",k1,v1)
+			elseif type(v1) == "table" then
+				for k2, v2 in pairs(v1) do
+					v1[k2] = section.."."..k1.."."..k2
+					cfg[#cfg+1]=string.format("%s.%s=%s",k1,k2,v2)
+				end
+			else
+				error("invalid value")
+			end
+		end
+		print(table.concat(cfg,"\n"))
 	end
+
 end
 
 ---@param player LuaPlayer
@@ -105,6 +139,7 @@ function LocalizationUtils.extend(loc)
 	})
 end
 
+new.addFactory("LocalizationDictionary", Dictionary.create_byString)
 
 -----------------------------------------------------------------------------------------------------------------------
 return LocalizationUtils
@@ -135,3 +170,6 @@ TranslationService.add_gui_localization(loc)
 return loc
 
 ]]
+
+---@class KuxCoreLib.LocalizationDictionary
+---@field [string] string|{string: string}}

@@ -24,23 +24,43 @@ function _G.userdataof(o) --name is DRAFT alt: dataof(o) objectof(o) but too gen
 	return o["object_name"]
 end
 
----@class new
----@field array fun(...):KuxCoreLib.Array.Instance
----@field dictionary fun(...):KuxCoreLib.Dictionary.Instance
----@field list fun(...):KuxCoreLib.List.Instance
----@field [string] function
-_G.new = {}
+_G.new = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/new")
 
----@param name string
----@param factory fun(...):any
-function _G.addFactory(name, factory)
-	_G.new[name] = factory
+--[[ !! needs debug.setupvalue
+function _G.global_using(scope, fn)
+	local proxy = {}
+	for k, v in pairs(scope) do proxy[k] = v end
+	setmetatable(proxy, { __index = _G })
+	debug.setupvalue(fn, 1, proxy)
+	return fn()
+end
+]]
+
+---Allows the direct use uf scope member like global members
+---@param scope table
+---@param fn function
+---<p>But provides no intellisense for LuaLS</p>
+function gscope(scope, fn)
+	--alias: using_scope, VB: with, C#: using static
+
+	local backup = {}
+	for key, value in pairs(scope) do backup[key] = _G[key] _G[key] = value end
+	local result = fn()
+	for key, value in pairs(scope) do _G[key] = backup[key] end
+	return result
 end
 
-setmetatable(new,{
-	__index = function (t, k)
-		return function (base)
-			return {__class=k}
-		end
-	end
-})
+
+do --test gscope
+	gscope(math, function()
+		---@diagnostic disable-next-line: undefined-global
+		assert(sin(0.5)==math.sin(0.5),"FAILED")
+	end)
+end
+
+
+function _G.dofinally(fn, finally)
+	local rsult = fn()
+	finally()
+	return rsult
+end

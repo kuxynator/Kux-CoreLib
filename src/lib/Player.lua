@@ -1,8 +1,8 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
 ---@class KuxCoreLib.Player : KuxCoreLib.Class
----@---@field asGlobal fun(): KuxCoreLib.PlayerClass
----@overload fun(player: LuaPlayer): KuxCoreLib.Player
+---@field asGlobal fun(): KuxCoreLib.Player
+---@overload fun(player: LuaPlayer): KuxCoreLib.LuaPlayer
 local Player = {
 	__class  = "KuxCoreLib.Player",
 	__guid   = "b241c272-0cfd-44c2-82a9-83d6918b8ccb",
@@ -10,7 +10,7 @@ local Player = {
 }
 if not KuxCoreLib.__classUtils.ctor(Player) then return self end
 ---------------------------------------------------------------------------------------------------
----@alias KuxCoreLib.LuaPlayerIdentifier  uint|string|LuaPlayer|KuxCoreLib.Player
+---@alias KuxCoreLib.LuaPlayerIdentifier  uint|string|LuaPlayer|KuxCoreLib.LuaPlayer
 
 ---
 ---@param value KuxCoreLib.LuaPlayerIdentifier
@@ -126,6 +126,21 @@ end
 ---@field zoom double Gets or sets the zoom factor of the player. If the Kux-Zooming mod is installed, it will use that mod's zoom factor instead.
 
 
+---Using _G.player
+---@param pid PlayerIdentification
+---@param f fun()
+---@return any
+---<p></p>
+function Player.useGlobal(pid, f)
+	local player_bak = _G.player
+	_G.player = assert(getPlayer(pid))
+	local result = f()
+	_G.player = player_bak
+	return result
+end
+
+---
+---@param f fun(LuaPlayer)
 function Player.foreach(f)
 	local restore = _G.player
 	for _, player in pairs(game.players) do

@@ -3,6 +3,7 @@ require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
 ---Provides string functions
 ---@class KuxCoreLib.String : KuxCoreLib.Class
+---@field asGlobal fun(): KuxCoreLib.String
 local String = {
 	__class  = "String",
 	__guid   = "{0E8BBFAF-73EF-4209-9774-B2CD6A13A296}",
@@ -191,7 +192,11 @@ end
 ---@return table # A table with the parts
 ---example: stringSplit("Foo, Bar, Boo", ",%s+") returns the table {"Foo", "Bar", "Boo"}
 ---example: stringSplit("Foo/Bar/Boo", nil, "/") returns the table {"Foo", "Bar", "Boo"}
+---<p>With the two paramters patterns, separators you can easily specify mixed paterns plain separators</p>
+---@overload fun(inputString:string, separators:string|string[], plain: boolean?):string[]
 function String.split(inputString, patterns, separators)
+	if separators==true then separators = patterns; patterns={}
+	elseif separators==false then separators = nil end
 	--TODO: test String.split
 	if(not patterns) then patterns = {}
 	elseif(type(patterns)=="string") then patterns = {patterns}

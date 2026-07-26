@@ -1,4 +1,5 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
+local collection_util = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/collections/_collection_util") --[[@as collection_util]]
 
 ---Provides a true ListWrapper
 ---@class KuxCoreLib.ListWrapper

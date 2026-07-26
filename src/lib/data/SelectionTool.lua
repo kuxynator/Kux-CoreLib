@@ -7,7 +7,7 @@ local SelectionTool= {
 	__guid   = "{47793ace-3808-4b99-b078-2aa22649a582}",
 	__origin = "Kux-CoreLib/lib/data/SelectionTool.lua",
 }
-if KuxCoreLib.__classUtils.cache(SelectionTool) then return KuxCoreLib.__classUtils.cached end
+if not KuxCoreLib.__classUtils.ctor(SelectionTool) then return self end
 ---------------------------------------------------------------------------------------------------
 
 if not script then
@@ -89,7 +89,7 @@ if not script then
 end -- not script
 
 if script then
-    local Player = KuxCoreLib.Player
+    local Player = KuxCoreLib.require.Player
 	SelectionTool.eventName = script.generate_event_name()
 	function SelectionTool.getEventName()
 		if not SelectionTool.eventName then SelectionTool.eventName = script.generate_event_name() end
@@ -137,14 +137,18 @@ if script then
 		end
 	end)
 
-	--shortcut
-	script.on_event(defines.events.on_lua_shortcut, function(event)
+
+	---
+	---@param event EventData.on_lua_shortcut
+	Events.on_event(defines.events.on_lua_shortcut, function(event)
 		if event.prototype_name ~= name then return end
 		SelectionTool.equip_selection_tool(event.player_index, name)
 	end)
 
-	--custom-input
-	script.on_event(name, function(event)
+	
+	---
+	---@param event EventData.CustomInputEvent
+	Events.on_event(name, function(event)
 		SelectionTool.equip_selection_tool(event.player_index, name)
 	end)
 

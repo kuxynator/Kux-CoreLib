@@ -312,14 +312,15 @@ local _getElemID_userdata_typeMap = {
 ---@return ElemID? -- The element ID of the argument, or nil if it could not be determined.
 ---@return string? -- An error message if the argument could not be converted to an ElemID.
 function _G.toElemID(arg)
-	if not arg then return nil, "Invalid argument. 'arg' nil"
-	elseif type(arg) == "userdata" then
+	local type_arg = type(arg)
+	if type_arg=="nil" then return nil, "Invalid argument. 'arg' nil"
+	elseif type_arg == "userdata" then
 		local t = _getElemID_userdata_typeMap[arg.object_name]
 		if t then return {type = t, name = arg.name}
 		elseif arg.object_name == "LuaItemStack" then return {type = "item", name = arg.name}
 		else return nil, "Invaid argument. No mappingg for object_name="..tostring(arg.object_name)
 		end
-	elseif type(arg) == "table" then
+	elseif type_arg == "table" then
 		if arg["__class"] == "RecipeInfo" then --[[@cast arg RecipeInfo]]
 			return {type = "recipe", name = arg.name}
 		elseif (arg.type or arg.base_type) and (arg.name or arg.value) then
@@ -327,17 +328,51 @@ function _G.toElemID(arg)
 			local t = arg.type or arg.base_type; t = type(t) == "string" and t or (type(t) == "table" and t.name) or nil
 			if t then t = ElementUtils.getPrototypeGroup(t) or error("Unknwon type: "..tostring(t)) end
 			return {type = t, name = n}
-		end
-	elseif type(arg) == "string" then -- sprite name (type/name)
-		local typePart, namePart = string.match(arg, "([^/]+)/([^/]+)")
-		if typePart and namePart then
-			return {type = typePart, name = namePart}
+		elseif (arg.name) then
+			local n = arg.name; n = (type(n) == "string" and n) or (type(n) == "table" and n.name) or nil
+			if not prototypes.item[n] then return nil,"not a valid item name" end
+			return {type = "item", name = n}
 		else
-			return nil, "Invalid argument. string="..arg
+			return nil,"unsupported table. "..serpent.line(arg)
+		end
+	elseif type_arg == "string" then -- sprite name (type/name)  or (type/name/quality)
+		local parts =  String.split(arg,"/",true)
+		if #parts == 1 then
+			if not prototypes.item[parts[1]] then return nil,"invalid item name" end
+			return {type=="item", name=parts[1]}
+		elseif #parts == 2 then
+			if not prototypes[parts[1]] then return nil,"invalid type name" end
+			if not prototypes[parts[1]][parts[2]] then return nil,"invalid name" end
+			return {type = parts[1], name = parts[2]}
+		elseif #parts == 3 then
+			if not prototypes[parts[1]] then return nil,"invalid type name" end
+			if not prototypes[parts[1]][parts[2]] then return nil,"invalid name" end
+			if not prototypes.quality[parts[3]] then return nil,"invalid quality name" end
+			return {type = parts[1], name = parts[2], quality=parts[3]}
+		else
+			return nil,"invalid string"
 		end
 	else
 		return nil, "Invalid argument. 'arg'"
 	end
+end
+
+---
+---@param arg any
+---@return string? -- The element key of the argument in format: "<type/<name>", or nil if it could not be determined.
+---@return string? -- An error message if the argument could not be converted.
+function _G.toElemKey(arg)
+	local elemId, err = toElemID(arg) if not elemId then return nil,err end
+	return (elemId.type or "item").."/"..elemId.name
+end
+
+---
+---@param arg any
+---@return string? -- The element key of the argument in format: "<type/<name>/<quality>", or nil if it could not be determined.
+---@return string? -- An error message if the argument could not be converted.
+function _G.toElemQualityKey(arg)
+	local elemId, err = toElemID(arg) if not elemId then return nil,err end
+	return (elemId.type or "item").."/"..elemId.name.."/".. (elemId.quality or "normal")
 end
 
 --[[
