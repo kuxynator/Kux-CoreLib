@@ -28,11 +28,11 @@
 ---@alias ForceName string
 ---@alias ForceIndex integer
 ---@alias InterfaceName string
----@alias ItemName string
----@alias EntityName string
----@alias SurfaceName string
+-- -@alias ItemName string
+-- -@alias EntityName string
+-- -@alias SurfaceName string
 ---@alias GameTick integer
----@alias QualityName string
+-- -@alias QualityName string
 ---@alias ElemKey string A composite string from "<type>/<name>" equals a sprite path
 ---@alias ElemQualityKey string A composite string from "<type>/<name>/<quality>"
 ---@alias UnitNumber integer

@@ -122,19 +122,24 @@ function this.read_entities()
 
 		-- index by crafting_category
 		for category in pairs(entity.crafting_categories or {}) do
+			--fdb.prototypes.entities.by_crafting_category[category] = fdb.prototypes.entities.by_crafting_category[category] or {}
 			table.insert(fdb.prototypes.entities.by_crafting_category[category], entity.name)
 		end
 
 		-- index by resource_category
 		for category in pairs(entity.resource_categories or {}) do
+			--fdb.prototypes.entities.by_resource_category[category] = fdb.prototypes.entities.by_resource_category[category] or {}
 			table.insert(fdb.prototypes.entities.by_resource_category[category], entity.name)
 		end
 
 		if entity.fixed_recipe then
-			fdb.prototypes.entities.by_fixed_recipe[entity.fixed_recipe] = fdb.prototypes.entities.by_fixed_recipe[entity.fixed_recipe] or {}
-			table.insert(fdb.prototypes.entities.by_fixed_recipe[entity.fixed_recipe], entity.name)
+			local recipe_name = entity.fixed_recipe.name
+			             fdb.prototypes.entities.by_fixed_recipe[recipe_name] =
+				         fdb.prototypes.entities.by_fixed_recipe[recipe_name] or {}
+			if not       fdb.prototypes.entities.by_fixed_recipe[recipe_name] then error("\n\n"..type(fdb.prototypes.entities.by_fixed_recipe[entity.fixed_recipe]).." "..type(entity.fixed_recipe)) end
+			table.insert(fdb.prototypes.entities.by_fixed_recipe[recipe_name], entity.name)
 
-			fdb.prototypes.entities.with_fixed_recipe[entity.name] = entity.fixed_recipe
+			fdb.prototypes.entities.with_fixed_recipe[entity.name] = recipe_name
 		end
 
 		if entity.mineable_properties then

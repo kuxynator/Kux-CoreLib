@@ -120,7 +120,7 @@ end
 function Entity.set_indestructible(entity, mode)
     assert(entity, 'missing entity argument')
     mode = mode == false and true or false
-    entity.minable = mode
+    if not isV21 then entity.minable = mode end
     entity.destructible = mode
     return entity
 end

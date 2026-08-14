@@ -228,6 +228,29 @@ function locstring(...)
 	return t
 end
 
+---@param l any[]|function array or enumerator
+---@param f any
+---@return function|table
+function _G.map(l,f)
+    if type(l) == "function" then
+		local i = 1
+        return function()
+            local q = l()
+            if q ~= nil then
+                local r = f(q, i, l)
+                i = i + 1
+                return r
+            end
+        end
+	else
+		local r = {}
+		for i = 1, #l do
+			r[i] = f(l[i], i, l)
+		end
+		return r
+    end
+end
+
 ---@class KuxCoreLib.lua
 local lua = {
 	asGlobal=function () end -- dummy, because lua like methods are always global

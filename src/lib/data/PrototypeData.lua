@@ -1,6 +1,7 @@
 require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 
----@class KuxCoreLib.PrototypeData
+---@class KuxCoreLib.PrototypeData : KuxCoreLib.Class
+---@field asGlobal fun():KuxCoreLib.PrototypeData
 local PrototypeData = {
 	__class  = "PrototypeData",
 	__guid   = "{29042CED-24D6-446E-8265-151D08B0A991}",
@@ -8,6 +9,13 @@ local PrototypeData = {
 }
 if not KuxCoreLib.__classUtils.ctor(PrototypeData) then return self end
 ---------------------------------------------------------------------------------------------------
+
+---@type KuxCoreLib.PrototypeData.Extend
+PrototypeData.extend = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/data/PrototypeData-extend") --[[@as KuxCoreLib.PrototypeData.Extend]]
+
+local utils = PrototypeData.extend.utils
+
+
 function PrototypeData.setIconTint(item, tint)
 	if(item.icons) then
 		if(item.icons[1] and item.icons[1].tint==nil) then
@@ -51,17 +59,31 @@ local function fix_hr_version(data)
 	end
 end
 
+---Clone an prototype
+---@param type string
+---@param name string
+---@param newName string
+---@param patch {[string]:any}?
+---@return Prototype
+ function PrototypeData.clone(type, name, newName, patch)
+	local base = data.raw[type][name]
+	if(not base) then error("Prototype not found: "..name.." (type: "..type..")") end
+	local pt = table.deepcopy(base)--[[@as Prototype]]
+	pt.name = newName
+	if(patch) then utils.patch(pt, patch) end -- apply patch if any
+	return pt
+end
+
+---Performs finalization tasks (fix_hr_version)
+---@param data Prototype
+---@return Prototype
 function PrototypeData.finalize(data)
 	fix_hr_version(data)
 	return data
 end
 
-
----@type KuxCoreLib.PrototypeData.Extend
-PrototypeData.extend = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/data/PrototypeData-extend") --[[@as KuxCoreLib.PrototypeData.Extend]]
-
 ---------------------------------------------------------------------------------------------------
 
-function PrototypeData.asGlobal() return KuxCoreLib.__classUtils.asGlobal(PrototypeData) end
+function PrototypeData.asGlobal() return KuxCoreLib.__classUtils.asGlobal(PrototypeData) --[[@as KuxCoreLib.PrototypeData]] end
 
 return PrototypeData

@@ -28,7 +28,7 @@ end
 ---@return boolean
 function Events.on_load(fnc) return EventDistributor.register("on_load", fnc) end
 
----[FOR DEVELOPMENT ONLY] It fires at the first tick after the game was loaded
+---It fires at the first tick after the game was loaded. Attention: this is raised only at one game instance und can cause desyncs if used wrong.
 ---@param fnc function
 ---@return boolean
 function Events.on_loaded(fnc) return EventDistributor.register("on_loaded", fnc) end
@@ -46,6 +46,10 @@ function Events.on_next_tick(state, fnc) return EventDistributor.register_on_nex
 ---@param fnc fun(e: ConfigurationChangedData)
 ---@return boolean
 function Events.on_configuration_changed(fnc) return EventDistributor.register("on_configuration_changed", fnc) end
+
+---@param fnc fun(e: KuxCoreLib.StartEventData)
+---@return boolean
+function Events.on_start(fnc) return EventDistributor.register("on_start", fnc) end
 
 ---@param fnc fun(e: EventData.on_runtime_mod_setting_changed)
 ---@return boolean

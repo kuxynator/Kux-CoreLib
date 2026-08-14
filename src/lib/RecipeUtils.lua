@@ -133,13 +133,29 @@ function RecipeUtils.made_in(player, recipe)
 	local function get_crafting_time(crafting_entity)
 		local speed = get_crafting_speed(crafting_entity)
 		if crafting_entity.type == "character" then
-			if prototypes.recipe_category[recipe.category] then -- crafting
-				return recipe.energy / speed -- *(1 + total_speed_bonus))
-			elseif prototypes.resource_category[recipe.category] then --mining
-				local resource = prototypes.entity[recipe.ingredients[1].name]
-				return resource.mineable_properties.mining_time / speed
-			else -- offshore?
+			if (isV21) then --TODO: revise
+				for _, category in ipairs(recipe.categories) do
+					if prototypes.recipe_category[category] then -- crafting
+						return recipe.energy / speed
+					elseif prototypes.resource_category[category] then -- mining
+						local resource = prototypes.entity[recipe.ingredients[1].name]
+						return resource.mineable_properties.mining_time / speed
+					--elseif category == "offshore" then
+					--	return 0
+					end
+				end
 				return 0
+			else
+				---@diagnostic disable: undefined-field
+				if prototypes.recipe_category[recipe.category] then -- crafting
+					return recipe.energy / speed -- *(1 + total_speed_bonus))
+				elseif prototypes.resource_category[recipe.category] then --mining
+					local resource = prototypes.entity[recipe.ingredients[1].name]
+					return resource.mineable_properties.mining_time / speed
+				else -- offshore?
+					return 0
+				end
+				---@diagnostic enable: undefined-field
 			end
 		elseif crafting_entity.type == "offshore-pump" then
 			return 1 / speed
@@ -177,27 +193,52 @@ function RecipeUtils.made_in(player, recipe)
 		table.insert(list, madeIn)
 	end
 
+	if isV21 then --TODO: revise
+		-- crafting
+		local categories = recipe.categories or {}
 
-	-- crafting
-	local categories = Version.compare(script.active_mods.base, "2.0.49")>=0 and recipe.additional_categories or {}
-	table.insert(categories, 1, recipe.category)
-	for _, category in ipairs(categories) do
-		entities = fdb.prototypes.entities.by_crafting_category[category] or {}
-		for _, entity_name in pairs(entities) do add(entity_name) end
-	end
+		for _, category in ipairs(categories) do
+			entities = fdb.prototypes.entities.by_crafting_category[category] or {}
+			for _, entity_name in pairs(entities) do add(entity_name) end
+		end
 
+		-- mining
+		for _, category in ipairs(categories) do
+			entities = fdb.prototypes.entities.by_resource_category[category] or {}
+			for _, entity_name in pairs(entities) do add(entity_name) end
+		end
 
-	-- mining
-	entities = fdb.prototypes.entities.by_resource_category[recipe.category] or {}
-	for _, entity_name in pairs(entities) do
-		add(entity_name)
-	end
-	-- offshore
-	if recipe.category=="offshore" then
-		entities = fdb.prototypes.entities.by_type["offshore-pump"] or {}
+		-- offshore
+		for _, category in ipairs(categories) do
+			if category == "offshore" then
+				entities = fdb.prototypes.entities.by_type["offshore-pump"] or {}
+				for _, entity_name in pairs(entities) do add(entity_name) end
+			end
+		end
+	else
+		---@diagnostic disable: undefined-field
+		-- crafting
+		local categories = Version.compare(script.active_mods.base, "2.0.49")>=0 and recipe.additional_categories or {}
+		table.insert(categories, 1, recipe.category)
+		for _, category in ipairs(categories) do
+			entities = fdb.prototypes.entities.by_crafting_category[category] or {}
+			for _, entity_name in pairs(entities) do add(entity_name) end
+		end
+
+		-- mining
+		entities = fdb.prototypes.entities.by_resource_category[recipe.category] or {}
 		for _, entity_name in pairs(entities) do
 			add(entity_name)
 		end
+
+		-- offshore
+		if recipe.category=="offshore" then
+			entities = fdb.prototypes.entities.by_type["offshore-pump"] or {}
+			for _, entity_name in pairs(entities) do
+				add(entity_name)
+			end
+		end
+		---@diagnostic enable: undefined-field
 	end
 
 	table.sort(list, default_sort)
@@ -301,34 +342,68 @@ local function new_recipe_prototype(pt)
 	local minable = pt.object_name=="LuaEntityPrototype" and pt.mineable_properties and pt.mineable_properties.minable
 	local offshore = pt.object_name=="LuaTilePrototype"
 	local elemId = assert(toElemID(pt))
-	local recipe = { ---@type LuaRecipePrototype
-		type = "recipe",
-		name = pt.name,
-		localised_name = pt.localised_name or {minable and "entity" or "fluid" ..".".. pt.name},
-		enabled = true,
-		hidden = false,
-		ingredients = { { type = elemId.type, name = elemId.name, amount = 1 } },---@diagnostic disable-line: assign-type-mismatch
-		products = (minable and pt.mineable_properties.products or {}) or { { name = pt.fluid.name, amount = 1, type = "fluid" } } ,
-		category = (minable and pt.resource_category) or (offshore and "offshore") or error("category is unknown"),
-		additional_categories = {}, -- NEW in 2.0.49
-		has_category = function () error("not implemented")	end,-- TODO: NEW in 2.0.49
-		group = pt.group,
-		subgroup = pt.subgroup,
-		order = pt.order,
-		energy = 1,
-		allow_as_intermediate = true, allow_decomposition = true, allow_inserter_overload = false,
-		allow_intermediates=false, always_show_made_in = true, always_show_products = true,
-		crafting_machine_tints = {}, emissions_multiplier = 1, hidden_from_flow_stats = false,
-		hidden_from_player_crafting = false, hide_from_flow_stats = false, hide_from_player_crafting = true,
-		hide_from_signal_gui = false, maximum_productivity = 1, overload_multiplier=1,
-		preserve_products_in_machine_output = false, request_paste_multiplier = 1,
-		show_amount_in_title = true, unlock_results = false,
-		hidden_in_factoriopedia = pt.hidden_in_factoriopedia,
-		is_parameter = false, parameter = false, valid = true,
-		object_name = "LuaRecipePrototype", --if type(recipe)=="table"=> virtual|"userdata"=> real prototype
+	local recipe
+	if isV21 then
+		recipe = { ---@type LuaRecipePrototype
+			type = "recipe",
+			name = pt.name,
+			localised_name = pt.localised_name or { (minable and "entity" or "fluid") .. "." .. pt.name },
+			enabled = true,
+			hidden = false,
+			ingredients = { { type = elemId.type, name = elemId.name, amount = 1 } },---@diagnostic disable-line: assign-type-mismatch
+			products = (minable and pt.mineable_properties.products) or { { name = pt.fluid.name, amount = 1, type = "fluid" } },
 
-		mining_time = minable and pt.mineable_properties.mining_time
-	}
+			categories = { (minable and pt.resource_category) or (offshore and "offshore") or error("category is unknown") },
+
+			group = pt.group,
+			subgroup = pt.subgroup,
+			order = pt.order,
+			energy = 1,
+
+			allow_as_intermediate = true, allow_decomposition = true, allow_inserter_overload = false,
+			allow_intermediates = false, always_show_made_in = true, can_set_quality = true,
+			hide_from_bonus_gui = false, crafting_machine_tints = {}, emissions_multiplier = 1,
+			hidden_from_flow_stats = false, hidden_from_player_crafting = false, hide_from_flow_stats = false,
+			hide_from_player_crafting = true, hide_from_signal_gui = false, maximum_productivity = 1,
+			overload_multiplier = 1, preserve_products_in_machine_output = false, request_paste_multiplier = 1,
+			unlock_results = false,
+
+			hidden_in_factoriopedia = pt.hidden_in_factoriopedia,
+			is_parameter = false, parameter = false, valid = true,
+			object_name = "LuaRecipePrototype",
+			mining_time = minable and pt.mineable_properties.mining_time,
+		}
+	else
+		---@diagnostic disable: missing-fields
+		recipe = { ---@type LuaRecipePrototype
+			type = "recipe",
+			name = pt.name,
+			localised_name = pt.localised_name or {minable and "entity" or "fluid" ..".".. pt.name},
+			enabled = true,
+			hidden = false,
+			ingredients = { { type = elemId.type, name = elemId.name, amount = 1 } },---@diagnostic disable-line: assign-type-mismatch
+			products = (minable and pt.mineable_properties.products or {}) or { { name = pt.fluid.name, amount = 1, type = "fluid" } } ,
+			category = (minable and pt.resource_category) or (offshore and "offshore") or error("category is unknown"),
+			additional_categories = {}, -- NEW in 2.0.49
+			has_category = function () error("not implemented")	end,-- TODO: NEW in 2.0.49
+			group = pt.group,
+			subgroup = pt.subgroup,
+			order = pt.order,
+			energy = 1,
+			allow_as_intermediate = true, allow_decomposition = true, allow_inserter_overload = false,
+			allow_intermediates=false, always_show_made_in = true, always_show_products = true,
+			crafting_machine_tints = {}, emissions_multiplier = 1, hidden_from_flow_stats = false,
+			hidden_from_player_crafting = false, hide_from_flow_stats = false, hide_from_player_crafting = true,
+			hide_from_signal_gui = false, maximum_productivity = 1, overload_multiplier=1,
+			preserve_products_in_machine_output = false, request_paste_multiplier = 1,
+			show_amount_in_title = true, unlock_results = false,
+			hidden_in_factoriopedia = pt.hidden_in_factoriopedia,
+			is_parameter = false, parameter = false, valid = true,
+			object_name = "LuaRecipePrototype", --if type(recipe)=="table"=> virtual|"userdata"=> real prototype
+			mining_time = minable and pt.mineable_properties.mining_time,
+		}
+		---@diagnostic enable: missing-fields
+	end
 	if minable and pt.mineable_properties.required_fluid then
 		table.insert(recipe.ingredients, {
 			type   = 'fluid',

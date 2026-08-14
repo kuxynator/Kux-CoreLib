@@ -233,7 +233,14 @@ function ElementUtils.isCraftable(force, name, type)
 		local r = force.recipes[recipe_name]
 		if r and r.enabled and not r.hidden then
 			name_cache.is_craftable=true
-			name_cache.is_hand_craftable = r.category == "crafting" or r.category == "crafting-handonly"
+			if isV21 then --TODO: revise
+				--name_cache.is_hand_craftable = r:has_category("crafting") or	r:has_category("crafting-handonly")
+				name_cache.is_hand_craftable =
+					Table.contains(r.categories, "crafting") or
+					Table.contains(r.categories, "crafting-handonly")
+			else
+				name_cache.is_hand_craftable = r.category == "crafting" or r.category == "crafting-handonly"
+			end
 			return true, name_cache.is_hand_craftable
 		end
 	end

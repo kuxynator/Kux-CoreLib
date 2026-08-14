@@ -19,17 +19,12 @@ local EventDistributor = {
 	__origin = "Kux-CoreLib/lib/EventDistributor.lua",
 }
 if not KuxCoreLib.__classUtils.ctor(EventDistributor) then return self end
----------------------------------------------------------------------------------------------------
+-- to avoid circular references, the EventDistributor class MUST be defined before require other modules
+--------------------------------------------------------------------------------
+if(not script) -- events are only available in control stage
+	then KuxCoreLib.__classUtils.finalize(EventDistributor) return EventDistributor end
+--- control stage only ---------------------------------------------------------
 
-local util = {}
-
-
-if(KuxCoreLib.ModInfo.current_stage ~= "control") then
-	KuxCoreLib.__classUtils.finalize(EventDistributor)
-	return EventDistributor
-end -- events are only available in control stage
-
--- to avoid circular references, the class MUST be defined before require other modules
 KuxCoreLib.lua.asGlobal()
 local Table         = KuxCoreLib.require.Table
 local List          = KuxCoreLib.require.List
@@ -39,11 +34,23 @@ local Storage       = KuxCoreLib.require.Storage
 local PickerDollies = KuxCoreLib.require.PickerDollies ---@see KuxCoreLib.PickerDollies
 
 
----@class EventHandler
----@field fnc function
----@field prio integer
+---@class KuxCoreLib.EventDistributor.this
+local this = {}
 
----Dictionary of EventId|EventName, table of function
+---@class KuxCoreLib.EventDistributor.handler
+local handler = {}
+
+---@class KuxCoreLib.EventDistributor.virtual_handler
+local vhandler = {}
+
+
+if(KuxCoreLib.ModInfo.current_stage ~= "control") then
+	KuxCoreLib.__classUtils.finalize(EventDistributor)
+	return EventDistributor
+end -- events are only available in control stage
+
+
+---Dictionary of EventName|EventId, table of function
 ---@type {[string|integer]:EventHandler[]|{[string|integer]: EventHandler[]}}
 local events={}
 
@@ -52,6 +59,10 @@ local isOnLoadedRaised = false
 ---Gets the LuaPlayer for the current event. Managed by KuxCoreLib.EventDistributor. Can be `nil`.
 ---@type LuaPlayer
 _G.player = _G.player
+
+---dynamic registrated events (lazy init)
+---@type KuxCoreLib.DynamicEventsRegistry
+this.dynamic_events = nil
 
 local mapEventNumberToName = {}; for n, v in pairs(defines.events) do mapEventNumberToName[v] = n end
 
@@ -103,49 +114,63 @@ end
 
 EventDistributor.getDisplayName=getDisplayName
 
---#region event handlers
+--#region event handlers (real handlers for script)
 
-local function on_init()
+function handler.on_init()
 	--print("EventDistributor.on_init")
 	local handlers = events["on_init"]
-	for _,h in ipairs(handlers or {}) do h.fnc() end
 
-	 -- we set the state in advance, the state is valid on next tick
-	ModInfo.isModLoaded = true
-	ModInfo.current_stage = "control-on-loaded"
+	ModInfo.current_stage="control-on-init"
 	Storage.canRead = true
 	Storage.canWrite = true
+
+	this.dynamic_events = Storage.getOrCreate("__KuxCoreLib__.EventDistributor.dynamic_events", {})
+
+	for _,h in ipairs(handlers or {}) do h.fnc() end
+
+	--finaly: we set the state in advance, the state is valid on next event or function call
+	ModInfo.isModLoaded = true
+	ModInfo.current_stage = "control-on-loaded"
 end
 
-local function on_load()
-	--print("EventDistributor.on_load")
+function handler.on_load()
+	ModInfo.current_stage="control-on-load"
+	Storage.canRead = true
+	Storage.canWrite = false
+
+
 	local handlers = events["on_load"]
 	for _,h in ipairs(handlers or {}) do h.fnc() end
 
+	local stored = this.restoreDynamicEvents()
+
 	if(settings.global["Kux-CoreLib_".."on_load_LogEvents_Summary"].value) then
-		util.log_summary()
+		this.log_summary()
 	end
 
-	 -- we set the state in advance, the state is valid on next tick
+	if stored then this.dynamic_events = stored end
+
+	 --finaly:  we set the state in advance, the state is valid on next event or function call
 	 ModInfo.isModLoaded = true
 	 ModInfo.current_stage = "control-on-loaded"
-	 Storage.canRead = true
 	 Storage.canWrite = true
 end
 
-local function on_configuration_changed(e)
+function handler.on_configuration_changed(e)
 	ModInfo.current_stage = "control-on-configuration-changed"
+	Storage.canRead = true
+	Storage.canWrite = true
 
 	--print("EventDistributor.on_configuration_changed")
 	local handlers = events["on_configuration_changed"]
 	for _,h in ipairs(handlers or {}) do h.fnc(e) end
 
-	 -- we set the state in advance, the state is valid on next tick
-	 ModInfo.current_stage = "control-on-loaded"
+	-- we set the state in advance, the state is valid on next tick
+	ModInfo.current_stage = "control-on-loaded"
 end
 
 ---
-local function on_nth_tick(e)
+function handler.on_nth_tick(e)
 	--print("EventDistributor.on_nth_tick "..e.nth_tick)
 	local handlers = events["on_nth_tick"][e.nth_tick]
 	for _,h in ipairs(handlers or {}) do h.fnc(e) end
@@ -153,15 +178,15 @@ end
 
 
 ---
-local function on_event(e)
+function handler.on_event(e)
 	--log("on_event "..getDisplayName(e))
+
 	local restore = _G.player
 	_G.player = EventDistributor.getPlayerFnc(e) or _G.player
 	local playerCheck = _G.player
 	if e.player_index~=nil and not _G.player then error("invalid state") end
 	local eventName, eventId = eventPair(e.name)
-	local key = eventId or eventName
-	local handlers = events[key]
+	local handlers = events[eventName or eventId]
 	local repeat_handlers = {}
 	for _,h in ipairs(handlers or {}) do
 		h.fnc(e)
@@ -181,9 +206,12 @@ local function on_event(e)
 	_G.player = restore
 end
 
+
+
 ---
-local function on_event_customInput(e)
+function handler.on_event_customInput(e)
 	--log("on_event_customInput "..getDisplayName(e))
+
 	local restore = _G.player
 	_G.player = EventDistributor.getPlayerFnc(e)
 	local name, number = eventPair(e)
@@ -192,25 +220,36 @@ local function on_event_customInput(e)
 	_G.player = restore
 end
 
+--#region virtual handler
+
 ---
-local function on_loaded(e)
-	--print("on_loaded")
-	if(isOnLoadedRaised) then return end
-
-	EventDistributor.unregister_on_nth_tick(e.nth_tick, on_loaded)
-
-	local handlers = events.on_loaded
-	if(handlers) then
-		for _,h in ipairs(handlers or {}) do h.fnc(e) end
-	end
-
-	--print("set isLoadRaised=true")
-	isOnLoadedRaised = true
-	events["on_loaded"] = {}
+---@param e KuxCoreLib.StartEventData
+function vhandler.on_start(e)
+	local handlers = events["on_start"]
+	for _,h in ipairs(handlers or {}) do h.fnc(e) end
 end
 
+---@param e NthTickEventData
+function vhandler.on_loaded(e)
+	if isOnLoadedRaised then return end
+
+	EventDistributor.unregister_on_nth_tick(e.nth_tick, vhandler.on_loaded)
+	isOnLoadedRaised = true
+
+	local handlers = events.on_loaded
+	events.on_loaded = {}
+
+	if game.is_multiplayer() and #game.connected_players > 0 then
+		log("\nWARNING: on_loaded supressed for clients due multiplayer restrictions. "..ModInfo.name)
+		return end
+
+	log("EventDistributor.on_loaded "..#handlers.." handlers")
+	for _, h in ipairs(handlers or {}) do h.fnc(e) end
+end
+
+
 ---
-local function on_built(e)
+function vhandler.on_built(e)
 	--print("EventDistributor.on_built")
 	local restore = _G.player
 	_G.player = EventDistributor.getPlayerFnc(e) or _G.player
@@ -221,7 +260,7 @@ local function on_built(e)
 end
 
 ---
-local function on_destroy(e)
+function vhandler.on_destroy(e)
 	--print("EventDistributor.on_destroy")
 	local restore = _G.player
 	_G.player = EventDistributor.getPlayerFnc(e) or _G.player
@@ -280,17 +319,28 @@ end
 ---Registers an event in script
 ---@param eventIdentifier integer|uint|string|defines.events
 ---@param param any ticks | filter
-local function script_register(eventIdentifier, param)
+function this.script_register(eventIdentifier, param, isRestore)
 	--log("register: "..getDisplayName(eventIdentifier))
 	local eventName, eventId = eventPair(eventIdentifier)
-	if    (eventName=="on_init"                 ) then script[eventName](on_init)
-	elseif(eventName=="on_load"                 ) then script[eventName](on_load)
-	elseif(eventName=="on_configuration_changed") then script[eventName](on_configuration_changed)
-	elseif(eventName=="on_nth_tick"             ) then script.on_nth_tick(param,  on_nth_tick)
-	elseif(eventId and eventId >= 0             ) then script.on_event(eventId,   on_event, param)
-	else   --[[check_customInput(eventName); ]]        script.on_event(eventName, on_event_customInput)
+	local key = eventName or eventId
+
+	if    (eventName=="on_init"                 ) then script[eventName](handler.on_init)
+	elseif(eventName=="on_load"                 ) then script[eventName](handler.on_load)
+	elseif(eventName=="on_configuration_changed") then script[eventName](handler.on_configuration_changed)
+	elseif(eventName=="on_nth_tick"             ) then script.on_nth_tick(param,  handler.on_nth_tick)
+	elseif(eventId and eventId >= 0             ) then script.on_event(eventId,   handler.on_event, param)
+	else   --[[check_customInput(eventName); ]]        script.on_event(eventName, handler.on_event_customInput)
 	end
 	-- can't use check_customInput, because 'game' is not yet available
+
+	if not isRestore and ModInfo.isModLoaded and this.dynamic_events then
+		if eventName=="on_nth_tick" then
+			this.dynamic_events[key] = this.dynamic_events[key] or {}
+			this.dynamic_events[key][param] = true
+		else
+			this.dynamic_events[key] = true
+		end
+	end
 end
 
 local function removeHandler(t, fnc)
@@ -300,18 +350,41 @@ local function removeHandler(t, fnc)
 end
 
 ---Unregisters an event in script
----@param eventIdentifier uint|string
+---@param eventIdentifier eventIdentifier
 ---@param ticks uint|nil only required for on_nth_tick
-local function unregister(eventIdentifier, ticks)
-	if(game.is_multiplayer()) then return end
-	--log("unregister: "..getDisplayName(eventIdentifier)..iif(ticks~=nil," ticks="..ticks,""))
+local function script_unregister(eventIdentifier, ticks)
+	if eventIdentifier == "on_nth_tick"  and not ticks then error("ticks are required for on_nth_tick") end
+
 	local eventName, eventId = eventPair(eventIdentifier)
+	local key = eventName or eventId
+
+	if ModInfo.isModLoaded and this.dynamic_events then
+		if key == "on_nth_tick" then
+			this.dynamic_events[key] = this.dynamic_events[key] or {}
+			if not this.dynamic_events[key][ticks or 0] then return end
+		else
+			if not this.dynamic_events[key] then return end
+		end
+	end
+
+	--if(game.is_multiplayer()) then return end
+	--log("unregister: "..getDisplayName(eventIdentifier)..iif(ticks~=nil," ticks="..ticks,""))
+
 	if    (eventName=="on_init"                 ) then script[eventName](nil)
 	elseif(eventName=="on_load"                 ) then script[eventName](nil)
 	elseif(eventName=="on_configuration_changed") then script[eventName](nil)
 	elseif(eventName=="on_nth_tick"             ) then script.on_nth_tick(ticks, nil)
 	elseif(eventId and eventId >= 0             ) then script.on_event(eventId, nil)
 	else error("Unknown event: "..getDisplayName(eventIdentifier))
+	end
+
+	if ModInfo.isModLoaded and this.dynamic_events then
+		if key == "on_nth_tick" then
+			this.dynamic_events[key] = this.dynamic_events[key] or {}
+			this.dynamic_events[key][ticks or 0] = nil
+		else
+			this.dynamic_events[key] = nil
+		end
 	end
 end
 
@@ -321,26 +394,26 @@ end
 function EventDistributor.unregister(eventIdentifier, fnc)
 	assert(fnc~=nil, "Invalid Argument. 'fnc' must not be nil!")
 	local eventName, eventId = eventPair(eventIdentifier)
-	local key = eventId or eventName
+	local key = eventName or eventId
 	removeHandler(events[key], fnc)
 	if(not events[key] or #events[key]>0) then return end
 	if(eventName=="on_built") then
-		EventDistributor.unregister(defines.events.on_built_entity,                 on_built)
-		EventDistributor.unregister(defines.events.on_robot_built_entity,           on_built)
-		EventDistributor.unregister(defines.events.script_raised_built,             on_built)
-		EventDistributor.unregister(defines.events.script_raised_revive,            on_built)
-		EventDistributor.unregister(defines.events.on_space_platform_built_entity,  on_built)
+		EventDistributor.unregister(defines.events.on_built_entity,                 vhandler.on_built)
+		EventDistributor.unregister(defines.events.on_robot_built_entity,           vhandler.on_built)
+		EventDistributor.unregister(defines.events.script_raised_built,             vhandler.on_built)
+		EventDistributor.unregister(defines.events.script_raised_revive,            vhandler.on_built)
+		EventDistributor.unregister(defines.events.on_space_platform_built_entity,  vhandler.on_built)
 	elseif(eventName=="on_destroy") then
-		EventDistributor.unregister(defines.events.on_pre_player_mined_item,        on_destroy)
-		EventDistributor.unregister(defines.events.on_robot_pre_mined,              on_destroy)
-		EventDistributor.unregister(defines.events.on_entity_died,                  on_destroy)
-		EventDistributor.unregister(defines.events.script_raised_destroy,           on_destroy)
-		EventDistributor.unregister(defines.events.on_space_platform_mined_entity,  on_destroy)
+		EventDistributor.unregister(defines.events.on_pre_player_mined_item,        vhandler.on_destroy)
+		EventDistributor.unregister(defines.events.on_robot_pre_mined,              vhandler.on_destroy)
+		EventDistributor.unregister(defines.events.on_entity_died,                  vhandler.on_destroy)
+		EventDistributor.unregister(defines.events.script_raised_destroy,           vhandler.on_destroy)
+		EventDistributor.unregister(defines.events.on_space_platform_mined_entity,  vhandler.on_destroy)
 	elseif(eventName=="on_entity_moved") then
 		error("Not implemented")
 		--TODO PickerDollies.unregister()
 	else
-		unregister(key)
+		script_unregister(eventIdentifier)
 	end
 end
 
@@ -373,6 +446,9 @@ function insertSorted(list, fnc, prio)
 	return true
 end
 
+---@param key string
+---@param fnc function
+---@return boolean
 local function register_artifical_event(key, fnc)
 	events[key] = events[key] or {}
 	if #events[key]==0 then
@@ -384,7 +460,7 @@ local function register_artifical_event(key, fnc)
 			return false
 		end
 	end
-	local r insertSorted(events[key], fnc, 0); return r --avoid fucking tail calls!! who came up with this nonsense?
+	local r insertSorted(events[key], fnc, 0); return r --avoids fucking tail calls!! who came up with this nonsense?
 end
 
 ---
@@ -414,12 +490,13 @@ function EventDistributor.register (eventIdentifier, fnc, arg, prio)
 	--print("EventDistributor.register "..getDisplayName(eventIdentifier))
 
 	local eventName, eventId = eventPair(eventIdentifier)
-	local key = eventId or eventName
+	local key = eventName or eventId
 	if    (eventName=="nth_tick"       ) then error("Argument out of range. name: eventIdentifier, value: "..eventIdentifier)
-	elseif(eventName=="on_loaded"      ) then EventDistributor.register_nth_tick(1, on_loaded)
+	elseif(eventName=="on_loaded"      ) then EventDistributor.register_nth_tick(1, vhandler.on_loaded)
 	elseif(eventName=="on_next_tick"   ) then EventDistributor.register_on_next_tick(arg, fnc)
 	elseif(eventName=="on_timer"       ) then error("Argument out of range. name: eventIdentifier, value: "..eventIdentifier)
 	elseif(eventName=="on_built"       ) then EventDistributor.register_on_built(arg, fnc); return true
+	elseif(eventName=="on_start"       ) then EventDistributor.register_on_start(fnc); return true
 	elseif(eventName=="on_destroy"     ) then EventDistributor.register_on_destroy(arg, fnc); return true
 	elseif(eventName=="on_entity_moved") then EventDistributor.register_on_entity_moved(fnc, arg) return true
 	end
@@ -427,7 +504,7 @@ function EventDistributor.register (eventIdentifier, fnc, arg, prio)
 	local no_script_register={on_loaded=true}
 	events[key] = events[key] or {}
 	if(#events[key] == 0) then
-		if not no_script_register[eventName] then script_register(eventIdentifier, arg) end
+		if not no_script_register[eventName] then this.script_register(eventIdentifier, arg) end
 	end
 	return insertSorted(events[key], fnc, toPrio(prio))
 end
@@ -443,7 +520,7 @@ function EventDistributor.register_nth_tick(ticks, fnc, prio)
 	events["on_nth_tick"] = events["on_nth_tick"] or {}
 	events["on_nth_tick"][ticks] = events["on_nth_tick"][ticks] or {}
 	if #events["on_nth_tick"][ticks] == 0 then
-		script_register("on_nth_tick",ticks)
+		this.script_register("on_nth_tick",ticks)
 	end
 	return insertSorted(events["on_nth_tick"][ticks],fnc,toPrio(prio))
 end
@@ -456,7 +533,7 @@ function EventDistributor.unregister_on_nth_tick(ticks, fnc)
 	assert(type(fnc)=="function", "Invalid Argument. 'fnc' must be a function.")
 	removeHandler(events["on_nth_tick"][ticks], fnc)
 	if(#events["on_nth_tick"][ticks]>0) then return end
-	unregister("on_nth_tick",ticks)
+	script_unregister("on_nth_tick",ticks)
 end
 
 ---Registers an on_timer
@@ -478,7 +555,6 @@ end
 
 ---@type {[uint]:{fnc:function,state:any}[]}
 local next_tick_registrations = {}
-
 
 ---@class KuxCoreLib.NextTickEventData
 ---@field tick uint 32 bit unsigned integer. Ranges from 0 to 4 294 967 295, or [0, 2^32-1] <br/>The tick during which the event happened.
@@ -512,17 +588,30 @@ function EventDistributor.register_on_next_tick(state, fnc)
 	return true
 end
 
+
 function EventDistributor.register_on_built(item_filter, fnc)
 	register_artifical_event("on_built", fnc)
 
 	--TODO: join item_filter. at the moment only the first resgistration works!
 
 	--on_pre_build
-    EventDistributor.register(defines.events.on_built_entity,       on_built, item_filter)
-    EventDistributor.register(defines.events.on_robot_built_entity, on_built, item_filter)
-    EventDistributor.register(defines.events.script_raised_built,   on_built, item_filter)
-    EventDistributor.register(defines.events.script_raised_revive,  on_built, item_filter)
-	EventDistributor.register(defines.events.on_space_platform_built_entity,  on_built, item_filter) -- new in Factorio 2.0
+    EventDistributor.register(defines.events.on_built_entity,       vhandler.on_built, item_filter)
+    EventDistributor.register(defines.events.on_robot_built_entity, vhandler.on_built, item_filter)
+    EventDistributor.register(defines.events.script_raised_built,   vhandler.on_built, item_filter)
+    EventDistributor.register(defines.events.script_raised_revive,  vhandler.on_built, item_filter)
+	EventDistributor.register(defines.events.on_space_platform_built_entity,  vhandler.on_built, item_filter) -- new in Factorio 2.0
+end
+
+function EventDistributor.register_on_start(fnc)
+	register_artifical_event("on_start", fnc)
+
+	EventDistributor.register("on_init", function() vhandler.on_start({source="on_init"}) end)
+	EventDistributor.register("on_load", function() vhandler.on_start({source="on_load"}) end)
+	EventDistributor.register("on_configuration_changed", function(e)
+		local e1 = table.deepcopy(e)
+		e1.source = "on_configuration_changed";
+		vhandler.on_start(e1)
+	end)
 end
 
 function EventDistributor.register_on_destroy(item_filter, fnc)
@@ -531,17 +620,17 @@ function EventDistributor.register_on_destroy(item_filter, fnc)
 	--TODO: join item_filter. at the moment only the first resgistration works!
 
 	--internal only, not distributed:
-	EventDistributor.register(defines.events.on_pre_player_mined_item,       on_destroy, item_filter)
-	EventDistributor.register(defines.events.on_robot_pre_mined,             on_destroy, item_filter)
-	EventDistributor.register(defines.events.on_space_platform_pre_mined,    on_destroy, item_filter) -- new in Factorio 2.0
-	--EventDistributor.register(defines.events.on_robot_mined,                 on_destroy, nil)
+	EventDistributor.register(defines.events.on_pre_player_mined_item,       vhandler.on_destroy, item_filter)
+	EventDistributor.register(defines.events.on_robot_pre_mined,             vhandler.on_destroy, item_filter)
+	EventDistributor.register(defines.events.on_space_platform_pre_mined,    vhandler.on_destroy, item_filter) -- new in Factorio 2.0
+	--EventDistributor.register(defines.events.on_robot_mined,                 vhandler.on_destroy, nil)
 
 	--distributed: (this are all event where the entity is yet valid)
-	EventDistributor.register(defines.events.on_player_mined_entity,         on_destroy, item_filter)
-	EventDistributor.register(defines.events.on_robot_mined_entity,          on_destroy, item_filter)
-	EventDistributor.register(defines.events.on_entity_died,                 on_destroy, item_filter)
-	EventDistributor.register(defines.events.script_raised_destroy,          on_destroy, item_filter)
-	EventDistributor.register(defines.events.on_space_platform_mined_entity, on_destroy, item_filter) -- new in Factorio 2.0
+	EventDistributor.register(defines.events.on_player_mined_entity,         vhandler.on_destroy, item_filter)
+	EventDistributor.register(defines.events.on_robot_mined_entity,          vhandler.on_destroy, item_filter)
+	EventDistributor.register(defines.events.on_entity_died,                 vhandler.on_destroy, item_filter)
+	EventDistributor.register(defines.events.script_raised_destroy,          vhandler.on_destroy, item_filter)
+	EventDistributor.register(defines.events.on_space_platform_mined_entity, vhandler.on_destroy, item_filter) -- new in Factorio 2.0
 
 	--on_post_entity_died?
 end
@@ -591,7 +680,7 @@ EventDistributor.getPlayerFnc = function(e)
 	return nil
 end
 
-function util.log_summary()
+function this.log_summary()
 	local sb = StringBuilder:new()
 	sb:appendLine(ModInfo.name.." registered events:")
 	for key, v1 in pairs(events) do
@@ -615,30 +704,97 @@ function util.log_summary()
 	log(sb:toString())
 end
 
-local function internal_on_init()
-	ModInfo.current_stage="control-on-init"
+
+---@class this_mt
+local this_mt = {}
+
+function this_mt.__index(t,k)
+	if k=="dynamic_events" then
+		if not Storage.canWrite then return nil end
+		rawset(t, k, Storage.getOrCreate("__KuxCoreLib__.EventDistributor.dynamic_events", {}))
+	else
+		return EventDistributor[k]
+	end
+end
+setmetatable(this, this_mt)
+
+---Restores the dynamic events from storage, if present, and returns the restored table; otherwise returns nil
+---@return KuxCoreLib.DynamicEventsRegistry?
+function this.restoreDynamicEvents()
+	local stored = Storage.get("__KuxCoreLib__.EventDistributor.dynamic_events")
+	if not stored then return nil end
+	local isRestore = true
+	for key, value in pairs(stored) do
+		if key == "on_nth_tick" then
+			for ticks in pairs(value) do
+				this.script_register(key, ticks, isRestore)
+			end
+		elseif value then
+			this.script_register(key, nil, isRestore)
+		end
+	end
+	return stored
 end
 
-local function internal_on_load()
-	ModInfo.current_stage="control-on-load"
-end
 
-local function internal_on_configuration_changed()
-	ModInfo.current_stage="control-on-configuration-changed"
-end
+local function internal_on_init() end
+local function internal_on_load() end
+local function internal_on_configuration_changed(e) end
+local function internal_on_loaded(e)end
 
-local function internal_on_loaded(e)
-	ModInfo.current_stage="control-on-loaded"
-
-	-- if(game.players[e.player_index].mod_settings["Kux-CoreLib_".."on_loaded_LogEvents_StartUpSummary"].value) then
-	-- end
-end
-
-EventDistributor.register("on_init", internal_on_init)
-EventDistributor.register("on_load", internal_on_load)
-EventDistributor.register("on_loaded", internal_on_loaded)
+EventDistributor.register("on_init"                 , internal_on_init)
+EventDistributor.register("on_load"                 , internal_on_load)
 EventDistributor.register("on_configuration_changed", internal_on_configuration_changed)
+EventDistributor.register("on_loaded"               , internal_on_loaded)
 
 ---------------------------------------------------------------------------------------------------
 KuxCoreLib.__classUtils.finalize(EventDistributor)
 return EventDistributor
+
+---@alias eventIdentifier int|string|defines.events
+
+---@alias KuxCoreLib.DynamicEventsRegistry {[eventIdentifier]: ("true" | {[integer]: "true"}) }
+
+---@class EventHandler
+---       ‾‾‾‾‾‾‾‾‾‾‾‾‾
+---@field fnc function
+---@field prio integer
+
+
+---@class (exact) KuxCoreLib.PlayerStartupEventData
+---               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+---@field mod_name string?         The name of the mod that raised the event if it was raised using LuaBootstrap::raise_event.
+---@field tick integer             The tick during which the event happened.
+---@field name "on_player_startup" Identifier of the event.
+---@field original_name defines.events|string Identifier of the event.
+---@field player_index integer
+
+
+---@class (exact) KuxCoreLib.StartEventData : ConfigurationChangedData
+---               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+---@field source "on_init"|"on_load"|"on_configuration_changed"|"custom_start"
+---@field mod_name string The mod that triggered a `custom_start`
+---
+---Old version of the map. Present only when loading map version other than the current version.
+---@field old_version? string
+---@
+---
+---New version of the map. Present only when loading map version other than the current version.
+---@field new_version? string
+---@
+---
+---Dictionary of mod changes. It is indexed by mod name.
+---@field mod_changes table<string,ModChangeData>
+---@
+---
+---`true` when mod startup settings have changed since the last time this save was loaded.
+---@field mod_startup_settings_changed boolean
+---@
+---
+---`true` when mod prototype migrations have been applied since the last time this save was loaded.
+---@field migration_applied boolean
+---@
+---
+---Dictionary of prototype changes due to [migrations](https://lua-api.factorio.com/latest/migrations.html). The inner dictionary maps the old prototype name to the new prototype name. The new name will be an empty string if the prototype was removed. Entries are omitted if the old and new prototype name are the same.
+---@field migrations table<IDType,table<string,string>>
+---@

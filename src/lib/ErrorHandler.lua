@@ -12,7 +12,11 @@ local ErrorHandler = {
 	__on_initialized = {}
 }
 if not KuxCoreLib.__classUtils.ctor(ErrorHandler) then return self end
----------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+if(not script) -- events are only available in control stage
+	then KuxCoreLib.__classUtils.finalize(ErrorHandler) return ErrorHandler end
+--- control stage only ---------------------------------------------------------
+
 local Events = KuxCoreLib.Events
 local EventDistributor = KuxCoreLib.EventDistributor
 local ModInfo = KuxCoreLib.ModInfo
@@ -98,7 +102,7 @@ end
 ---@field point_to MapPosition?
 
 ---Creates a report for the given error
----@param evt EventData|CustomInputEvent|nil
+---@param evt EventData|EventData.CustomInputEvent|nil
 ---@param err any
 ---@param args ErrorHandler.createReport.args?
 function ErrorHandler.createReport(evt, err, args)
@@ -161,7 +165,7 @@ end
 
 ---Provides ErrorHandler in the global namespace
 ---@return KuxCoreLib.ErrorHandler
-function ErrorHandler.asGlobal() return KuxCoreLib.__classUtils.asGlobal(ErrorHandler) end
+function ErrorHandler.asGlobal() return KuxCoreLib.__classUtils.asGlobal(ErrorHandler) --[[@as KuxCoreLib.ErrorHandler]] end
 
 ErrorHandler.__isInitialized = true
 for _, fnc in ipairs(ErrorHandler.__on_initialized) do fnc() end

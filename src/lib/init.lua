@@ -100,6 +100,8 @@ end
 ---@field FactorioDatabase KuxCoreLib.FactorioDatabase
 ---@field RecipeUtils KuxCoreLib.RecipeUtils
 ---@field ElementUtils KuxCoreLib.ElementUtils
+---@field BlueprintItem KuxCoreLib.BlueprintItem.static
+---@field BlueprintUtils KuxCoreLib.BlueprintUtils
 
 
 ---Provides access to Kux-CoreLib modules<br>
@@ -190,6 +192,8 @@ local require_map = { --RUN (F5) to AUTOGENERATE
 		FactorioDatabase = "",
 		RecipeUtils = "",
 		ElementUtils = "",
+		BlueprintItem = "",
+		BlueprintUtils = "",
 
         Array = "collections",
         Dictionary = "collections",

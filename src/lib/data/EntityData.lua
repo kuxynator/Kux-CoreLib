@@ -21,11 +21,11 @@ EntityData.scale_util = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/dat
 ---@param name string
 ---@param newName string
 ---@param patch {[string]:any}?
----@return data.EntityPrototype
+---@return EntityPrototype
  function EntityData.clone(type, name, newName, patch)
 	local base = data.raw[type][name]
 	if(not base) then error("Prototype not found: "..name.." (type: "..type..")") end
-	local entity = table.deepcopy(base)--[[@as data.EntityPrototype]]
+	local entity = table.deepcopy(base)--[[@as EntityPrototype]]
 	entity.name = newName
 	if(entity.minable) then
 		if entity.minable.results then
@@ -106,11 +106,11 @@ end
 local unpackBoundingBox4 = EntityData.unpackBoundingBox4
 
 ---Get the size of an entity
----@param entity data.EntityPrototype|LuaEntity
+---@param entity EntityPrototype|LuaEntity
 ---@return number,number
 function EntityData.getSize(entity)
 	---@diagnostic disable-next-line: param-type-mismatch, cast-local-type
-	if entity.object_name then entity = entity.prototype end ---@cast entity data.EntityPrototype
+	if entity.object_name then entity = entity.prototype end ---@cast entity EntityPrototype
 
 	-- tile_width, tile_height is rarely used anymore, as it is only used for alignment (tile-edge or tile center)
 	if entity.collision_box then
@@ -129,13 +129,13 @@ function EntityData.getSize(entity)
 end
 
 ---Get tile offset of an entity
----@param entity data.EntityPrototype|LuaEntity
+---@param entity EntityPrototype|LuaEntity
 ---@param revert boolean
 ---@return Vector
 function EntityData.getTileOffset(entity, revert)
 	local w,h
     ---@diagnostic disable-next-line: param-type-mismatch, cast-local-type
-	if entity.object_name then entity = entity.prototype end ---@cast entity data.EntityPrototype
+	if entity.object_name then entity = entity.prototype end ---@cast entity EntityPrototype
 
 	if entity.tile_width then w = entity.tile_width
 	elseif entity.collision_box then w = math.ceil(entity.collision_box.right_bottom.x - entity.collision_box.left_top.x)
@@ -155,7 +155,7 @@ end
 
 
 ---Scale an entity prototype
----@param entity data.EntityPrototype
+---@param entity EntityPrototype
 ---@param scale number The scale factor
 function EntityData.scale(entity, scale) EntityData.scale_util.scale(entity, scale) end
 

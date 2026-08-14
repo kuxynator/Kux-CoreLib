@@ -14,7 +14,7 @@
 	Then you can use your `mod` in all stages.
 
 	--[[settings.lua]]------------------------------------------------------]
-	--  require("mod")
+	--  require("mod").initStage()
 	--  ...
 	--[[--------------------------------------------------------------------]
 -----------------------------------------------------------------------------]]
@@ -27,6 +27,8 @@ if(KuxCoreLib.__modules.ModInfo) then
 	end
 	return KuxCoreLib.__modules.ModInfo
 end
+
+local protected_keys = {}
 
 -- local isOverriding
 -- if ModInfo then
@@ -57,6 +59,7 @@ end
 ---@field separator string The separator for the prefix. default: "_"
 
 ---@class KuxCoreLib.ModInfo
+---@field initStage fun():KuxCoreLib.ModInfo  Initializes this mod instance for the current stage.
 local ModInfo = {
 	__class  = "ModInfo",
 	__guid   = "35fb3f52-acde-45b9-9792-d1c0f570408b",
@@ -108,13 +111,21 @@ ModInfo.separator = "_"
 ---example `ModName_`
 ModInfo.prefix = nil
 
+---Returns whether the current mod is loaded; this means that “on_load” has been triggered, all handlers have been executed, and the function has returned.
+---@type boolean
+ModInfo.isModLoaded = false
+
 ---getEntryStage
 ---@return "settings"|"settings-updates"|"settings-final-fixes"|"data"|"data-updates"|"data-final-fixes"|"control"
 ModInfo.getEntryStage = debug_util.getEntryStage
 
 ---Update `current_stage` and `name`
-function ModInfo.update()
-	if(ModInfo.current_stage~="undefined" and ModInfo.current_stage:match("^control") and ModInfo.name) then return end
+---@param self KuxCoreLib.ModInfo
+---@return KuxCoreLib.ModInfo
+---@overload fun():KuxCoreLib.ModInfo
+function ModInfo.update(self)
+	if(ModInfo.current_stage~="undefined" and ModInfo.current_stage:match("^control") and ModInfo.name)
+		then return self or ModInfo end
 	local stackTrace = debug.traceback()
 	local stage = "undefined"
 	local mod_name = nil
@@ -127,19 +138,41 @@ function ModInfo.update()
 	end
 
 	if(mod_name) then
-		ModInfo.name = mod_name
-		ModInfo.path = "__"..mod_name.."__/"
-		--ModInfo.prefix = ModInfo.name..ModInfo.separator
-		ModInfo.version = script and script.active_mods[mod_name] or mods[mod_name]
+		ModInfo.name      = mod_name
+		ModInfo.path      = "__"..mod_name.."__/"
+		ModInfo.separator = "_"
+		ModInfo.version   = script and script.active_mods[mod_name] or mods[mod_name]
+
+		if self then
+			local protected = protected_keys[self]
+			local o = protected or self
+			o.name    = ModInfo.name
+			o.path    = ModInfo.path
+			o.version = ModInfo.version
+			o.prefix  = ModInfo.name..(o.separator or ModInfo.separator)
+		 end
+
 	end
 
 	--log("ModInfo.update(): stage="..ModInfo.current_stage.." mod="..ModInfo.name.." "..ModInfo.version)
+	return self or ModInfo
 end
 
+-- function ModInfo:protect()
+-- 	local mt = getmetatable(self)
+-- 	mt.__newindex = function() error("ModInfo is protected.") end
+-- 	mt.__metatable = "ModInfo is protected"
+-- end
+
 function ModInfo:protect()
-	local mt = getmetatable(self)
-	mt.__newindex = function() error("ModInfo is protected.") end
-	mt.__metatable = "ModInfo is protected"
+	local protected = {}
+	local mt = {
+		__newindex = function() error("ModInfo is protected.") end,
+		__index = self,
+		_metatable = "ModInfo is protected"
+	}
+	protected_keys[protected] = self
+	return setmetatable(protected, mt)
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -166,6 +199,14 @@ function ModInfo.new(additionalMembers)
 	--log("ModInfo.new()")
 	local instance = {}
 	if additionalMembers then for key, value in pairs(additionalMembers) do instance[key] = value end end
+	instance.initStage = function ()
+		ModInfo.update(instance)
+		return instance
+	end
+	instance.asGlobal = function ()
+		_G.mod = instance
+		return instance
+	end
 	local mod = setmetatable(instance, {
 		__index = ModInfo,
 		--__newindex = function() error("ModInfo is protected.") end,

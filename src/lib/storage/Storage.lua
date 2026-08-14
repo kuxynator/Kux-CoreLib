@@ -6,7 +6,7 @@ require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/init")
 ---@field events nil reserved
 ---
 ---Because the name 'global' is ambiguous, we use 'storage' instead
----Introduced as 'Global' in 2.7.0, renamed to STorage in 2.7.1
+---Introduced as 'Global' in 2.7.0, renamed to Storage in 2.7.1
 ---Factorio 2.0 has renamed the 'global' table to 'storage' so we have some conflicts to resolve
 local Storage = {
 	__class  = "Storage",
@@ -15,9 +15,15 @@ local Storage = {
 	raw = {}
 }
 if not KuxCoreLib.__classUtils.ctor(Storage) then return self end
----------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+if(not script) -- events are only available in control stage
+	then KuxCoreLib.__classUtils.finalize(Storage) return Storage end
+--- control stage only ---------------------------------------------------------
 
 local Events = KuxCoreLib.Events
+local StorageNamespace = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/storage/StorageNamespace").ctor(Storage)
+
+Storage.new = StorageNamespace.new
 
 ---Gets a value indicating wether the Storage (resp. the `global` variable) can be read.
 ---@type boolean
@@ -60,8 +66,9 @@ Storage.__self.path_registrations = Storage.__self.path_registrations or {}
 ---Names startinng with `__` are reserved for internal use and are not stored in `storage`.
 function Storage.register(path, owner)
 	local registrations = Storage.__self.path_registrations
-	if not registrations[path] then registrations[path] = owner or "unknown" return end
-	if registrations[path] == owner then return end
+	--TODO: normalize path
+	if not registrations[path] then registrations[path] = owner or "unknown" return path end
+	if registrations[path] == owner then return path end
 	error("Path already registered. Path:'"..path.."' Owner:'"..registrations[path].."'")
 end
 
@@ -140,9 +147,9 @@ function Storage.set(...)
 	t[path[#path]] = value
 end
 
----Get value from storage
----@param ... (string|table) Path segments (strings with optional "/" or arrays of segments)
----@return any
+---Gets a value from storage or nil
+---@param ... any Path segments
+---@return any value The existing value or nil.
 function Storage.get(...)
 	local raw = { ... }
 	local path = {}
@@ -167,6 +174,28 @@ function Storage.get(...)
 	end
 
 	return t
+end
+
+---Gets a value from storage or creates it with the specified default value.
+---@param ... any Path segments followed by the default value.
+---@return any value The existing or newly stored value.
+function Storage.getOrCreate(...)
+	local args = table.pack(...)
+	if args.n < 2 then error("Argument count mismatch. getOrCreate requires at least a name and a default value") end
+
+	local default = args[args.n]
+	args[args.n] = nil
+	args.n = args.n - 1
+
+	local value = Storage.get(table.unpack(args, 1, args.n))
+	if value ~= nil then return value end
+
+	if Storage.canWrite then
+		Storage.set(table.unpack(args, 1, args.n), default)
+	else
+		default.isLocal=true
+	end
+	return default
 end
 
 ---Get boolean value

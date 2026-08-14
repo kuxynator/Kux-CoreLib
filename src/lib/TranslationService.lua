@@ -11,31 +11,58 @@ local TranslationService = {
 if not KuxCoreLib.__classUtils.ctor(TranslationService) then return self end
 -----------------------------------------------------------------------------------------------------------------------
 local Events = KuxCoreLib.require.Events
+local ModInfo = KuxCoreLib.require.ModInfo
 local LocalizationUtils = KuxCoreLib.require.LocalizationUtils
 local TranslationProgressWindow = require((KuxCoreLibPath or "__Kux-CoreLib__/").."lib/TranslationProgressWindow")
+local Storage = KuxCoreLib.require.Storage
+
+
+Storage.register("storage.__KuxCoreLib__.TranslationService", TranslationService.__class)
+Storage.register("storage.__KuxCoreLib__.TranslationService.registry", "KuxCoreLib.TranslationService.registry")
 
 ---@class KuxCoreLib.TranslationService.handler
 local handler = {
 	__class  = "KuxCoreLib.TranslationService.handler",
 }
 
-local parser = {}
+---@class KuxCoreLib.TranslationService.parser
+local parser = {
+	__class  = "KuxCoreLib.TranslationService.parser",
+}
 
 ---queued loc registrations
 local gui_localizations = {}
 
----@class KuxCoreLib.TranslationService.registry
-local registry = {
-	num_queued = 0,
-	num_requests = 0,
-	queue={}, ---@type {[string]: {[string]: {localised_string:LocalisedString, player_index:number}}} -- locale -> {hash -> {localised_string, player_index}
-	requests={}, -- locale -> {id -> hash}
-	translated={}, -- locale -> {hash -> LocalisedString}
-	idx_hash_localised_string={} -- {hash -> LocalisedString}
-}
+---local copy of storage.__KuxCoreLib__.TranslationService.registry
+---@type KuxCoreLib.TranslationService.registry
+local registry
 
 local last_update_tick = 0
 local progress_max = 0
+
+---@return KuxCoreLib.TranslationService.registry
+local function createRegistry()
+	return {
+		num_queued = 0,
+		num_requests = 0,
+		queue={}, ---@type {[string]: {[string]: {localised_string:LocalisedString, player_index:number}}} -- locale -> {hash -> {localised_string, player_index}
+		requests={}, -- locale -> {id -> hash}
+		translated={}, -- locale -> {hash -> LocalisedString}
+		idx_hash_localised_string={} -- {hash -> LocalisedString}
+	} --[[@as KuxCoreLib.TranslationService.registry]]
+end
+
+---@return KuxCoreLib.TranslationService.registry
+local function getRegistry()
+	local cached = Storage.get("storage.__KuxCoreLib__.TranslationService.registry")
+	if not cached and Storage.canWrite then
+		cached = createRegistry()
+		Storage.set("storage.__KuxCoreLib__.TranslationService.registry", cached)
+	end
+	if not cached then log("\n  " .. ModInfo.name .. " TranslationService.getRegistry: WARNING can not write storage!") end
+	return cached
+end
+
 
 ---Gets a stable string as hash
 ---@param localizable_string LocalisedString
@@ -219,6 +246,7 @@ end
 ---@param localizable_string LocalisedString
 ---@param direct boolean?
 function TranslationService.request(player, localizable_string, direct)
+	--log("TranslationService.request "..tostring(player.index).." "..tostring(localizable_string))
 	if localizable_string == nil then return end
 	if type(localizable_string) == "string" then localizable_string = {localizable_string} end -- <FEATURE
 	if type(localizable_string) ~= "table" then return end
@@ -261,9 +289,11 @@ end
 ---@param player LuaPlayer
 ---<p>CALLED-BY: control.on_loaded</p>
 function TranslationService.request_gui_localization(player)
+	print("TranslationService.request_gui_localization")
 	for _, loc in pairs(gui_localizations) do
 		LocalizationUtils.request_translation(player, loc)
 	end
+	print("end TranslationService.request_gui_localization")
 end
 
 
@@ -291,97 +321,12 @@ function request_internal(player_index, hash, localised_string)
 	return id
 end
 
----@param e EventData.on_string_translated
-function handler.on_string_translated(e)
-	local _ = "fnc{49483a93-e3fc-442e-a632-5630ebfc6c11}"
-	local player = game.players[e.player_index]
-	local locale = player.locale
-	if not registry.requests[locale] then return end --requested by other mod
-	local hash = registry.requests[locale][e.id]
-	if not hash then return end  --requested by other mod
-	--clean request
-	registry.requests[locale][e.id] = nil
-	registry.requests[locale][hash] = nil
-	--save result
-	registry.translated[locale][hash] = e.result
-	registry.num_requests = registry.num_requests - 1
-	--print("TranslationService result :"..locale.." "..str(hash).." "..str(e.result))
-
-	if (last_update_tick) < game.tick-10 or registry.num_requests+registry.num_queued == 0 then
-		last_update_tick = game.tick
-		local current = progress_max - registry.num_requests - registry.num_queued
-		TranslationProgressWindow.show(script.mod_name, current, progress_max)
-	end
-
-	local guiReq = dic_rid_guiElement[e.id]
-	if guiReq then
-		if not guiReq.element or not guiReq.element.valid then
-			local player = game.players[guiReq.element.player_index]
-			---@diagnostic disable-next-line: undefined-global, undefined-field
-			guiReq.element = Gui.getElement(player, guiReq.element.path)
-		end
-		dic_rid_guiElement[e.id] = nil
-		local transl = TranslationService.get(e.localised_string, locale, true) or ""
-		if transl:find("^Unknown key") then return end
-		guiReq.element[guiReq.property] = transl
-		return
-	end
+function TranslationService.start(mod_name)
+	handler.on_start{source="on_custom_start", mod_name=mod_name}
 end
 
-function handler.on_nth_tick_1(e)
-	local _ = "fnc{cc5f09b5-19a9-45ae-a63e-7bcf896113fc}"
-	if registry.num_queued == 0 then return end
-	local count = 100
-	local orphaned = {}
-	for locale, list in pairs(registry.queue) do
-		local player = findPlayer(locale)
-		if not player then
-			orphaned[locale]=true
-			goto next_locale
-		end
-		for hash, data in pairs(list) do
-			request_internal(player.index, hash, data.localised_string)
-			count = count - 1
-			if count == 0 then return end
-		end
-		::next_locale::
-	end
-	for locale, _ in pairs(orphaned) do
-		local c = 0 for _, _ in pairs(registry.queue[locale]) do c=c+1 end
-		registry.num_queued = registry.num_queued - c
-		registry.queue[locale]=nil
-	end
-end
 
-Events.on_event(defines.events.on_string_translated, function (e) handler.on_string_translated(e) end)
-Events.on_nth_tick(1, handler.on_nth_tick_1)
-Events.on_loaded(function ()
-	Events.on_next_tick({},function ()
-		local locale = {}
-		for _, player in pairs(game.players) do
-			if not locale[player.locale] then
-				TranslationService.request_gui_localization(player)
-			end
-		end
-	end)
-end)
-
----@param e EventData.on_player_locale_changed
-Events.on_event(defines.events.on_player_locale_changed, function(e)
-	local player = game.players[e.player_index]
-	print (e.tick, "on_player_locale_changed", e.player_index, e.old_locale, player.locale)
-	if registry.queue[player.locale] then return end
-	for hash, localised_string in ipairs(registry.idx_hash_localised_string) do
-		request_core(player.locale,localised_string,hash)
-	end
-end)
-
----@param e EventData.on_player_created
-Events.on_event(defines.events.on_player_created, function(e)
-	print (e.tick, "on_player_created", e.player_index)
-end)
-
------------------------------------------------------------------------------------------------------------------------
+--#region Parser
 
 ---
 ---@param ls LocalisedString
@@ -532,9 +477,127 @@ if not commands.commands["test-ts"] then commands.add_command("test-ts","", func
 	TEST_tid = TranslationService.request(game.players[e.player_index], ls, true)
 end)end
 
----
+--#region Event handler
+
+
+function handler.on_nth_tick_1(e) local _ = "fnc{cc5f09b5-19a9-45ae-a63e-7bcf896113fc}"
+	--log(ModInfo.name.." TranslationService.on_nth_tick_1")
+
+	--[[DEVELOP]] if not registry then registry = getRegistry() end --[[DEVELOP]]
+
+	if registry.num_queued == 0 then return end
+	local count = 100
+	local orphaned = {}
+	for locale, list in pairs(registry.queue) do
+		local player = findPlayer(locale)
+		if not player then
+			orphaned[locale]=true
+			goto next_locale
+		end
+		for hash, data in pairs(list) do
+			request_internal(player.index, hash, data.localised_string)
+			count = count - 1
+			if count == 0 then return end
+		end
+		::next_locale::
+	end
+	for locale, _ in pairs(orphaned) do
+		local c = 0 for _, _ in pairs(registry.queue[locale]) do c=c+1 end
+		registry.num_queued = registry.num_queued - c
+		registry.queue[locale]=nil
+	end
+	--print("end TranslationService.on_nth_tick_1")
+end
+
+---can be called multiple times (on_loaded / on_player_joined_game)
+---@param e {source: string, mod_name: string} | ConfigurationChangedData
+function handler.on_start(e)
+	log("TranslationService.on_start source: "..e.source..(e.mod_name and ", mod_name: "..e.mod_name or ""))
+	if not registry then registry = getRegistry() end
+	if e.source == "on_load" then return end
+
+	--Events.on_timer(500, function ()
+	-- Events.on_next_tick({},function ()
+		--log(ModInfo.name.." on_next_tick "..game.tick.."--------------------------------------------------------")
+		local locale = {}
+		for _, player in pairs(game.connected_players) do
+			if not locale[player.locale] then
+				locale[player.locale] = true;
+				TranslationService.request_gui_localization(player)
+			end
+		end
+	-- end)
+end
+
+---called in single player and multiplayer headless server
+function handler.on_loaded()
+	log(ModInfo.name.." TranslationService.on_loaded "..game.tick.."--------------------------------------------------------")
+	handler.on_start({source="on_loaded"})
+end
+
+---called in multiplayer only
+---@param e EventData.on_player_joined_game
+function handler.on_player_joined_game(e)
+	print (e.tick, "on_player_joined_game", e.player_index)
+	handler.on_start({source="on_loon_player_joined_gameaded"})
+end
+
+---@param e EventData.on_player_created
+function handler.on_player_created(e)
+	print (e.tick, "on_player_created", e.player_index)
+end
+
+---@param e EventData.on_player_locale_changed
+function handler.on_player_locale_changed(e)
+	local player = game.players[e.player_index]
+	print (e.tick, "on_player_locale_changed", e.player_index, e.old_locale, player.locale)
+	if registry.queue[player.locale] then return end
+	for hash, localised_string in pairs(registry.idx_hash_localised_string) do
+		request_core(player.locale,localised_string,hash)
+	end
+end
+
 ---@param e EventData.on_string_translated
-Events.on_event(defines.events.on_string_translated, function(e)
+function handler.on_string_translated(e) local _ = "fnc{49483a93-e3fc-442e-a632-5630ebfc6c11}"
+	--print("TranslationService on_string_translated")
+	local player = game.players[e.player_index]
+	local locale = player.locale
+	if not registry.requests[locale] then return end --requested by other mod
+	local hash = registry.requests[locale][e.id]
+	if not hash then return end  --requested by other mod
+	--clean request
+	registry.requests[locale][e.id] = nil
+	registry.requests[locale][hash] = nil
+	--save result
+	registry.translated[locale][hash] = e.result
+	registry.num_requests = registry.num_requests - 1
+	--print("TranslationService result :"..locale.." "..str(hash).." "..str(e.result))
+
+	if (last_update_tick) < game.tick-10 or registry.num_requests+registry.num_queued == 0 then
+		last_update_tick = game.tick
+		local current = progress_max - registry.num_requests - registry.num_queued
+		TranslationProgressWindow.show(script.mod_name, current, progress_max)
+	end
+
+	local guiReq = dic_rid_guiElement[e.id]
+	if guiReq then
+		if not guiReq.element or not guiReq.element.valid then
+			local player = game.players[guiReq.element.player_index]
+			---@diagnostic disable-next-line: undefined-global, undefined-field
+			guiReq.element = Gui.getElement(player, guiReq.element.path)
+		end
+		dic_rid_guiElement[e.id] = nil
+		local transl = TranslationService.get(e.localised_string, locale, true) or ""
+		if transl:find("^Unknown key") then return end
+		guiReq.element[guiReq.property] = transl
+		return
+	end
+end
+
+---handler for command `/test-ts`
+---@param e EventData.on_string_translated
+function handler.on_string_translated_test(e)
+	--log("TranslationService.on_string_translated")
 	if TEST_tid and e.id == TEST_tid then
 		local t= registry.translated
 		local s
@@ -544,7 +607,16 @@ Events.on_event(defines.events.on_string_translated, function(e)
 		game.players[e.player_index].print("Test erfolgreich: "..s)
 		TEST_tid = nil
 	end
-end)
+end
+
+Events.on_start(handler.on_start)
+Events.on_event(defines.events.on_player_joined_game, handler.on_player_joined_game)
+Events.on_loaded(handler.on_loaded)
+Events.on_nth_tick(1, handler.on_nth_tick_1)
+Events.on_event(defines.events.on_string_translated, function (e) handler.on_string_translated(e) end)
+Events.on_event(defines.events.on_player_created, handler.on_player_created)
+Events.on_event(defines.events.on_string_translated, handler.on_string_translated_test)
+Events.on_event(defines.events.on_player_locale_changed, handler.on_player_locale_changed)
 
 -----------------------------------------------------------------------------------------------------------------------
 KuxCoreLib.__classUtils.finalize(TranslationService)
@@ -553,8 +625,18 @@ return TranslationService
 ---@alias LocalisedStringType "plain"|"chain"|"key"
 
 ---@class LocalisedStringData
----
+---       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 ---@field type LocalisedStringType
 ---@field value LocalisedStringData? type "plain"
 ---@field values LocalisedStringData[]? type "chain"
 ---@field parameters LocalisedStringData[]? ftype "key"
+
+
+---@class KuxCoreLib.TranslationService.registry
+---       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+---@field num_queued integer
+---@field num_requests integer
+---@field queue table<string, table<string, {localised_string:LocalisedString, player_index:number}>> locale -> {hash -> {localised_string, player_index}
+---@field requests table<string, table<integer, string>>            locale -> {id -> hash}
+---@field translated table<string, table<string, string>>           locale -> {hash -> LocalisedString}
+---@field idx_hash_localised_string table<string, LocalisedString>  {hash -> LocalisedString}

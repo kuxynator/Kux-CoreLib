@@ -2,38 +2,39 @@
 
 ---@alias Position  MapPosition -- TODO maybe also TilePosition or ChunkPosition, need deeper check
 
---TODO: verify memebers generated with ChatGPT
+--TODO: verify math class members! generated with ChatGPT
 
---- math class
---- @class math
---- @field pi number The mathematical constant pi (≈ 3.14159).
---- @field radianConversion number The conversion factor from degrees to radians.
---- @field sqrt fun(x: number): number Returns the square root of `x`.
---- @field abs fun(x: number): number Returns the absolute value of `x`.
---- @field acos fun(x: number): number Returns the arc cosine of `x` (in radians).
---- @field asin fun(x: number): number Returns the arc sine of `x` (in radians).
---- @field atan fun(x: number): number Returns the arc tangent of `x` (in radians).
---- @field atan2 fun(y: number, x: number): number Returns the arc tangent of the quotient `y/x` (in radians).
---- @field ceil fun(x: number): number Returns the smallest integer greater than or equal to `x`.
---- @field cos fun(x: number): number Returns the cosine of `x` (in radians).
---- @field deg fun(x: number): number Converts `x` from radians to degrees.
---- @field exp fun(x: number): number Returns `e` raised to the power of `x`.
---- @field floor fun(x: number): number Returns the largest integer less than or equal to `x`.
---- @field fmod fun(x: number, y: number): number Returns the remainder of `x` divided by `y`.
---- @field frexp fun(x: number): number, number Returns the mantissa and exponent of `x`.
---- @field log fun(x: number, base: number?): number Returns the logarithm of `x` to the given `base` (natural logarithm if `base` is not provided).
---- @field log10 fun(x: number): number Returns the base-10 logarithm of `x`.
---- @field max fun(...:number): number Returns the largest value among the arguments.
---- @field min fun(...:number): number Returns the smallest value among the arguments.
---- @field modf fun(x: number): number, number Returns the integral and fractional parts of `x`.
---- @field rad fun(x: number): number Converts `x` from degrees to radians.
---- @field random fun(a: number?, b: number?): number Returns a random number between `a` and `b` (inclusive) or between 0 and 1 if no arguments are provided.
---- @field sin fun(x: number): number Returns the sine of `x` (in radians).
---- @field sinh fun(x: number): number Returns the hyperbolic sine of `x`.
---- @field tan fun(x: number): number Returns the tangent of `x` (in radians).
---- @field tanh fun(x: number): number Returns the hyperbolic tangent of `x`.
---- @field todegrees fun(x: number): number Converts `x` from radians to degrees.
---- @field toradians fun(x: number): number Converts `x` from degrees to radians.
+-- - math class
+-- - @class math
+-- -        ----
+-- - @field pi number The mathematical constant pi (≈ 3.14159).
+-- - @field radianConversion number The conversion factor from degrees to radians.
+-- - @field sqrt fun(x: number): number Returns the square root of `x`.
+-- - @field abs fun(x: number): number Returns the absolute value of `x`.
+-- - @field acos fun(x: number): number Returns the arc cosine of `x` (in radians).
+-- - @field asin fun(x: number): number Returns the arc sine of `x` (in radians).
+-- - @field atan fun(x: number): number Returns the arc tangent of `x` (in radians).
+-- - @field atan2 fun(y: number, x: number): number Returns the arc tangent of the quotient `y/x` (in radians).
+-- - @field ceil fun(x: number): number Returns the smallest integer greater than or equal to `x`.
+-- - @field cos fun(x: number): number Returns the cosine of `x` (in radians).
+-- - @field deg fun(x: number): number Converts `x` from radians to degrees.
+-- - @field exp fun(x: number): number Returns `e` raised to the power of `x`.
+-- - @field floor fun(x: number): number Returns the largest integer less than or equal to `x`.
+-- - @field fmod fun(x: number, y: number): number Returns the remainder of `x` divided by `y`.
+-- - @field frexp fun(x: number): number, number Returns the mantissa and exponent of `x`.
+-- - @field log fun(x: number, base: number?): number Returns the logarithm of `x` to the given `base` (natural logarithm if `base` is not provided).
+-- - @field log10 fun(x: number): number Returns the base-10 logarithm of `x`.
+-- - @field max fun(...:number): number Returns the largest value among the arguments.
+-- - @field min fun(...:number): number Returns the smallest value among the arguments.
+-- - @field modf fun(x: number): number, number Returns the integral and fractional parts of `x`.
+-- - @field rad fun(x: number): number Converts `x` from degrees to radians.
+-- - @field random fun(a: number?, b: number?): number Returns a random number between `a` and `b` (inclusive) or between 0 and 1 if no arguments are provided.
+-- - @field sin fun(x: number): number Returns the sine of `x` (in radians).
+-- - @field sinh fun(x: number): number Returns the hyperbolic sine of `x`.
+-- - @field tan fun(x: number): number Returns the tangent of `x` (in radians).
+-- - @field tanh fun(x: number): number Returns the hyperbolic tangent of `x`.
+-- - @field todegrees fun(x: number): number Converts `x` from radians to degrees.
+-- - @field toradians fun(x: number): number Converts `x` from degrees to radians.
 
 
 --TODO: verify members generated with ChatGPT
@@ -73,6 +74,34 @@
 ---@field foreachi fun(t: table, f: function) Applies a function to each numeric key in a table (deprecated in Lua 5.1 and later).
 ---@field getn fun(t: table): integer Returns the number of elements in a table (deprecated, use `#t` instead).
 ---@field maxn fun(t: table): integer Returns the highest numeric index in a table (deprecated).
+
+
+--- debug class (generated with ChatGPT)
+---@class debug
+---       -----
+---@field getinfo fun(func: function|integer, what?: string): DebugInfo?
+---@field traceback fun(message?: any, level?: integer): string
+
+---@class DebugInfo
+---       ---------
+---@field name? string
+---@field namewhat string
+---@field what string
+---@field source string
+---@field short_src string
+---@field linedefined integer
+---@field lastlinedefined integer
+---@field currentline integer
+---@field nups integer
+---@field nparams integer
+---@field isvararg boolean
+---@field istailcall boolean
+---@field func? function
+---@field activelines? table
+
+
+--- package class TODO
+--- @class package
 
 ---@alias array any[]
 

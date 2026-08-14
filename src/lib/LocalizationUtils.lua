@@ -40,7 +40,13 @@ function LocalizationUtils.map_keys(loc, view_name, mod_name)
 				loc[k1] = section.."."..k1
 			elseif type(v1) == "table" then
 				for k2, v2 in pairs(v1) do
-					v1[k2] = section.."-"..k1:gsub("^[^%w]+", "").."."..k2
+					--v1[k2] = section.."-"..k1:gsub("^[^%w]+", "").."."..k2
+					if k1:sub(1, 1) == "." then --swap
+						v1[k2] = section.."-"..k2:gsub("^[^%w]+", "")..k1
+					else
+						v1[k2] = section.."-"..k1:gsub("^[^%w]+", "").."."..k2
+					end
+					--print("k1: "..k1.." > "..v1[k2])
 				end
 			else
 				error("invalid value")

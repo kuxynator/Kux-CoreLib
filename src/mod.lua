@@ -1,5 +1,5 @@
 --[[
-	Use this only as local mod = require("mod")
+	Use this only as `local mod = require("mod")`
 --]]
 
 require("init")

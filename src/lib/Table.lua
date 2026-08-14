@@ -105,15 +105,44 @@ function Table.hasValue(t, value)
     return false
 end
 
----Gets a value indicating the table contains a specific element.
+-- ---Gets a value indicating the table contains a specific element.
+-- ---@param t table
+-- ---@param element any
+-- ---@return boolean
+-- function Table.contains(t, element)
+--     for _, v in pairs(t) do
+--         if v == element then return true end
+--     end
+--     return false
+-- end
+
+---Checks whether the table contains any of the given elements.
 ---@param t table
----@param element any
+---@param ... any
 ---@return boolean
-function Table.contains(t, element)
-    for _, v in pairs(t) do
-        if v == element then return true end
-    end
-    return false
+function Table.contains(t, ...)
+	local values = {...}
+	for _, v in pairs(t) do
+		for _, wanted in ipairs(values) do
+			if v == wanted then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+---Checks if the table contains at least one of the given elements.
+---@param t table
+---@param values any[]
+---@return boolean
+function Table.containsAny(t, values)
+	for _, value in ipairs(values) do
+		if Table.contains(t, value) then
+			return true
+		end
+	end
+	return false
 end
 
 ---Checks if a table is empty
@@ -804,6 +833,26 @@ function Table.appendRangeReverse(t, list)
 	for i = #list, 1, -1 do
 		Table.append(t, list[i])
 	end
+end
+
+---Filters a table by predicate.
+---@param t table
+---@param predicate function
+---@param ... any
+---@return table
+function Table.filter(t, predicate, ...)
+	local n = {}
+	local add = #t > 0
+	for k, v in pairs(t) do
+		if predicate(v, k, ...) then
+			if add then
+				table.insert(n, v)
+			else
+				n[k] = v
+			end
+		end
+	end
+	return n
 end
 
 ---Gets the highest numeric index

@@ -361,6 +361,7 @@ end
 
 
 ---Adds color-setting
+---{name, color:{r,g,b,a}}
 ---@param t KuxCorelib.ColorSettingArguments
 function x:color(t)
 	self.count = self.count + 1
@@ -369,7 +370,7 @@ function x:color(t)
 		name          = getName(self, t.name or t[1]),
 		default_value = t.default_value or t[2] or error("default_value is mandatory"),
 	})
-	data:extent{d}
+	data:extend{d}
 end
 
 ---Adds color-setting (hidden constant)
@@ -384,7 +385,7 @@ function x:color_const(t)
 		default_value = value,
 		hidden = true
 	})
-	data:extent{d}
+	data:extend{d}
 end
 
 ---------------------------------------------------------------------------------------------------

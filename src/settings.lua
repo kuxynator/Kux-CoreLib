@@ -4,7 +4,7 @@
 -- 		name = "my-mod_test-setting",
 -- 		type = "bool-setting",  -- string-setting|double-setting|int-setting|color-setting",
 -- 		default_value = true,
--- 		forced_value = false, 	-- Only loaded if hidden = true. This forces the setting to be of this value. 
+-- 		forced_value = false, 	-- Only loaded if hidden = true. This forces the setting to be of this value.
 -- 		minimum_value = 0, 		-- "double,int"
 -- 		maximum_value  = 0, 	-- "double,int"
 -- 		allowed_values = {},	-- "double,int,string"

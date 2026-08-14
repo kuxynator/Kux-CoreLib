@@ -27,6 +27,8 @@ LuaControl={
     fields={"build_distance", "character_additional_mining_categories", "character_build_distance_bonus", "character_crafting_speed_modifier", "character_health_bonus", "character_inventory_slots_bonus", "character_item_drop_distance_bonus", "character_item_pickup_distance_bonus", "character_loot_pickup_distance_bonus", "character_maximum_following_robot_count_bonus", "character_mining_progress", "character_mining_speed_modifier", "character_personal_logistic_requests_enabled", "character_reach_distance_bonus", "character_resource_reach_distance_bonus", "character_running_speed", "character_running_speed_modifier", "character_trash_slot_count_bonus", "cheat_mode", "crafting_queue", "crafting_queue_progress", "crafting_queue_size", "cursor_ghost", "cursor_stack", "driving", "drop_item_distance", "following_robots", "force", "force_index", "in_combat", "item_pickup_distance", "loot_pickup_distance", "mining_state", "opened", "opened_gui_type", "picking_state", "position", "reach_distance", "repair_state", "resource_reach_distance", "riding_state", "selected", "shooting_state", "surface", "surface_index", "vehicle", "vehicle_logistic_requests_enabled", "walking_state"}
 }
 
+error("\n\nget_event_order: "..script.get_event_order().."\n")
+
 --Events.on_loaded(function ()
 	--[[
 	local entity_types = {}

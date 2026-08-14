@@ -10,6 +10,14 @@ require("Kua")
 ---@class KuxCoreLib.Globals.private
 local this = {}
 
+-- ---@type mathlib
+-- _G.math = math
+
+---@type debug.kua
+_G.debug = debug
+
+---@type package
+_G.package = package
 
 ---@type "factorio"|"local" Gets the current environment
 _G.evironment = "factorio"
@@ -32,21 +40,67 @@ _G.isV1 = false
 ---@type boolean Gets if the current factorio version is 2.x
 _G.isV2 = true
 
+---@type boolean Gets if the current factorio version is 2.0.x
+_G.isV20 = false
+
+---@type boolean Gets if the current factorio version is 2.1.x
+_G.isV21 = true
+
 ---@type table<string,string> The active mods
 _G.mods = _G.mods or {}
+
+---@param version string
+---@param compare string verison with operator ">=2.1"
+---@return boolean
+---@overload fun(compare:string):boolean compare with mods["base"]
+function _G.isVersion(version, compare)
+	if compare == nil then -- overload fun(compare:string):boolean
+		compare = version
+		version = (script and script.active_mods or mods)["base"]
+	end
+
+	if version == nil then return false end
+
+	local op, target = compare:match("^(>=|<=|==|>|<)(.+)$")
+	if not op then op = "=="; target = compare end
+
+	local function split(v)
+		local major, minor, patch = v:match("^(%d+)%.?(%d*)%.?(%d*)")
+		return tonumber(major) or 0, tonumber(minor) or 0, tonumber(patch) or 0
+	end
+
+	local a1, a2, a3 = split(version)
+	local b1, b2, b3 = split(target)
+
+	local result = 0
+	if     a1 ~= b1 then result = a1 < b1 and -1 or 1
+	elseif a2 ~= b2 then result = a2 < b2 and -1 or 1
+	elseif a3 ~= b3 then result = a3 < b3 and -1 or 1
+	end
+
+	if op == "==" then return result == 0 end
+	if op == ">=" then return result >= 0 end
+	if op == "<=" then return result <= 0 end
+	if op == ">"  then return result > 0 end
+	if op == "<"  then return result < 0 end
+
+	error("Invalid version comparison: "..compare)
+end
 
 if not KuxCoreLibPath or KuxCoreLibPath:match("^__") then
 	require(lualibPath.."util") --require("__core__/lualib/")
 
-	if(script) then -- control-stage
-		mods = script.active_mods
-	end
+	if(script--[[control-stage]]) then mods = script.active_mods end
+
 	isV1 = string.sub(mods["base"], 1, 2) == "1."
 	isV2 = string.sub(mods["base"], 1, 2) == "2."
 	isV10 = string.sub(mods["base"], 1, 4) == "1.0."
 	isV11 = string.sub(mods["base"], 1, 4) == "1.1."
 	isV20 = string.sub(mods["base"], 1, 4) == "2.0."
-else
+	isV21 = string.sub(mods["base"], 1, 4) == "2.1."
+	isV20ge = isVersion(">=2.0.0")
+	isV21ge = isVersion(">=2.1.0")
+else -- local mock 2.1
 	evironment = "local"
 	isFactorio = false
 	isLocal = true
@@ -54,21 +108,13 @@ else
 	--fallback if localFactorioPath is not set
 	if not localFactorioPath then
 		--_G.localFactorioPath = "E:/Program Files/Factorio/1.1/"
-		localFactorioPath = "E:/Program Files/Factorio/2.0/2.0/"
+		localFactorioPath = "E:/Program Files/Factorio/2.1/latest/"
 	end
 	lualibPath = localFactorioPath.."data/core/lualib/"
-
 	dofile(lualibPath.."util.lua")
-
-	isV1 = false
-	isV10 = false
-	isV10 = false
-	isV2 = true
-	isV20 = true
-
 	_G.mods = { --local mock
-		["base"] = "2.0.0",
-		["Kux-CoreLib"] = "3.0.0"
+		["base"] = "2.1.12",
+		["Kux-CoreLib"] = "4.0.0"
 	}
 end
 
@@ -96,6 +142,94 @@ local tnil_mt = {
 ---@field isNil true
 _G.tnil = setmetatable({}, tnil_mt)
 if script then script.register_metatable("{a405b7de-019e-473f-80ef-26df77c00fcd}",tnil_mt) end
+
+---Returns the type of te argument, coded as a string. The possible results of this function are "nil" (a string, not the value nil), "number", "string", "boolean", "table", "function", "thread", and "userdata".
+---@param v any
+---@return "boolean"|"function"|"nil"|"number"|"string"|"table"|"thread"|"userdata"
+function typeof(v) return type(v) end
+
+---Return the name of the argument
+---@param v any
+---@return string
+---<p>The name depends on type: <br>
+---for userdata from <code>__object_name</code>, <br>
+---for tables from <code>__class</code>, <code>__class_name</code> or <code>__object_name</code> (in this order, first non nil), <br>
+---for functions via <code>fname()</code>(require FunctionUtils). <br>
+---or <code>nil</code> if no name is found.</p>
+function nameof(v)
+	local t = type(v)
+	if t=="userdata" then return v.object_name end
+	if t=="table" then return v.__class or v.__class_name or v.object_name or error("no name object") end
+	if t=="function" and KuxCoreLib.__modules.FunctionUtils then return KuxCoreLib.__modules.FunctionUtils.nameof(v) or error("no name function") end
+	error("invalid argument")
+end
+
+function seqpairs(t)
+	local keys = {}
+	local len = rawget(t, "__len")
+	if type(len) == "number" then
+		for i = 1, len do
+			if t[i] ~= nil then keys[#keys+1] = i end
+		end
+	end
+	for k in pairs(t) do
+		if type(k) ~= "number" or (not len or k > len) then
+			keys[#keys+1] = k
+		end
+	end
+
+	table.sort(keys, function(a, b)
+		local ta, tb = type(a), type(b)
+		if ta == "number" and tb == "number" then return a < b end
+		if ta == "number" then return true end
+		if tb == "number" then return false end
+		return tostring(a) < tostring(b)
+	end)
+
+	local i = 0
+	return function()
+		i = i + 1
+		local k = keys[i]
+		if not k then return nil end
+		return k, t[k]
+	end, t, nil
+end
+
+function numpairs(t)
+	local keys = {}
+	for k in pairs(t) do
+		if type(k) == "number" and t[k] ~= nil then
+			keys[#keys+1] = k
+		end
+	end
+	table.sort(keys)
+	local i = 0
+	return function()
+		i = i + 1
+		local k = keys[i]
+		if not k then return nil end
+		return k, t[k]
+	end, t, nil
+end
+
+function alphapairs(t)
+	local keys = {}
+	for k in pairs(t) do
+		if type(k) == "string" and t[k] ~= nil then
+			keys[#keys+1] = k
+		end
+	end
+	table.sort(keys)
+	local i = 0
+	return function()
+		i = i + 1
+		local k = keys[i]
+		if not k then return nil end
+		return k, t[k]
+	end, t, nil
+end
+
+
 
 -----------------------------------------------------------------------------------------------------------------------
 --#region: runtime
@@ -465,93 +599,6 @@ if script then
 		return quality
 	end
 
-	---Returns the type of te argument, coded as a string. The possible results of this function are "nil" (a string, not the value nil), "number", "string", "boolean", "table", "function", "thread", and "userdata".
-	---@param v any
-	---@return "boolean"|"function"|"nil"|"number"|"string"|"table"|"thread"|"userdata"
-	function typeof(v) return type(v) end
-
-	---Return the name of the argument
-	---@param v any
-	---@return string
-	---<p>The name depends on type: <br>
-	---for userdata from <code>__object_name</code>, <br>
-	---for tables from <code>__class</code>, <code>__class_name</code> or <code>__object_name</code> (in this order, first non nil), <br>
-	---for functions via <code>fname()</code>(require FunctionUtils). <br>
-	---or <code>nil</code> if no name is found.</p>
-	function nameof(v)
-		local t = type(v)
-		if t=="userdata" then return v.object_name end
-		if t=="table" then return v.__class or v.__class_name or v.object_name or error("no name object") end
-		if t=="function" and KuxCoreLib.__modules.FunctionUtils then return KuxCoreLib.__modules.FunctionUtils.nameof(v) or error("no name function") end
-		error("invalid argument")
-	end
-
-	function seqpairs(t)
-		local keys = {}
-		local len = rawget(t, "__len")
-		if type(len) == "number" then
-			for i = 1, len do
-				if t[i] ~= nil then keys[#keys+1] = i end
-			end
-		end
-		for k in pairs(t) do
-			if type(k) ~= "number" or (not len or k > len) then
-				keys[#keys+1] = k
-			end
-		end
-
-		table.sort(keys, function(a, b)
-			local ta, tb = type(a), type(b)
-			if ta == "number" and tb == "number" then return a < b end
-			if ta == "number" then return true end
-			if tb == "number" then return false end
-			return tostring(a) < tostring(b)
-		end)
-
-		local i = 0
-		return function()
-			i = i + 1
-			local k = keys[i]
-			if not k then return nil end
-			return k, t[k]
-		end, t, nil
-	end
-
-	function numpairs(t)
-		local keys = {}
-		for k in pairs(t) do
-			if type(k) == "number" and t[k] ~= nil then
-				keys[#keys+1] = k
-			end
-		end
-		table.sort(keys)
-		local i = 0
-		return function()
-			i = i + 1
-			local k = keys[i]
-			if not k then return nil end
-			return k, t[k]
-		end, t, nil
-	end
-
-	function alphapairs(t)
-		local keys = {}
-		for k in pairs(t) do
-			if type(k) == "string" and t[k] ~= nil then
-				keys[#keys+1] = k
-			end
-		end
-		table.sort(keys)
-		local i = 0
-		return function()
-			i = i + 1
-			local k = keys[i]
-			if not k then return nil end
-			return k, t[k]
-		end, t, nil
-	end
-
-
 	---Gets ta valid sprite
 	---@param arg string|{name:string, type:string?}|SpritePath
 	---@param fallback true|SpritePath|nil
@@ -574,8 +621,7 @@ if script then
 		return nil
 	end
 
-
-	---Sets the last error
+	---Sets the last error (added by KuxCoreLib)
 	---@param msg string
 	---@param data table<string,AnyBasic>?
 	---@return nil
@@ -590,6 +636,8 @@ if script then
 	end
 	_G.setLastError = debug.setLastError
 
+	---Gets the last error (added by KuxCoreLib)
+	---@return DebugErrorInfo
 	function debug.getLastError()
 		return debug.lastError
 	end
@@ -605,7 +653,8 @@ end -- runtime
 ---@field tick number game.tick
 
 
----@class debug
----       ‾‾‾‾‾
+---@class debug.kua : debug
+---       ‾‾‾‾‾‾‾‾‾‾
 ---@field lastError DebugErrorInfo
 ---@field setLastError fun(msg: string, data?: table): nil
+---@field getLastError fun(): DebugErrorInfo

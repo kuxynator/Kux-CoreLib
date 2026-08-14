@@ -1,4 +1,20 @@
 ---------------------------------------------------------------------------------------------------
+Version: 4.17.10
+Date: 2026-08-14
+  Changes:
+    - Adapted to the new `require` behavior
+    - Made TranslationService more stable against desyncs
+  Features:
+    - Added global isV20ge isV21 isV21ge flag
+    - Added StorageNamespace WIP
+    - Added isVersion
+    - Added static code for Vector
+    - Added some blueprint code
+  Bugfixes:
+    - Fixes in ModInfo, FactorioDatabase
+    - fix some desync reasons
+    - fix some issues due Factorio-API changes
+---------------------------------------------------------------------------------------------------
 Version: 4.17.9 WIP
 Date: 2026-07-26
   Info:
